@@ -44,8 +44,8 @@ const prompt = ai.definePrompt({
 You will analyze the given code snippet for potential bugs, security vulnerabilities, and performance bottlenecks.
 
 Language: {{{language}}}
-Code:
-\`\`\`{{{code}}}\`\`\`
+Code to analyze:
+{{{code}}}
 
 Provide a detailed analysis including complexity, bugs, vulnerabilities, and suggested fixes.
 `,

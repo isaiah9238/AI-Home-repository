@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview A flow that uses Link Genie to summarize fetched content.
  *

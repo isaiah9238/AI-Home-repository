@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview A flow to filter user input for inappropriate language.
  *

@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview Integrates user-provided lesson plans to guide the AI's learning.
  *

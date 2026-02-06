@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * @fileOverview A flow to generate initial files and folder structure for a new AI project.
  *

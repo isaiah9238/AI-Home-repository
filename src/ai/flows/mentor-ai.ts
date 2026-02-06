@@ -1,5 +1,3 @@
-'use server';
-
 import { z } from 'genkit';
 // @ts-ignore
 import { ai } from '@/ai/genkit';

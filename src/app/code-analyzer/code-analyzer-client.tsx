@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,7 +52,7 @@ function SubmitButton() {
 export function CodeAnalyzerClient() {
   const { toast } = useToast();
   const initialState: CodeAnalysisState = { message: null, errors: {}, data: null };
-  const [state, dispatch] = useFormState(performCodeAnalysis, initialState);
+  const [state, dispatch] = useActionState(performCodeAnalysis, initialState);
 
   useEffect(() => {
     if (state.message && state.message !== 'Validation failed. Please check your input.' && state.message !== 'Analysis successful.') {

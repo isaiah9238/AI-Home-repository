@@ -2,7 +2,14 @@
 
 import { z } from 'zod';
 import { analyzeCodeSnippet } from '@/ai/flows/analyze-code-snippet';
+import { establishHomeBase } from '@/ai/flows/establish-home-base';
+import { filterAIOutput } from '@/ai/flows/filter-ai-output';
 import { filterUserInput } from '@/ai/flows/filter-user-input';
+import { generateInitialFiles } from '@/ai/flows/generate-initial-files';
+import { integrateLessonPlans } from '@/ai/flows/integrate-lesson-plans';
+import { linkGenie } from '@/ai/flows/link-genie';
+import { mentorAiFlow } from '@/ai/flows/mentor-ai';
+import { summarizeFetchedContent } from '@/ai/flows/summarize-fetched-content';
 
 const CodeAnalysisSchema = z.object({
   code: z
@@ -66,5 +73,27 @@ export async function performCodeAnalysis(
   } catch (error) {
     console.error('Code analysis error:', error);
     return { message: 'An unexpected error occurred during analysis.', data: null, errors: {} };
+  }
+}
+
+// --- 1. Link Genie Action ---
+export async function performLinkSearch(prevState: any, formData: FormData) {
+  const query = formData.get('query') as string;
+  try {
+    const result = await linkGenie(query);
+    return { message: 'Search successful', data: result };
+  } catch (error) {
+    return { message: 'Search failed', data: null };
+  }
+}
+
+// --- 2. Mentor AI Action ---
+export async function getMentorResponse(prevState: any, formData: FormData) {
+  const request = formData.get('request') as string;
+  try {
+    const result = await mentorAiFlow({ request });
+    return { response: result.response };
+  } catch (error) {
+    return { response: 'Error fetching mentor advice.' };
   }
 }

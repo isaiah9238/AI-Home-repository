@@ -1,57 +1,35 @@
 'use server';
 
-/**
- * @fileOverview Implements the MentorAI flow for providing guidance to an AI based on global guidelines.
- *
- * @exports {
- *   mentorAi,
- *   MentorAiInput,
- *   MentorAiOutput,
- * } - Named exports for the mentorAi function, its input type, and its output type.
- */
+import { z } from 'genkit';
+// @ts-ignore
+import { ai } from '@/ai/genkit';
+import { getUserProfile } from '@/lib/firebase';
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const MentorAiInputSchema = z.object({
-  aiContext: z.string().describe('The current context of the AI, including recent interactions and learning goals.'),
-  globalGuidelines: z.string().describe('Global guidelines for the AI to follow.'),
-});
-export type MentorAiInput = z.infer<typeof MentorAiInputSchema>;
-
-const MentorAiOutputSchema = z.object({
-  mentorshipGuidance: z.string().describe('Guidance and advice from the experienced AI mentor.'),
-});
-export type MentorAiOutput = z.infer<typeof MentorAiOutputSchema>;
-
-const mentorAiPrompt = ai.definePrompt({
-  name: 'mentorAiPrompt',
-  input: {schema: MentorAiInputSchema},
-  output: {schema: MentorAiOutputSchema},
-  prompt: `You are an experienced AI mentor, providing guidance to a younger AI.
-
-  Here are the global guidelines the AI should follow:
-  {{globalGuidelines}}
-
-  Here is the current context of the AI, including recent interactions and learning goals:
-  {{aiContext}}
-
-  Based on these guidelines and the AI's context, provide specific and actionable mentorship guidance to help the AI learn best practices and avoid common pitfalls. Focus on ethical considerations, safety, and alignment with the global guidelines.
-  `,
-});
-
-const mentorAiFlow = ai.defineFlow(
+export const mentorAiFlow = ai.defineFlow(
   {
-    name: 'mentorAiFlow',
-    inputSchema: MentorAiInputSchema,
-    outputSchema: MentorAiOutputSchema,
+    name: 'mentorAi',
+    inputSchema: z.object({ request: z.string() }),
+    outputSchema: z.object({ response: z.string() }),
   },
-  async input => {
-    const {output} = await mentorAiPrompt(input);
-    return output!;
+  async (input) => {
+    // 1. Fetch your permanent memory
+    const profile = await getUserProfile();
+    const userName = profile?.name || "Isaiah";
+    const interests = profile?.interests?.join(', ') || "Web Development";
+
+    // 2. Give the Mentor the context
+    const prompt = `
+      You are the Mentor AI for ${userName}. 
+      ${userName} is interested in: ${interests}.
+      Your job is to support the development of the 'AI Home' system and provide clear guidance.
+      User Request: ${input.request}
+    `;
+
+    const { text } = await ai.generate({
+      prompt: prompt,
+      // The engine is already tuned to 2.5-flash in genkit.ts!
+    });
+
+    return { response: text };
   }
 );
-
-export async function mentorAi(input: MentorAiInput): Promise<MentorAiOutput> {
-  return mentorAiFlow(input);
-}

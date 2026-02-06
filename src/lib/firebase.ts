@@ -13,3 +13,15 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern to prevent multiple instances)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+
+import { doc, getDoc } from 'firebase/firestore';
+
+export async function getUserProfile() {
+  const userRef = doc(db, 'users', 'primary_user');
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data();
+  }
+  return null;
+}

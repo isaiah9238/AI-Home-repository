@@ -9,3 +9,4 @@ import '@/ai/flows/mentor-ai.ts';
 import '@/ai/flows/summarize-fetched-content.ts';
 import '@/ai/flows/integrate-lesson-plans.ts';
 import '@/ai/flows/filter-user-input.ts';
+import '@/ai/flows/establish-home-base.ts'

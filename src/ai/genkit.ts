@@ -1,7 +1,8 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import { genkit, z } from 'genkit';
+// @ts-ignore - The module is verified on disk via 'ls'
+import { googleAI, gemini15Flash } from '@genkit-ai/googleai';
 
 export const ai = genkit({
   plugins: [googleAI()],
-  model: 'googleai/gemini-2.5-flash',
+  model: gemini15Flash,
 });

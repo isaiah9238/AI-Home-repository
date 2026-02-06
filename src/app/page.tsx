@@ -1,10 +1,10 @@
-
+import { getMorningBriefing, getUserInterests } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tag } from "@/components/ui/tag"; 
+import { Tag } from "@/components/ui/tag";
 
 export default async function Dashboard() {
-  const morningBriefing = "Your application is temporarily running in a safe mode. Please use the file editor on the left to open the `.env` file and add your valid `GEMINI_API_KEY`. Let me know once you have saved the file.";
-  const userInterests = ["Web Development", "Land Surveying", "Card Collecting", "ASL"];
+  const morningBriefing = await getMorningBriefing();
+  const userInterests = await getUserInterests();
 
   return (
     <div className="flex h-screen bg-gray-900 text-white font-sans">

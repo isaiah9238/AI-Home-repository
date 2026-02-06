@@ -1,15 +1,15 @@
 'use server';
 
 import { z } from 'zod';
-import { analyzeCodeSnippet } from '@/ai/flows/analyze-code-snippet';
-import { establishHomeBase } from '@/ai/flows/establish-home-base';
-import { filterAIOutput } from '@/ai/flows/filter-ai-output';
-import { filterUserInput } from '@/ai/flows/filter-user-input';
-import { generateInitialFiles } from '@/ai/flows/generate-initial-files';
-import { integrateLessonPlans } from '@/ai/flows/integrate-lesson-plans';
-import { linkGenie } from '@/ai/flows/link-genie';
-import { mentorAiFlow } from '@/ai/flows/mentor-ai';
-import { summarizeFetchedContent } from '@/ai/flows/summarize-fetched-content';
+import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
+import { establishHomeBase } from '@/ai/discovery/establish-home-base';
+import { filterAIOutput } from '@/ai/domains/surveying/filter-ai-output';
+import { filterUserInput } from '@/ai/domains/surveying/filter-user-input';
+import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
+import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
+import { linkGenie } from '@/ai/discovery/link-genie';
+import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
+import { summarizeFetchedContent } from '@/ai/domains/research/summarize-fetched-content';
 
 const CodeAnalysisSchema = z.object({
   code: z

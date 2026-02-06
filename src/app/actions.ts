@@ -1,7 +1,7 @@
 
 "use server";
 
-import { mentorAiFlow } from "@/ai/flows/mentor-ai";
+import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
 import { getUserProfile } from "@/lib/firebase";
 
 export async function getMorningBriefing() {

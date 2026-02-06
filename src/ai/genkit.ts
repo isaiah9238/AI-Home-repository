@@ -1,8 +1,11 @@
-import { genkit, z } from 'genkit';
-// @ts-ignore - The module is verified on disk via 'ls'
-import { googleAI, gemini15Flash } from '@genkit-ai/googleai';
+'use server';
+
+import { googleAI } from '@genkit-ai/google-genai'; // Updated plugin
+import { genkit } from 'genkit';
 
 export const ai = genkit({
-  plugins: [googleAI()],
-    model: gemini15Flash,
-    });
+  plugins: [
+    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })
+  ],
+  model: 'googleai/gemini-1.5-flash-latest', // The 'latest' tag you suggested
+});

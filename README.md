@@ -81,4 +81,4 @@ Here's a high-level overview of the key files and folders:
 -   `src/components/`: Shared React components, especially the UI components from ShadCN.
 -   `.env`: Stores your secret API keys. This file is not committed to version control.
 
-updated
+updated today

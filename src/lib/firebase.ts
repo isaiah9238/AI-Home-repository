@@ -19,7 +19,7 @@ const ai = getAI(app, {
   backend: new GoogleAIBackend() 
 });
 
-const model = getGenerativeModel(ai, { 
+export const model = getGenerativeModel(ai, { 
   model: "gemini-2.5-flash" 
 });
 

@@ -1,5 +1,5 @@
 'use client';
-import { model } from '@/firebase'; // Import the model we just exported
+import { model } from "@/lib/firebase";
 import { useState } from 'react';
 
 export default function TestAIPage() {

@@ -80,3 +80,5 @@ Here's a high-level overview of the key files and folders:
     -   `src/app/[feature]/page.tsx`: Individual pages for each feature (e.g., Code Analyzer).
 -   `src/components/`: Shared React components, especially the UI components from ShadCN.
 -   `.env`: Stores your secret API keys. This file is not committed to version control.
+
+updated

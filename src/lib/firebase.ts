@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +14,14 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern to prevent multiple instances)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+
+const ai = getAI(app, { 
+  backend: new GoogleAIBackend() 
+});
+
+const model = getGenerativeModel(ai, { 
+  model: "gemini-2.5-flash" 
+});
 
 import { doc, getDoc } from 'firebase/firestore';
 

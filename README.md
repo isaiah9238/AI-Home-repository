@@ -1,46 +1,82 @@
-# AI Home
+# AI Home 🚀
 
-Welcome to AI Home, your personal space for building and interacting with a custom-trained Generative AI. This project provides a suite of tools to guide your AI's learning, analyze code, and moderate content.
+Welcome to AI Home, your personal development environment for creating, training, and interacting with a bespoke Generative AI. This project is designed to be your launchpad into the world of AI-powered applications, providing a suite of tools to build and manage your AI's capabilities.
 
-Your journey to building a Generative AI starts here. Explore the tools below to begin.
+## Project Philosophy
+
+The core idea behind AI Home is to create a transparent and educational space for building with generative AI. It's a hands-on learning tool where you can:
+
+-   **Build Incrementally:** Start with a basic structure and add complexity feature by feature.
+-   **Understand the Pieces:** See how a frontend (Next.js), AI toolkit (Genkit), and UI components (ShadCN) work together.
+-   **Interact Directly:** Use the tools you build to understand the capabilities and limitations of your AI.
 
 ## Features
 
-This application includes the following features:
+This application includes the following features. We'll be building these out together!
 
-- **Code Analyzer**: Analyze code snippets for bugs, vulnerabilities, and performance bottlenecks.
-- **Link Genie**: Fetch and summarize content from any URL. (Coming Soon)
-- **Lesson Plans**: Provide structured lesson plans to guide your AI's learning journey. (Coming Soon)
-- **AI Mentor**: Receive guidance and advice from an experienced AI mentor. (Coming Soon)
-- **Content Reports**: Review and manage content flagged by the AI moderation system.
+-   **Dashboard**: A central hub that provides a "morning briefing" from your AI, tailored to your interests.
+-   **Code Analyzer**: Analyze code snippets for bugs, vulnerabilities, and performance bottlenecks.
+-   **Content Reports**: Review and manage content flagged by the AI moderation system.
+-   **Link Genie**: *(Coming Soon)* Fetch and summarize content from any URL.
+-   **Lesson Plans**: *(Coming Soon)* Provide structured lesson plans to guide your AI's learning journey.
+-   **AI Mentor**: *(Coming Soon)* Receive guidance and advice from an experienced AI mentor.
+
+## Tech Stack
+
+-   **Framework**: [Next.js](https://nextjs.org/) (with App Router)
+-   **AI Toolkit**: [Genkit](https://firebase.google.com/docs/genkit)
+-   **UI**: [React](https://react.dev/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **Component Library**: [ShadCN UI](https://ui.shadcn.com/)
+-   **Database**: [Firestore](https://firebase.google.com/docs/firestore) (for user profile data)
 
 ## Getting Started
 
-This is a Next.js project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Follow these steps to get your local development environment up and running.
 
-### Running the Development Server
+### 1. Prerequisites
 
-First, install the dependencies:
+Make sure you have [Node.js](https://nodejs.org/en) (version 18 or higher) installed on your system.
+
+### 2. Install Dependencies
+
+Clone the repository and install the necessary packages using npm:
 
 ```bash
 npm install
 ```
 
-Then, run the development server:
+### 3. Set Up Environment Variables
+
+This project requires an API key to connect to the Google Gemini service.
+
+1.  Create a new file named `.env` in the root of the project if it doesn't already exist.
+2.  Add your Gemini API key to the file:
+
+    ```env
+    GEMINI_API_KEY="YOUR_API_KEY_HERE"
+    ```
+
+### 4. Run the Development Server
+
+Start the Next.js development server:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:9003](http://localhost:9003) with your browser to see the result.
+Open the local URL provided in your terminal (e.g., http://localhost:9004) with your browser to see the result.
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-## Learn More
+Here's a high-level overview of the key files and folders:
 
-To learn more about the technologies used in this project, see the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [React Documentation](https://react.dev/) - learn about React.
-- [Genkit Documentation](https://firebase.google.com/docs/genkit) - learn about Genkit for building AI-powered features.
-- [ShadCN UI](https://ui.shadcn.com/) - the component library used for the user interface.
+-   `src/ai/`: The engine room. This is where the core AI logic resides.
+    -   `src/ai/genkit.ts`: Configures Genkit and connects it to the Gemini model.
+    -   `src/ai/flows/`: Contains the specific AI workflows, like analyzing code or providing mentorship.
+-   `src/app/`: The frontend. This folder controls what you see on the screen.
+    -   `src/app/page.tsx`: The main dashboard page.
+    -   `src/app/layout.tsx`: The main layout component that wraps all pages.
+    -   `src/app/[feature]/page.tsx`: Individual pages for each feature (e.g., Code Analyzer).
+-   `src/components/`: Shared React components, especially the UI components from ShadCN.
+-   `.env`: Stores your secret API keys. This file is not committed to version control.

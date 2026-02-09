@@ -1,22 +1,43 @@
 rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      // Allow public read access to user profiles.
-      allow read: if true;
-      // Disallow writes from the client for now.
-      allow write: if false;
+    // Helper: Check if user is logged in (if you use Firebase Auth)
+    function isSignedIn() {
+      return request.auth != null;
     }
-  }
-}
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allows anyone to read/write while you are prototyping
-    // IMPORTANT: Change this before you go live!
-    match /{document=**} {
-      allow read, write: if true;
+
+    // LOOPS: Allow anyone to read, but only let authenticated users write/delete
+    match /loops/{loopId} {
+      allow read: if true;
+      allow write: if isSignedIn(); 
+      
+      // Lines subcollection
+      match /lines/{lineId} {
+        allow read: if true;
+        allow write: if isSignedIn();
+      }
+    }
+    
+    // COMMENTS: Public can create, but let's prevent "Update" and "Delete"
+    match /comments/{commentId} {
+      allow get, list: if true;
+      allow create: if true; 
+      allow update, delete: if false; // Truly immutable
+    }
+
+    // DERIVATIVES: Write-only for history. 
+    // Added a check to ensure the document being created isn't massive.
+    match /derivatives/{derivativeId} {
+      allow create: if request.resource.size < 5 * 1024; // Limit to 5KB to prevent bloat
+      allow read, update, delete: if false;
+    }
+
+    // WORKSPACES: Keep public for now if you haven't set up Auth, 
+    // but at least prevent deletion by strangers.
+    match /workspaces/{workspaceId} {
+      allow read, create: if true;
+      allow update, delete: if isSignedIn();
     }
   }
 }

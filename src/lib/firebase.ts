@@ -35,4 +35,16 @@ if (typeof window !== 'undefined') {
 
 // 2. Initialize AI Logic (the new 'ai' instead of 'vertexAI')
 const ai = getAI(app);
-export const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+
+// 1. CHAT (The one your current AIChat component expects)
+export const chatModel = getGenerativeModel(ai, { model: "gemini-1.5-flash" });
+
+// 2. MATH (High intelligence for ArithmaGen)
+export const mathModel = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+
+// 3. CODE (Specific for your coding/debugging tasks)
+export const codeModel = getGenerativeModel(ai, { model: "gemini-2.5-pro" });
+
+// 4. ALIAS: This keeps your current code working!
+// It just points 'model' to the 'chatModel'.
+export const model = chatModel;

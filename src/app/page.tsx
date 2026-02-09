@@ -1,19 +1,53 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { getMorningBriefing, getUserInterests } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function Dashboard() {
-  const morningBriefing = await getMorningBriefing();
-  const userInterests = await getUserInterests();
+export default function Dashboard() {
+  const [morningBriefing, setMorningBriefing] = useState<string | null>(null);
+  const [userInterests, setUserInterests] = useState<string[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [briefing, interests] = await Promise.all([
+          getMorningBriefing(),
+          getUserInterests(),
+        ]);
+        setMorningBriefing(briefing);
+        setUserInterests(interests);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+        setMorningBriefing("Error: Could not load morning briefing.");
+        setUserInterests([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-900 text-white font-sans">
       <aside className="w-64 p-6 bg-gray-800 border-r border-gray-700">
         <h2 className="text-2xl font-bold mb-6 font-headline">Interests</h2>
         <div className="flex flex-wrap gap-3">
-          {userInterests.map((interest) => (
-            <Tag key={interest} text={interest} />
-          ))}
+          {loading || userInterests === null ? (
+            <>
+              <Skeleton className="h-6 w-24 rounded-full" />
+              <Skeleton className="h-6 w-32 rounded-full" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </>
+          ) : (
+            userInterests.map((interest) => (
+              <Tag key={interest} text={interest} />
+            ))
+          )}
         </div>
       </aside>
       <main className="flex-1 p-8">
@@ -28,9 +62,13 @@ export default async function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <pre className="whitespace-pre-wrap font-mono text-sm text-green-300">
-                $ {morningBriefing}
-              </pre>
+              {loading || morningBriefing === null ? (
+                <Skeleton className="h-20 w-full" />
+              ) : (
+                <pre className="whitespace-pre-wrap font-mono text-sm text-green-300">
+                  $ {morningBriefing}
+                </pre>
+              )}
             </CardContent>
           </Card>
         </section>

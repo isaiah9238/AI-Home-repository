@@ -1,0 +1,26 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper: Check if the user is logged in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // PUBLIC ASSETS: Everyone can read, only you can write
+    match /assets/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // USER DATA: Users can only touch their own folder
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // DEFAULT: Lock everything else down
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

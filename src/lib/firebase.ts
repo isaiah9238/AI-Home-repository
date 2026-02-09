@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,6 +20,14 @@ export const db = getFirestore(app);
 const ai = getAI(app, { 
   backend: new GoogleAIBackend() 
 });
+
+// Initialize App Check for the browser
+if (typeof window !== 'undefined') {
+    initializeAppCheck (app, {
+    provider: new ReCaptchaV3Provider (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 export const model = getGenerativeModel(ai, { 
   model: "gemini-2.5-flash" 

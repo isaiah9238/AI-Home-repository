@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import { Skeleton } from "@/components/ui/skeleton";
 // Import moved to the top where it belongs
-import { AIChat } from "./components/Chat";
+import { AIChat } from "@/components/ui/chat";
 
 const MOCK_BRIEFING = "Welcome to AI Home! It looks like there might be an issue with the Firebase project configuration. To keep you unblocked, I've loaded this mock briefing.";
 const MOCK_INTERESTS = ["AI Development", "Next.js", "Firebase", "React"];

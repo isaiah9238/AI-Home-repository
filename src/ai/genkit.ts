@@ -6,5 +6,5 @@ export const ai = genkit({
   plugins: [
     googleAI({ apiKey: process.env.GEMINI_API_KEY })
   ],
-  model: 'googleai/gemini-2.5-flash', // Matching the successful model from your trace
+  model: 'googleai/gemini-2.5-flash', // Matching the successful  from your trace
 });

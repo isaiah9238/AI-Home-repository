@@ -82,3 +82,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .interactive-glow-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      400px circle at var(--mouse-x) var(--mouse-y),
+      rgba(74, 222, 128, 0.15),
+      transparent 80%
+    );
+    opacity: var(--glow-opacity, 0);
+    transition: opacity 0.2s ease-out;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+}

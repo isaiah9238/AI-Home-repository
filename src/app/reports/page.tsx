@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 type Report = {
   id: string;
@@ -88,7 +89,7 @@ export default function ReportsPage() {
           Review and manage all content flagged by the AI moderation system.
         </p>
       </div>
-      <div className="border rounded-lg">
+      <Card>
         <Table>
           <TableHeader>
             <TableRow>
@@ -119,7 +120,7 @@ export default function ReportsPage() {
             ))}
           </TableBody>
         </Table>
-      </div>
+      </Card>
     </div>
   );
 }

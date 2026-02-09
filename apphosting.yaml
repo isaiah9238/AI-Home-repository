@@ -1,10 +1,5 @@
-# Settings to manage and configure a Firebase App Hosting backend.
-# https://firebase.google.com/docs/app-hosting/configure
+# apphosting.yaml
+runtime: nodejs20 # Or 22 if you prefer
 
-runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
-env:
-  - variable: GEMINI_API_KEY
-    secret: GEMINI_API_KEY
+# You can likely REMOVE the secrets section if it was just for the Gemini Key
+# because Vertex AI for Firebase uses IAM permissions instead.

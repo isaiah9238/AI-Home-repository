@@ -12,15 +12,17 @@
     }
   },
   "firestore": {
-    "database": "(default)",
-    "location": "us-east4",
     "rules": "firestore.rules",
     "indexes": "firestore.index.json"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "emulators": {
-    "auth": {
-      "port": 9099
-    },
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "storage": { "port": 9199 },
+    "functions": { "port": 5001 },
     "ui": {
       "enabled": true,
       "port": 4000

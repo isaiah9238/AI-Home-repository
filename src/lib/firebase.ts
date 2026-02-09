@@ -41,23 +41,7 @@ export const model = getGenerativeModel(ai, {
 
 
 export async function getUserProfile() {
-  const userRef = doc(db, 'users', 'primary_user');
-  try {
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      return userSnap.data();
-    }
-    return null;
-  } catch (error) {
-    // Check if the error is a permission error and wrap it in our custom error.
-    if (error instanceof Error && error.message.includes('permission')) {
-       throw new FirestorePermissionError({
-        path: userRef.path,
-        operation: 'get',
-      });
-    }
-    // Re-throw other types of errors
-    throw error;
-  }
+  // This is mocked for now to prevent startup errors.
+  // We will remove this once the Firebase project config is sorted out.
+  return null;
 }

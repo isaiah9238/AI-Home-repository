@@ -27,13 +27,13 @@ const ai = getAI(app, {
   backend: new GoogleAIBackend() 
 });
 
-// Initialize App Check for the browser
-if (typeof window !== 'undefined') {
-    initializeAppCheck (app, {
-    provider: new ReCaptchaV3Provider (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
-    isTokenAutoRefreshEnabled: true,
-  });
-}
+// Temporarily disabled for debugging App Check issues
+// if (typeof window !== 'undefined') {
+//     initializeAppCheck (app, {
+//     provider: new ReCaptchaV3Provider (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
+//     isTokenAutoRefreshEnabled: true,
+//   });
+// }
 
 export const model = getGenerativeModel(ai, { 
   model: "gemini-2.5-flash" 

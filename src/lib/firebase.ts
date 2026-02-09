@@ -1,9 +1,10 @@
+
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { getAuth, connectAuthEmulator, } from 'firebase/auth';
-import { connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 // Your web app's Firebase configuration}
 
@@ -22,14 +23,6 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-// --- THE EMULATOR SWITCH ---
-// This checks if you are running locally (localhost)
-if (process.env.NODE_ENV === 'development') {
-  // Use the port you configured (usually 9099 for Auth)
-  connectAuthEmulator(auth, "http://127.0.0.1:9099");
-  connectFirestoreEmulator(db, '127.0.0.1', 8080);
-}
-
 const ai = getAI(app, { 
   backend: new GoogleAIBackend() 
 });
@@ -46,14 +39,25 @@ export const model = getGenerativeModel(ai, {
   model: "gemini-2.5-flash" 
 });
 
-import { doc, getDoc } from 'firebase/firestore';
 
 export async function getUserProfile() {
   const userRef = doc(db, 'users', 'primary_user');
-  const userSnap = await getDoc(userRef);
+  try {
+    const userSnap = await getDoc(userRef);
 
-  if (userSnap.exists()) {
-    return userSnap.data();
+    if (userSnap.exists()) {
+      return userSnap.data();
+    }
+    return null;
+  } catch (error) {
+    // Check if the error is a permission error and wrap it in our custom error.
+    if (error instanceof Error && error.message.includes('permission')) {
+       throw new FirestorePermissionError({
+        path: userRef.path,
+        operation: 'get',
+      });
+    }
+    // Re-throw other types of errors
+    throw error;
   }
-  return null;
 }

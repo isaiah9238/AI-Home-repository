@@ -2,7 +2,10 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { getAuth, connectAuthEmulator, connectFirestoreEmulator } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, } from 'firebase/auth';
+import { connectFirestoreEmulator } from 'firebase/firestore';
+
+// Your web app's Firebase configuration}
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,7 +20,7 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern to prevent multiple instances)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const auth = getAuth(app); // Initialize Auth
+export const auth = getAuth(app);
 
 // --- THE EMULATOR SWITCH ---
 // This checks if you are running locally (localhost)

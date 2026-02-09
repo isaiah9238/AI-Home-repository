@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getAuth, connectAuthEmulator, connectFirestoreEmulator } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,6 +17,15 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern to prevent multiple instances)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app); // Initialize Auth
+
+// --- THE EMULATOR SWITCH ---
+// This checks if you are running locally (localhost)
+if (process.env.NODE_ENV === 'development') {
+  // Use the port you configured (usually 9099 for Auth)
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}
 
 const ai = getAI(app, { 
   backend: new GoogleAIBackend() 

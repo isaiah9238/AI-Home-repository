@@ -10,3 +10,13 @@ service cloud.firestore {
     }
   }
 }
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allows anyone to read/write while you are prototyping
+    // IMPORTANT: Change this before you go live!
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

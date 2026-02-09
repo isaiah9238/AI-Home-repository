@@ -1,20 +1,28 @@
 import { z } from 'genkit';
 // @ts-ignore
 import { ai } from '@/ai/genkit';
-import { getUserProfile } from '@/lib/firebase'; // The helper we just made
+
+const MentorAiInputSchema = z.object({
+  request: z.string(),
+  userProfile: z.object({
+    name: z.string(),
+    interests: z.array(z.string()),
+  }).optional(),
+});
+
 
 export const mentorAiFlow = ai.defineFlow(
   {
     name: 'mentorAi',
-    inputSchema: z.object({ request: z.string() }),
+    inputSchema: MentorAiInputSchema,
     outputSchema: z.object({ 
       response: z.string(),
       contextUsed: z.boolean() 
     }),
   },
   async (input) => {
-    // 1. Grab your profile from Firestore
-    const profile = await getUserProfile();
+    // 1. Use the passed-in profile
+    const profile = input.userProfile;
     
     // 2. Build the context dynamically
     const aiContext = profile 

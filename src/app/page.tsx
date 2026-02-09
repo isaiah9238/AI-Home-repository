@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getMorningBriefing, getUserInterests } from "@/app/actions";
+import { getMorningBriefing } from "@/app/actions";
+import { getUserProfile } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { DocumentData } from "firebase/firestore";
 
 export default function Dashboard() {
   const [morningBriefing, setMorningBriefing] = useState<string | null>(null);
@@ -14,12 +16,13 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [briefing, interests] = await Promise.all([
-          getMorningBriefing(),
-          getUserInterests(),
-        ]);
+        const profile: DocumentData | null = await getUserProfile();
+        
+        setUserInterests(profile?.interests || []);
+
+        const briefing = await getMorningBriefing(profile);
         setMorningBriefing(briefing);
-        setUserInterests(interests);
+
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
         setMorningBriefing("Error: Could not load morning briefing.");

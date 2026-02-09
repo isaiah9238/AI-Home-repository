@@ -2,14 +2,12 @@
 "use server";
 
 import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
-import { getUserProfile } from "@/lib/firebase";
+import type { DocumentData } from "firebase/firestore";
 
-export async function getMorningBriefing() {
-  const { response } = await mentorAiFlow({ request: "Give me a morning briefing." });
+export async function getMorningBriefing(userProfile: DocumentData | null) {
+  const { response } = await mentorAiFlow({ 
+    request: "Give me a morning briefing.",
+    userProfile: userProfile ?? undefined
+  });
   return response;
-}
-
-export async function getUserInterests() {
-  const profile = await getUserProfile();
-  return profile?.interests || [];
 }

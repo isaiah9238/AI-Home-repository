@@ -1,10 +1,10 @@
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+import { getFirestore, doc, getDoc, type DocumentData } from 'firebase/firestore';
+import { getAI, getGenerativeModel } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getAuth } from 'firebase/auth';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 // Your web app's Firebase configuration}
 
@@ -23,9 +23,7 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-const ai = getAI(app, { 
-  backend: new GoogleAIBackend() 
-});
+const ai = getAI(app);
 
 
  if (typeof window !== 'undefined') {
@@ -40,8 +38,29 @@ export const model = getGenerativeModel(ai, {
 });
 
 
-export async function getUserProfile() {
+export async function getUserProfile(): Promise<DocumentData | null> {
   // This is mocked for now to prevent startup errors.
   // We will remove this once the Firebase project config is sorted out.
   return null;
+  // try {
+  //   const userRef = doc(db, 'users', 'primary_user');
+  //   const userSnap = await getDoc(userRef);
+
+  //   if (userSnap.exists()) {
+  //     return userSnap.data();
+  //   } else {
+  //     console.log('No such user document!');
+  //     return null;
+  //   }
+  // } catch (error) {
+  //   // Check if the error is a permission error and wrap it in our custom error.
+  //   if (error instanceof Error && error.message.includes('permission')) {
+  //      throw new FirestorePermissionError({
+  //       path: 'users/primary_user',
+  //       operation: 'get',
+  //     });
+  //   }
+  //   // Re-throw other errors
+  //   throw error;
+  // }
 }

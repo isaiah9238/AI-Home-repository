@@ -1,10 +1,16 @@
 'use client';
 
+// 1. Core Firebase & App Logic
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+
+// 2. Security (App Check must be ready before data flows)
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-// The new standard for 2026
+
+// 3. Services (The tools you'll actually use in components)
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+// 4. Vertex AI / Generative AI (Latest standard)
 import { getAI, getGenerativeModel } from "firebase/ai";
 
 const firebaseConfig = {
@@ -37,10 +43,17 @@ if (typeof window !== 'undefined') {
 const ai = getAI(app);
 
 // 1. CHAT (The one your current AIChat component expects)
-export const chatModel = getGenerativeModel(ai, { model: "gemini-1.5-flash" });
+export const chatModel = getGenerativeModel(ai, { model: "gemini-2.5-flash-lite" });
 
 // 2. MATH (High intelligence for ArithmaGen)
-export const mathModel = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+export const mathModel = getGenerativeModel(ai, { 
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        temperature: 0.1, // Lower temperature = more precise/less creative for surveying math
+        topP: 0.95,
+      }
+    }
+  );
 
 // 3. CODE (Specific for your coding/debugging tasks)
 export const codeModel = getGenerativeModel(ai, { model: "gemini-2.5-pro" });

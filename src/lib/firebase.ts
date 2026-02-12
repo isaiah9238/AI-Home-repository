@@ -23,15 +23,20 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const ai = getAI(app);
 
-// 3. Export Models
-export const model = getGenerativeModel(ai, { model: "gemini-pro" });
+// 3. Export Models (Using the latest 2026 stable IDs)
+// Use 'gemini-3-flash-preview' for the best speed/cost balance
+export const model = getGenerativeModel(ai, { model: "gemini-3-flash-preview" });
+
 export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-pro",
+  model: "gemini-3-flash-preview",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });
 
 // 4. App Check (Client-side safety)
 if (typeof window !== 'undefined') {
+  // If you aren't using App Check yet, you can keep this commented out
+  // to prevent 'missing-token' errors during your initial tests.
+  /*
   if (process.env.NODE_ENV === 'development') {
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
@@ -39,4 +44,5 @@ if (typeof window !== 'undefined') {
     provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
     isTokenAutoRefreshEnabled: true,
   });
+  */
 }

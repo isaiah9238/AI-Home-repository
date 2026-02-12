@@ -3,8 +3,8 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getAI, getGenerativeModel } from "firebase/ai"; // The new Feb 2026 standard
-/*import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';*/
+import { getAI, getGenerativeModel } from "firebase/ai";
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,19 +18,20 @@ const firebaseConfig = {
 // 1. Initialize App (Singleton)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// 2. Export Services (No execution logic here!)
+// 2. Export Services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const ai = getAI(app);
 
-// Update your models to the new Gemini 3 standards
-export const lessonModel = getGenerativeModel(ai, { 
-  model: "gemini-3-flash",
+// 3. Export Models
+export const model = getGenerativeModel(ai, { model: "gemini-pro" });
+export const lessonModel = getGenerativeModel(ai, {
+  model: "gemini-pro",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });
 
 // 4. App Check (Client-side safety)
-/*if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined') {
   if (process.env.NODE_ENV === 'development') {
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
@@ -38,4 +39,4 @@ export const lessonModel = getGenerativeModel(ai, {
     provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
     isTokenAutoRefreshEnabled: true,
   });
-}*/
+}

@@ -33,11 +33,12 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // WORKSPACES: Keep public for now if you haven't set up Auth, 
-    // but at least prevent deletion by strangers.
     match /workspaces/{workspaceId} {
-      allow read, create: if true;
-      allow update, delete: if isSignedIn();
+    // Only the person who created the workspace can read or edit it
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+  
+    // When creating, ensure they stamp their own UID as the owner
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
     }
   }
 }

@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@firebase-oss/ui-react": "^7.0.2-beta",
+    "@firebase/ai": "^2.8.0",
     "@genkit-ai/google-genai": "^1.28.0",
     "@genkit-ai/next": "^1.28.0",
     "@hookform/resolvers": "^4.1.3",

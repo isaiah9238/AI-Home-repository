@@ -1,17 +1,10 @@
 'use client';
 
-// 1. Core Firebase & App Logic
 import { initializeApp, getApps, getApp } from 'firebase/app';
-
-// 2. Security (App Check must be ready before data flows)
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-
-// 3. Services (The tools you'll actually use in components)
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-
-// 4. Vertex AI / Generative AI (Latest standard)
-import { getAI, getGenerativeModel } from "firebase/ai";
+import { getAI, getGenerativeModel } from "firebase/ai"; // The new Feb 2026 standard
+/*import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';*/
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -22,42 +15,27 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Singleton initialization
+// 1. Initialize App (Singleton)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
 
-// 1. Initialize App Check with Debug Bypass
-if (typeof window !== 'undefined') {
+// 2. Export Services (No execution logic here!)
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const ai = getAI(app);
+
+// Update your models to the new Gemini 3 standards
+export const lessonModel = getGenerativeModel(ai, { 
+  model: "gemini-3-flash",
+  systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
+});
+
+// 4. App Check (Client-side safety)
+/*if (typeof window !== 'undefined') {
   if (process.env.NODE_ENV === 'development') {
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
-  
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
     isTokenAutoRefreshEnabled: true,
   });
-}
-
-// 2. Initialize AI Logic (the new 'ai' instead of 'vertexAI')
-const ai = getAI(app);
-
-// 1. CHAT (The one your current AIChat component expects)
-export const chatModel = getGenerativeModel(ai, { model: "gemini-2.5-flash-lite" });
-
-// 2. MATH (High intelligence for ArithmaGen)
-export const mathModel = getGenerativeModel(ai, { 
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.1, // Lower temperature = more precise/less creative for surveying math
-        topP: 0.95,
-      }
-    }
-  );
-
-// 3. CODE (Specific for your coding/debugging tasks)
-export const codeModel = getGenerativeModel(ai, { model: "gemini-2.5-pro" });
-
-// 4. ALIAS: This keeps your current code working!
-// It just points 'model' to the 'chatModel'.
-export const model = chatModel;
+}*/

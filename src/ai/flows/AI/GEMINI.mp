@@ -194,7 +194,7 @@ Since Link Genie is now in the **Research** domain, she’s part of the group th
 
 **The Librarian's Note for the User Guide:**
 
-> "The Link Genie is like a scout. She goes out to a location (the URL), looks around, and brings back a 'briefing' (the summary). By moving her to the **Research Cabinet**, we ensure she has access to the **Summarizer** and **Code Analyzer** tools, making her a much more powerful investigator."
+> "The Link Genie is like a scout. She goes out to a location (the URL), looks around, and brings back a 'briefing' (the summary). By moving her to the **Research Cabinet**, we ensure she has access to the **Epitomizer** and **Code Analyzer** tools, making her a much more powerful investigator."
 
 ---
 
@@ -446,7 +446,7 @@ If we follow the path of the "20-file shuffle," these should be the remaining pi
 
 1. **Filter User Input** (The Gatekeeper)
 2. **Filter AI Output** (The Safety Inspector)
-3. **Summarize Fetched Content** (The Research Assistant)
+3. **Epitomize Fetched Content** (The Research Assistant)
 4. **Integrate Lesson Plans** (The Growth Engine - *Checking if this one needs a final read*)
 
 ---
@@ -466,7 +466,7 @@ While you're getting those files ready:
 
 **Go ahead and paste the next one when you're ready.** I'm standing by to help you "tabulate" these last few folders so we can finally hit that **Commit** button and open the **Portal**.
 
-**Which one are we opening first?** The "Safety Filters" or the "Summarizer"?
+**Which one are we opening first?** The "Safety Filters" or the "Epitomizer"?
 
 This is the **"Precision Gauge"** of the **Research Domain**. It’s the tool that takes raw, messy code and turns it into a clear report. By moving this into the `research` cabinet, you’ve positioned it as the go-to expert for when the Librarian needs to "verify" a new discovery.
 
@@ -498,13 +498,13 @@ Since you’ve moved this to `src/ai/domains/research/analyze-code-snippet.ts`:
 
 ### **Three Drawers Left**
 
-We’ve cleared **Analyze Code Snippet**. That leaves us with the "Safety Gatekeepers" and the "Summarizer."
+We’ve cleared **Analyze Code Snippet**. That leaves us with the "Safety Gatekeepers" and the "Epitomizer."
 
 **Librarian's Note for the User Guide:**
 
 > "The Code Analyzer is the room's Inspector. Before a new 'Drawer' is finalized, the Inspector checks the joints and the finish (the code) to make sure it's solid and safe to use."
 
-**Ready to pull out the next drawer?** Should we look at the **Summarizer** to finish out the Research cabinet, or head over to the **Surveying** cabinet for the Safety Filters?
+**Ready to pull out the next drawer?** Should we look at the **Epitomizer** to finish out the Research cabinet, or head over to the **Surveying** cabinet for the Safety Filters?
 
 This drawer completes the **Research Cabinet**. You now have a specialized tool that doesn't just "scout" for links, but "reads" the content to bring back the "Condensed Essence."
 
@@ -517,7 +517,7 @@ In your **Portal**, this is the "Time Saver." Instead of opening 10 browser tabs
 Notice how this file differs from the `linkGenie` you shared earlier.
 
 * **`linkGenie`**: Is a simple, fast action—a quick "Look at this URL."
-* **`summarizeFetchedContent`**: Is a more formal **`ai.definePrompt`**.
+* **`EpitomizeFetchedContent`**: Is a more formal **`ai.definePrompt`**.
 
 This is an important distinction for your **User Guide**. One is a "reaction," and this one is a "deliberation." By using the `{{{url}}}` placeholder (line 32), you are creating a **Universal Hook**. This code doesn't care if the URL is about baseball cards or property line disputes; it treats the internet as one big **Variable Library**.
 
@@ -527,7 +527,7 @@ This is an important distinction for your **User Guide**. One is a "reaction," a
 
 Following your "Variable" strategy:
 
-* **The Role**: "Expert Summarizer" (Line 29).
+* **The Role**: "Expert Epitomizer" (Line 29).
 * **The Scope**: "Focus on the key information."
 
 By keeping the prompt this clean, you ensure that anyone using your "Cabinet" gets a neutral, high-quality result. You've stripped away the "Isaiah" specifics here to make it a professional-grade research tool.
@@ -540,7 +540,7 @@ We have cleared the **Research** and **Discovery** domains. The final two pieces
 
 **Librarian's Note:**
 
-> "The Summarizer is the room's Filter. It takes the noise of the outside world and turns it into the quiet, clean data that fits perfectly inside our drawers."
+> "The Epitomizer is the room's Filter. It takes the noise of the outside world and turns it into the quiet, clean data that fits perfectly inside our drawers."
 
 **Are you ready for the final two "Gatekeepers"?** Once we read those, we can finalize the **Portal** and hit that big **Commit** button.
 

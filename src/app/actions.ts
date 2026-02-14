@@ -14,7 +14,7 @@ export async function getMorningBriefing(userProfile: DocumentData | null) {
 }
 
 
-export type SummarizeState = {
+export type EpitomizeState = {
     message: string;
     data?: {
         summary: string;
@@ -22,7 +22,7 @@ export type SummarizeState = {
     } | null;
 }
 
-export async function summarizeUrl(prevState: SummarizeState, formData: FormData): Promise<SummarizeState> {
+export async function EpitomizeUrl(prevState: EpitomizeState, formData: FormData): Promise<EpitomizeState> {
   const url = formData.get('url') as string;
   if (!url || !url.startsWith('http')) {
     return { message: 'Please enter a valid URL.' };

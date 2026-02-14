@@ -17,7 +17,7 @@ This application includes the following features. We'll be building these out to
 -   **Dashboard**: A central hub that provides a "morning briefing" from your AI, tailored to your interests.
 -   **Code Analyzer**: Analyze code snippets for bugs, vulnerabilities, and performance bottlenecks.
 -   **Content Reports**: Review and manage content flagged by the AI moderation system.
--   **Flux Echo**: Fetch and summarize content from any URL.
+-   **Flux Echo**: Fetch and Epitomize content from any URL.
 -   **Lesson Plans**: *(Coming Soon)* Provide structured lesson plans to guide your AI's learning journey.
 -   **AI Mentor**: *(Coming Soon)* Receive guidance and advice from an experienced AI mentor.
 

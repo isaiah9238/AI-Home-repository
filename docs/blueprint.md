@@ -8,7 +8,7 @@
 - AI Mentorship Program: Enable AI mentorship from an experienced AI to guide the development process, reading from global guidelines.
 - Content Filtering and Moderation: Implement content filtering to screen user inputs and AI outputs for inappropriate or harmful language.
 - Content flagging and Reporting: Flagged content tracked by 'Gems', content tracked includes type, reason, severity, time, and resolution.
-- Link Genie Integration: Fetch content using a tool that summarizes content based on a model.
+- Link Genie Integration: Fetch content using a tool that Epitomizes content based on a model.
 - Code-Reading: Provides access to code snippets and pushes to an analysis to be examined
 - Database implementation: Integration to keep record of training and flag.
 

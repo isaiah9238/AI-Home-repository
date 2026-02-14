@@ -1,43 +1,43 @@
 /**
- * @fileOverview A flow that uses Link Genie to summarize fetched content.
+ * @fileOverview A flow that uses Link Genie to Epitomize fetched content.
  *
- * - summarizeFetchedContent - A function that handles the summarization of fetched content.
- * - SummarizeFetchedContentInput - The input type for the summarizeFetchedContent function.
- * - SummarizeFetchedContentOutput - The return type for the summarizeFetchedContent function.
+ * - EpitomizeFetchedContent - A function that handles the summarization of fetched content.
+ * - EpitomizeFetchedContentInput - The input type for the EpitomizeFetchedContent function.
+ * - EpitomizeFetchedContentOutput - The return type for the EpitomizeFetchedContent function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const SummarizeFetchedContentInputSchema = z.object({
-  url: z.string().describe('The URL of the content to be fetched and summarized.'),
+const EpitomizeFetchedContentInputSchema = z.object({
+  url: z.string().describe('The URL of the content to be fetched and Epitomized.'),
 });
-export type SummarizeFetchedContentInput = z.infer<typeof SummarizeFetchedContentInputSchema>;
+export type EpitomizeFetchedContentInput = z.infer<typeof EpitomizeFetchedContentInputSchema>;
 
-const SummarizeFetchedContentOutputSchema = z.object({
+const EpitomizeFetchedContentOutputSchema = z.object({
   summary: z.string().describe('A summary of the fetched content.'),
 });
-export type SummarizeFetchedContentOutput = z.infer<typeof SummarizeFetchedContentOutputSchema>;
+export type EpitomizeFetchedContentOutput = z.infer<typeof EpitomizeFetchedContentOutputSchema>;
 
-export async function summarizeFetchedContent(input: SummarizeFetchedContentInput): Promise<SummarizeFetchedContentOutput> {
-  return summarizeFetchedContentFlow(input);
+export async function EpitomizeFetchedContent(input: EpitomizeFetchedContentInput): Promise<EpitomizeFetchedContentOutput> {
+  return EpitomizeFetchedContentFlow(input);
 }
 
-const summarizeFetchedContentPrompt = ai.definePrompt({
-  name: 'summarizeFetchedContentPrompt',
-  input: {schema: SummarizeFetchedContentInputSchema},
-  output: {schema: SummarizeFetchedContentOutputSchema},
-  prompt: `You are an expert summarizer.  Summarize the content fetched from the following URL.  Be concise and focus on the key information.\n\nURL: {{{url}}}`,
+const EpitomizeFetchedContentPrompt = ai.definePrompt({
+  name: 'EpitomizeFetchedContentPrompt',
+  input: {schema: EpitomizeFetchedContentInputSchema},
+  output: {schema: EpitomizeFetchedContentOutputSchema},
+  prompt: `You are an expert Epitomizer.  Epitomize the content fetched from the following URL.  Be concise and focus on the key information.\n\nURL: {{{url}}}`,
 });
 
-const summarizeFetchedContentFlow = ai.defineFlow(
+const EpitomizeFetchedContentFlow = ai.defineFlow(
   {
-    name: 'summarizeFetchedContentFlow',
-    inputSchema: SummarizeFetchedContentInputSchema,
-    outputSchema: SummarizeFetchedContentOutputSchema,
+    name: 'EpitomizeFetchedContentFlow',
+    inputSchema: EpitomizeFetchedContentInputSchema,
+    outputSchema: EpitomizeFetchedContentOutputSchema,
   },
   async input => {
-    const {output} = await summarizeFetchedContentPrompt(input);
+    const {output} = await EpitomizeFetchedContentPrompt(input);
     return output!;
   }
 );

@@ -2,7 +2,7 @@
 
 import { useActionState, type ComponentProps } from 'react';
 import { useFormStatus } from 'react-dom';
-import { summarizeUrl, type SummarizeState } from '@/app/actions';
+import { EpitomizeUrl, type EpitomizeState } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,14 +46,14 @@ function SubmitButton() {
     const { pending } = useFormStatus();
     return (
         <Button type="submit" disabled={pending} className="bg-purple-600 hover:bg-purple-700">
-            {pending ? <Loader2 className="animate-spin" /> : "Summarize"}
+            {pending ? <Loader2 className="animate-spin" /> : "Epitomize"}
         </Button>
     );
 }
 
 export default function FluxEchoPage() {
-  const initialState: SummarizeState = { message: "", data: null };
-  const [state, formAction] = useActionState(summarizeUrl, initialState);
+  const initialState: EpitomizeState = { message: "", data: null };
+  const [state, formAction] = useActionState(EpitomizeUrl, initialState);
 
   return (
     <div className="p-8 max-w-2xl mx-auto">

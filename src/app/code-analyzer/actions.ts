@@ -9,7 +9,7 @@ import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
 import { fluxEcho } from '@/ai/discovery/link-genie';
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
-import { summarizeFetchedContent } from '@/ai/domains/research/summarize-fetched-content';
+import { EpitomizeFetchedContent } from '@/ai/domains/research/Epitomize-fetched-content';
 
 const CodeAnalysisSchema = z.object({
   code: z

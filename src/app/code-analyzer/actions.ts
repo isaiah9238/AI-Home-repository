@@ -7,7 +7,7 @@ import { filterAIOutput } from '@/ai/domains/surveying/filter-ai-output';
 import { filterUserInput } from '@/ai/domains/surveying/filter-user-input';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
-import { linkGenie } from '@/ai/discovery/link-genie';
+import { fluxEcho } from '@/ai/discovery/link-genie';
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
 import { summarizeFetchedContent } from '@/ai/domains/research/summarize-fetched-content';
 
@@ -80,7 +80,7 @@ export async function performCodeAnalysis(
 export async function performLinkSearch(prevState: any, formData: FormData) {
   const query = formData.get('query') as string;
   try {
-    const result = await linkGenie(query);
+    const result = await fluxEcho(query);
     return { message: 'Search successful', data: result };
   } catch (error) {
     return { message: 'Search failed', data: null };

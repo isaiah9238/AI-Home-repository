@@ -2,9 +2,9 @@ import { z } from 'genkit';
 // @ts-ignore - The module is verified on disk via 'ls'
 import { ai } from '@/ai/genkit';
 
-export const linkGenie = ai.defineFlow(
+export const fluxEcho = ai.defineFlow(
   {
-    name: 'linkGenie',
+    name: 'fluxEcho',
     inputSchema: z.string(),
     outputSchema: z.object({
       summary: z.string(),
@@ -13,7 +13,7 @@ export const linkGenie = ai.defineFlow(
   },
   async (url: string) => {
     const response = await ai.generate({
-      prompt: `Summarize this URL: ${url}`,
+      prompt: `You are FluxEcho. Visit this URL and epitomize the content into 3 concise, high-impact bullet points: ${url}`,
     });
 
     return {

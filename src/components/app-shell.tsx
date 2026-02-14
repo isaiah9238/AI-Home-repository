@@ -3,8 +3,41 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BrainCircuit, Code2, Flag, LayoutDashboard, BookOpen, Link as LinkIcon, BotMessageSquare } from 'lucide-react';
+import { BrainCircuit, Code2, Flag, LayoutDashboard, BookOpen, BotMessageSquare } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarInset } from '@/components/ui/sidebar';
+
+const FluxEchoIcon = (props: React.ComponentProps<'svg'>) => (
+    <svg
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+    >
+      {/* Animated Vortex Ring */}
+      <circle
+        cx="50" cy="50" r="40"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeDasharray="15 10"
+        className="animate-[spin_10s_linear_infinite] origin-center"
+      />
+      {/* The Echo Waves */}
+      <path
+        d="M30 50 Q40 30 50 50 T70 50"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M35 60 Q45 45 55 60 T75 60"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+    </svg>
+);
+
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/code-analyzer', label: 'Code Analyzer', icon: Code2 },
-    { href: '/link-genie', label: 'Link Genie', icon: LinkIcon },
+    { href: '/link-genie', label: 'Flux Echo', icon: FluxEchoIcon },
     { href: '/lesson-plans', label: 'Lesson Plans', icon: BookOpen },
     { href: '/mentorship', label: 'AI Mentor', icon: BotMessageSquare },
     { href: '/reports', label: 'Reports', icon: Flag },

@@ -1,6 +1,7 @@
 
 "use server";
 
+import { fluxEcho } from "@/ai/discovery/link-genie";
 import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
 import type { DocumentData } from "firebase/firestore";
 
@@ -10,4 +11,27 @@ export async function getMorningBriefing(userProfile: DocumentData | null) {
     userProfile: userProfile ?? undefined
   });
   return response;
+}
+
+
+export type SummarizeState = {
+    message: string;
+    data?: {
+        summary: string;
+        suggestedActions: string[];
+    } | null;
+}
+
+export async function summarizeUrl(prevState: SummarizeState, formData: FormData): Promise<SummarizeState> {
+  const url = formData.get('url') as string;
+  if (!url || !url.startsWith('http')) {
+    return { message: 'Please enter a valid URL.' };
+  }
+  try {
+    const result = await fluxEcho(url);
+    return { message: 'Success', data: result };
+  } catch (error) {
+    console.error("FluxEcho Error:", error);
+    return { message: "FluxEcho couldn't capture the signal. Please ensure it's a valid public URL!" };
+  }
 }

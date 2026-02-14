@@ -1,5 +1,5 @@
 # apphosting.yaml
-runtime: nodejs20 # Or 22 if you prefer
+runtime: nodejs22 # Or 22 if you prefer
 
 # You can likely REMOVE the secrets section if it was just for the Gemini Key
 # because Vertex AI for Firebase uses IAM permissions instead.

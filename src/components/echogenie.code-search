@@ -1,0 +1,111 @@
+# Query: genie
+# ContextLines: 1
+
+29 results - 7 files
+
+docs/blueprint.md:
+  10  - Content flagging and Reporting: Flagged content tracked by 'Gems', content tracked includes type, reason, severity, time, and resolution.
+  11: - Flux Echo Integration: Fetch content using a tool that epitomize content based on a model.
+  12  - Code-Reading: Provides access to code snippets and pushes to an analysis to be examined
+
+src/ai/dev.ts:
+  4  import '@/ai/domains/research/analyze-code-snippet.ts';
+  5: import '@/ai/discovery/link-genie.ts';
+  6  import '@/ai/discovery/generate-initial-files.ts';
+
+src/ai/domains/research/summarize-fetched-content.ts:
+  1  /**
+  2:  * @fileOverview A flow that uses Link Genie to summarize fetched content.
+  3   *
+
+src/ai/flows/AI/GEMINI.mp:
+   15  
+   16: State 3: Active (The Drawer): You select Link Genie. The Portal "summons" the tool, and the Link Genie drawer slides into the center of the room.
+   17  
+   18: The "Legacy of the Genie" (Refining the Prompt)
+   19: Since you’ve shared the history of the "Facebook Genie," let’s make sure this new version feels like a worthy successor, even if it’s "cleaner." We can ask the prototype to add a "History Drawer" within the Portal.
+   20  
+
+   26  
+   27: The Drawer Summoning: When clicked, it should open a tray (The Cabinet) showing 'Mentor', 'Analyzer', and 'Link Genie'.
+   28  
+   29: Memory Drawer: Add a section called 'Legacy' or 'History'. This is where Link Genie can store the summaries of things it finds (like those NYT archives), so they don't disappear when the drawer is closed.
+   30  
+
+   33  Reflecting on the "Hacking" Legend
+   34: Including that screenshot in your journey is a great way to show how you went from "Hacking" on someone else's platform to "Architecting" your own. The fact that Facebook's AI tried to "integrate" your Genie shows you weren't just a user—you were a builder they had to pay attention to.
+   35  
+
+   39  
+   40: Next Step: Should I help you write the logic that keeps the "Legacy" (the history of your searches) saved in your Firestore vault so you never lose a "Genie" result again?
+   41  
+
+  158  
+  159: ### **User Guide Lesson: "Feeding the Genie"**
+  160  
+
+  162  
+  163: > **The Tutor Tool**: "The AI doesn't know everything out of the box. The 'Integrate Lesson Plans' drawer is how you teach it. You're not just a user; you're the professor. When you find a better way to calculate a property line, you 'feed' it to the Genie here, and it becomes part of the house forever."
+  164  
+
+  181  
+  182: ### **The "Link Genie" Diagnosis**
+  183  
+
+  192  
+  193: Since Link Genie is now in the **Research** domain, she’s part of the group that "digs deep."
+  194  
+
+  196  
+  197: > "The Link Genie is like a scout. She goes out to a location (the URL), looks around, and brings back a 'briefing' (the summary). By moving her to the **Research Cabinet**, we ensure she has access to the **Summarizer** and **Code Analyzer** tools, making her a much more powerful investigator."
+  198  
+
+  205  1. **Refresh the RPC**: Your terminal might still be trying to talk to the "deleted" files. A quick `Ctrl+C` and restart of `npm run dev` will force the Portal to look at the **10 new** files.
+  206: 2. **The "Portal" Address**: Open your `src/app/actions.ts` one more time. Make sure the address for Link Genie now points to:
+  207: `@/ai/domains/research/link-genie`
+  208  
+
+  222  
+  223: By looking at these files (`linkGenie`, `establishHomeBase`, `integrateLessonPlans`), you can see the **Blueprint** of your entire house. You have a tool for **Memory**, a tool for **Research**, and a tool for **Growth**.
+  224  
+
+  232  | --- | --- | --- |
+  233: | **Link Genie** | **Ready** | She’s simple and fast. Just needs a URL string to start her "scouting" mission. |
+  234  | **Home Base** | **Critical** | This is the "Key" to the house. Without this being solid, the AI "forgets" who Isaiah Smith is every time you refresh. |
+
+  242  
+  243: * Does **Link Genie** know where to find `@/ai/genkit`?
+  244  * Does **Home Base** know where to find `@/lib/firebase`?
+
+  286  
+  287: * **Link Genie** (The Scout)
+  288  * **Home Base** (The Memory)
+
+  516  
+  517: Notice how this file differs from the `linkGenie` you shared earlier.
+  518  
+  519: * **`linkGenie`**: Is a simple, fast action—a quick "Look at this URL."
+  520  * **`summarizeFetchedContent`**: Is a more formal **`ai.definePrompt`**.
+
+  597  1. **Gate 1 (`filterUserInput`)**: The user speaks, and the Gatekeeper checks the vibe.
+  598: 2. **The Engine (`userBrain` / `linkGenie` / `mentorAi`)**: The core logic processes the request using the variables we've locked in.
+  599  3. **Gate 2 (`filterAIOutput`)**: Before the answer hits the screen, the Safety Inspector does a final check.
+
+src/app/actions.ts:
+  3  
+  4: import { fluxEcho } from "@/ai/discovery/link-genie";
+  5  import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
+
+src/app/code-analyzer/actions.ts:
+   9  import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
+  10: import { fluxEcho } from '@/ai/discovery/link-genie';
+  11  import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
+
+  78  
+  79: // --- 1. Link Genie Action ---
+  80  export async function performLinkSearch(prevState: any, formData: FormData) {
+
+src/components/app-shell.tsx:
+  47      { href: '/code-analyzer', label: 'Code Analyzer', icon: Code2 },
+  48:     { href: '/link-genie', label: 'Flux Echo', icon: FluxEchoIcon },
+  49      { href: '/lesson-plans', label: 'Lesson Plans', icon: BookOpen },

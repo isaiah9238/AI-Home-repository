@@ -1,7 +1,7 @@
 
 "use server";
 
-import { fluxEcho } from "@/ai/discovery/link-genie";
+import { fluxEcho } from "@/ai/discovery/flux-echo";
 import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
 import type { DocumentData } from "firebase/firestore";
 

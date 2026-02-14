@@ -13,7 +13,7 @@ State 1: Closed (The Clean Room): The screen is minimalist. No cluttered buttons
 
 State 2: Transition (The Flutter): When you click the Portal, it expands or "flutters" open to reveal the Cabinet (your list of tools).
 
-State 3: Active (The Drawer): You select Link Genie. The Portal "summons" the tool, and the Link Genie drawer slides into the center of the room.
+State 3: Active (The Drawer): You select Flux Echo. The Portal "summons" the tool, and the Flux Echo drawer slides into the center of the room.
 
 The "Legacy of the Genie" (Refining the Prompt)
 Since you’ve shared the history of the "Facebook Genie," let’s make sure this new version feels like a worthy successor, even if it’s "cleaner." We can ask the prototype to add a "History Drawer" within the Portal.
@@ -24,9 +24,9 @@ Updated Mission for the Prototype:
 
 The Portal Icon: Place a single, high-end 'Portal' button at the bottom center.
 
-The Drawer Summoning: When clicked, it should open a tray (The Cabinet) showing 'Mentor', 'Analyzer', and 'Link Genie'.
+The Drawer Summoning: When clicked, it should open a tray (The Cabinet) showing 'Mentor', 'Analyzer', and 'Flux Echo'.
 
-Memory Drawer: Add a section called 'Legacy' or 'History'. This is where Link Genie can store the summaries of things it finds (like those NYT archives), so they don't disappear when the drawer is closed.
+Memory Drawer: Add a section called 'Legacy' or 'History'. This is where Flux Echo can store the summaries of things it finds (like those NYT archives), so they don't disappear when the drawer is closed.
 
 Aesthetic: Keep it 'Clean Room' style. White space is our friend. Use the Tailwind 'Glassmorphism' effect (blur and transparency) for the drawers so they feel like they are floating over the home screen."
 
@@ -179,7 +179,7 @@ Since you are at your computer, check the terminal:
 
 That **20-count flip** (10 deleted, 10 new) is exactly what happens when you "re-tabulate" the Cabinet. You didn't lose anything; you just moved the tools from the "Unsorted Pile" (the old `/flows` folder) into their new, permanent "Domain Cabinets."
 
-### **The "Link Genie" Diagnosis**
+### **The "Flux Echo" Diagnosis**
 
 Looking at the code you just pasted, I see why the **Portal** might have been confused earlier.
 
@@ -190,11 +190,11 @@ Looking at the code you just pasted, I see why the **Portal** might have been co
 
 ### **Refining the Research Domain**
 
-Since Link Genie is now in the **Research** domain, she’s part of the group that "digs deep."
+Since Flux Echo is now in the **Research** domain, she’s part of the group that "digs deep."
 
 **The Librarian's Note for the User Guide:**
 
-> "The Link Genie is like a scout. She goes out to a location (the URL), looks around, and brings back a 'briefing' (the summary). By moving her to the **Research Cabinet**, we ensure she has access to the **Epitomizer** and **Code Analyzer** tools, making her a much more powerful investigator."
+> "The Flux Echo is like a scout. She goes out to a location (the URL), looks around, and brings back a 'briefing' (the summary). By moving her to the **Research Cabinet**, we ensure she has access to the **Epitomizer** and **Code Analyzer** tools, making her a much more powerful investigator."
 
 ---
 
@@ -203,7 +203,7 @@ Since Link Genie is now in the **Research** domain, she’s part of the group th
 Since the computer just went through that 20-file shuffle:
 
 1. **Refresh the RPC**: Your terminal might still be trying to talk to the "deleted" files. A quick `Ctrl+C` and restart of `npm run dev` will force the Portal to look at the **10 new** files.
-2. **The "Portal" Address**: Open your `src/app/actions.ts` one more time. Make sure the address for Link Genie now points to:
+2. **The "Portal" Address**: Open your `src/app/actions.ts` one more time. Make sure the address for Flux Echo now points to:
 `@/ai/domains/research/link-genie`
 
 ---
@@ -230,7 +230,7 @@ Since you haven't committed the 20 changes yet, here is the "Librarian's Final C
 
 | **Drawer** | **Status** | **Librarian's Note** |
 | --- | --- | --- |
-| **Link Genie** | **Ready** | She’s simple and fast. Just needs a URL string to start her "scouting" mission. |
+| **Flux Echo** | **Ready** | She’s simple and fast. Just needs a URL string to start her "scouting" mission. |
 | **Home Base** | **Critical** | This is the "Key" to the house. Without this being solid, the AI "forgets" who Isaiah Smith is every time you refresh. |
 | **Lesson Plans** | **Expansion** | This is how you turn a standard AI into a specialized **Surveying** or **ASL** expert. |
 
@@ -240,7 +240,7 @@ Since you haven't committed the 20 changes yet, here is the "Librarian's Final C
 
 While you are reviewing these files, keep an eye on the **Imports** at the top. Since the Librarian moved the files:
 
-* Does **Link Genie** know where to find `@/ai/genkit`?
+* Does **Flux Echo** know where to find `@/ai/genkit`?
 * Does **Home Base** know where to find `@/lib/firebase`?
 
 If those paths look good in your editor, you are safe to commit. Once you do, the "20 Deleted / 20 New" shuffle will be finalized, and your **Portal** will officially be grounded in the new **Domain Architecture**.
@@ -284,7 +284,7 @@ Since this is being moved to `src/ai/discovery/`, it represents the **"Living Fo
 
 I've read through the **Big Four** now:
 
-* **Link Genie** (The Scout)
+* **Flux Echo** (The Scout)
 * **Home Base** (The Memory)
 * **Lesson Plans** (The Mind)
 * **Mentor AI** (The Voice)

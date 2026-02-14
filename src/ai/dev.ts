@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 config();
 
 import '@/ai/domains/research/analyze-code-snippet.ts';
-import '@/ai/discovery/link-genie.ts';
+import '@/ai/discovery/flux-echo.ts';
 import '@/ai/discovery/generate-initial-files.ts';
 import '@/ai/domains/surveying/filter-ai-output.ts';
 import '@/ai/discovery/mentor-ai.ts';

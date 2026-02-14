@@ -1,5 +1,5 @@
 /**
- * @fileOverview A flow that uses Link Genie to Epitomize fetched content.
+ * @fileOverview A flow that uses Flux Echo to Epitomize fetched content.
  *
  * - EpitomizeFetchedContent - A function that handles the summarization of fetched content.
  * - EpitomizeFetchedContentInput - The input type for the EpitomizeFetchedContent function.

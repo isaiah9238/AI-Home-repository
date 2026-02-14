@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/code-analyzer', label: 'Code Analyzer', icon: Code2 },
-    { href: '/link-genie', label: 'Flux Echo', icon: FluxEchoIcon },
+    { href: '/flux-echo', label: 'Flux Echo', icon: FluxEchoIcon },
     { href: '/lesson-plans', label: 'Lesson Plans', icon: BookOpen },
     { href: '/mentorship', label: 'AI Mentor', icon: BotMessageSquare },
     { href: '/reports', label: 'Reports', icon: Flag },

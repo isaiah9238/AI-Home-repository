@@ -7,7 +7,7 @@ import { filterAIOutput } from '@/ai/domains/surveying/filter-ai-output';
 import { filterUserInput } from '@/ai/domains/surveying/filter-user-input';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
-import { fluxEcho } from '@/ai/discovery/link-genie';
+import { fluxEcho } from '@/ai/discovery/flux-echo';
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
 import { EpitomizeFetchedContent } from '@/ai/domains/research/Epitomize-fetched-content';
 
@@ -76,7 +76,7 @@ export async function performCodeAnalysis(
   }
 }
 
-// --- 1. Link Genie Action ---
+// --- 1. Flux Echo Action ---
 export async function performLinkSearch(prevState: any, formData: FormData) {
   const query = formData.get('query') as string;
   try {

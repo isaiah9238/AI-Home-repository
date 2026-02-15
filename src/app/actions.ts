@@ -30,8 +30,8 @@ export async function EpitomizeUrl(prevState: EpitomizeState, formData: FormData
   try {
     const result = await fluxEcho(url);
     return { message: 'Success', data: result };
-  } catch (error) {
+  } catch (error: any) {
     console.error("FluxEcho Error:", error);
-    return { message: "FluxEcho couldn't capture the signal. Please ensure it's a valid public URL!" };
+    return { message: `FluxEcho couldn't capture the signal. Reason: ${error.message}. Please ensure it's a valid, publicly accessible URL.` };
   }
 }

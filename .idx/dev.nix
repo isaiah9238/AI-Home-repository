@@ -35,7 +35,7 @@
       enable = true;
       previews = {
         web = {
-          command = ["npm" "run" "dev" "--" "1" "$PORT" "--hostname" "0.0.0.0"];
+          command = ["npm" "run" "dev" "--" "3000" "$PORT" "--hostname" "0.0.0.0"];
           manager = "web";
         };
       };

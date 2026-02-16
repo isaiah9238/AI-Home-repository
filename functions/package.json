@@ -12,7 +12,7 @@
     "genkit:start": "genkit start -- tsx --watch src/genkit-sample.ts"
   },
   "engines": {
-    "node": "24"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -31,7 +31,7 @@
     "eslint-plugin-import": "^2.25.4",
     "firebase-functions-test": "^3.4.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.0.0"
   },
   "private": true
 }

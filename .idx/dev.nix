@@ -1,58 +1,59 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://firebase.google.com/docs/studio/customize-workspace
-
 { pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.11"; 
+  # Using a stable 2026 channel that supports Node 22
+  channel = "stable-25.11"; 
 
-  # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_20
+    pkgs.nodejs_22          # Matches your package.json engine
     pkgs.nodePackages.firebase-tools
-    pkgs.jdk21
-    pkgs.nano
+    pkgs.tsx                # Required for your "genkit:start" script
+    pkgs.jdk21              # Required for Firebase Emulators
+    pkgs.sudo
     pkgs.psmisc
+    pkgs.nano
   ];
 
-  # Sets environment variables in the workspace
   env = {
+    # Helps prevent the "Discovery Timeout" during rebase/boot
     FUNCTIONS_DISCOVERY_TIMEOUT = "60";
   };
 
-  # Firebase emulators configuration
-  services.firebase.emulators = {
-    enable = true;
-    # Add your project ID if needed
-    # projectId = "AI Home project"; 
-  };
-
   idx = {
-    # Search for the extensions you want on https://open-vsx.org/
     extensions = [
-      "christian-kohler.npm-intellisense"
+      "mtxr.sqltools-driver-pg"
+      "mtxr.sqltools"
     ];
 
-    # Workspace hooks
     workspace = {
-      onCreate = {
-        npm-install = "npm install";
-        default.openFiles = [ "package.json" ];
-      };
       onStart = {
-        # Custom fix for the permissions issues we had
-        repair-sudo = "sudo chmod 4755 /usr/bin/sudo || true";
+        # Fixes permission issues on the hotspot/cloud environment
+        repair-sudo = "chmod 4755 /usr/bin/sudo";
+        # Clean install to fix the "7,000 files" bloat
+        install = "npm install";
       };
     };
 
-    # Preview configuration
     previews = {
-      enable = true;
+      enable = true; # <--- Fixed "Recognition" error
       previews = {
         web = {
-          command = [ "npm" "run" "dev" "--" "--port" "$PORT" "--host" "0.0.0.0" ];
+          command = ["npm" "run" "dev" "--" "--port" "$PORT" "--host" "0.0.0.0"];
           manager = "web";
         };
       };
     };
+  };
+
+  # New Firebase Emulator block with correct Nix syntax
+  services.firebase.emulators = {
+    enable = true;
+    services = [
+      "auth"
+      "firestore"
+      "storage"
+      "functions"
+      "hosting"
+      "pubsub"
+      "database"
+    ];
   };
 }

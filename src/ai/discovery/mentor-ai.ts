@@ -31,14 +31,12 @@ export const mentorAiFlow = ai.defineFlow(
 
     const globalGuidelines = "Be a supportive mentor. Prioritize clarity for web dev, surveying math, and ASL projects.";
 
-    // 3. Generate the response with Gemini 2.5-flash
     const { text } = await ai.generate({
+      model: 'googleai/gemini-1.5-flash', // OR the model variable from your config
       prompt: `
         Context: ${aiContext}
         Guidelines: ${globalGuidelines}
         Request: ${input.request}
-        
-        Mentor, provide a response that acknowledges the user's specific background.
       `,
     });
 

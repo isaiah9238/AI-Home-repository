@@ -11,31 +11,27 @@ const HomeBaseInputSchema = z.object({
   interests: z.array(z.string()),
 });
 
-export const establishHomeBase = ai.defineFlow(
+export const getHomeBase = ai.defineFlow(
   {
-    name: 'establishHomeBase',
-    inputSchema: HomeBaseInputSchema,
-    outputSchema: z.object({ success: z.boolean(), message: z.string() }),
+    name: 'getHomeBase',
+    inputSchema: z.void(), // No input needed to fetch the primary profile
+    outputSchema: z.object({ 
+      success: z.boolean(), 
+      data: z.any().optional(),
+      message: z.string().optional() 
+    }),
   },
-  async (input) => {
+  async () => {
     try {
-      // Save the profile to a 'users' collection using the name as the ID
-      const userRef = doc(db, 'users', 'primary_user'); 
-      
-      await setDoc(userRef, {
-        name: input.userName,
-        interests: input.interests,
-        createdAt: serverTimestamp(),
-        lastActive: serverTimestamp(),
-        aiBirthday: "February 6, 2026"
-      }, { merge: true });
+      const { getDoc, doc } = await import('firebase/firestore');
+      const userDoc = await getDoc(doc(db, 'users', 'primary_user'));
 
-      return {
-        success: true,
-        message: `Welcome home, ${input.userName}. I've recorded your interests and saved our start date to Firestore.`
-      };
+      if (!userDoc.exists()) {
+        return { success: false, message: "Home Base not established yet." };
+      }
+
+      return { success: true, data: userDoc.data() };
     } catch (error: any) {
-      console.error("Firestore Save Error:", error);
       return { success: false, message: error.message };
     }
   }

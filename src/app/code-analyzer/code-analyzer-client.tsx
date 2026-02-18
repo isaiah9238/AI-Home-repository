@@ -112,7 +112,7 @@ export function CodeAnalyzerClient() {
       <Card>
         <CardHeader>
           <CardTitle>Analysis Result</CardTitle>
-          <CardDescription>The AI's feedback on your code will appear below.</CardDescription>
+          <CardDescription>The AI&apos;s feedback on your code will appear below.</CardDescription>
         </CardHeader>
         <CardContent>
           {state.data ? (

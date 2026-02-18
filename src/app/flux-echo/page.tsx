@@ -90,7 +90,7 @@ export default function FluxEchoPage() {
           </form>
           {state.data?.summary && (
             <div className="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
-              <h3 className="text-purple-400 font-semibold mb-2">Flux Echo's Summary:</h3>
+              <h3 className="text-purple-400 font-semibold mb-2">Flux Echo&apos;s Summary:</h3>
               <div className="text-slate-200 text-sm whitespace-pre-wrap leading-relaxed">
                 {state.data.summary}
               </div>

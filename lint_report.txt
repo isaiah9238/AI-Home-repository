@@ -1,0 +1,83 @@
+
+> studio@1.0.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+
+./src/ai/discovery/establish-home-base.ts
+4:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+7:10  Error: 'doc' is defined but never used.  @typescript-eslint/no-unused-vars
+7:15  Error: 'setDoc' is defined but never used.  @typescript-eslint/no-unused-vars
+7:23  Error: 'serverTimestamp' is defined but never used.  @typescript-eslint/no-unused-vars
+9:7  Error: 'HomeBaseInputSchema' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/ai/discovery/flux-echo.ts
+4:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+24:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/ai/discovery/integrate-lesson-plans.ts
+50:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/ai/discovery/mentor-ai.ts
+2:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+
+./src/ai/discovery/web-intel.ts
+4:1  Error: Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free.  @typescript-eslint/ban-ts-comment
+35:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/actions.ts
+33:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/code-analyzer/actions.ts
+5:10  Error: 'establishHomeBase' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Error: 'filterAIOutput' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Error: 'generateInitialFiles' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Error: 'integrateLessonPlans' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Error: 'EpitomizeFetchedContent' is defined but never used.  @typescript-eslint/no-unused-vars
+80:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+85:12  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+91:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+96:12  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/code-analyzer/code-analyzer-client.tsx
+6:10  Error: 'useForm' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Error: 'zodResolver' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Error: 'z' is defined but never used.  @typescript-eslint/no-unused-vars
+115:34  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./src/app/flux-echo/page.tsx
+93:75  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./src/app/layout.tsx
+21:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+./src/app/mentorship/page.tsx
+13:66  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./src/app/page.tsx
+3:10  Error: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+14:27  Error: 'setMorningBriefing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+15:25  Error: 'setUserInterests' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+16:19  Error: 'setLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ui/chat.tsx
+20:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ui/tag.tsx
+22:7  Error: 'tagVariants' is assigned a value but only used as a type.  @typescript-eslint/no-unused-vars
+
+./src/firebase/errors.ts
+5:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/hooks/use-toast.ts
+21:7  Error: 'actionTypes' is assigned a value but only used as a type.  @typescript-eslint/no-unused-vars
+
+./src/lib/firebase.ts
+54:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

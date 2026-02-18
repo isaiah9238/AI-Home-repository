@@ -10,7 +10,7 @@ export default function MentorshipPage() {
                     <BotMessageSquare className="w-8 h-8 text-primary" />
                 </div>
                 <CardTitle className="mt-4">AI Mentor</CardTitle>
-                <CardDescription>This feature is coming soon. You'll be able to receive guidance from an experienced AI mentor.</CardDescription>
+                <CardDescription>This feature is coming soon. You&apos;ll be able to receive guidance from an experienced AI mentor.</CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground">Stay tuned for updates!</p>

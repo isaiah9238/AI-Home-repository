@@ -4,14 +4,15 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
-import { getDatabase, connectDatabaseEmulator } from"firebase/database";
+import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, getGenerativeModel } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
-//1. Your Web App Configuration
+// 1. Web App Configuration
+// Note: These MUST start with NEXT_PUBLIC_ to work in the browser.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_FIREBASE_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -29,57 +30,50 @@ const rtdb = getDatabase(app);
 const storage = getStorage(app);
 const functions = getFunctions(app);
 
+// Initialize Vertex AI for Firebase
+// (Make sure you have enabled the Vertex AI API in Google Cloud Console)
 const ai = getAI(app);
 
-//4. Connect to Emulators (ONLY in Development)
-// We check window.location to ensure we are on the client, and NODE_ENV for the server.
+// 4. Connect to Emulators (ONLY in Development)
 const isDev = process.env.NODE_ENV === 'development';
 
 if (isDev) {
-  // Prevent double-connection during hot reloads
-  // (The 'undefined' check is a safeguard for Server-Side Rendering)
   if (typeof window !== 'undefined') {
-    
-    // Connect Auth (Port 9099)
-    // Note: The second 'http://127.0.0.1:9099' arg is vital for Auth to work properly
+    // Connect Auth (Standard Port 9099)
     connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
-
-    // Connect Firestore (Port 8080)
+    
+    // Connect Other Services
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
-
-    // Connect Realtime Database (Port 9000)
     connectDatabaseEmulator(rtdb, '127.0.0.1', 9000);
-
-    // Connect Storage (Port 9199)
     connectStorageEmulator(storage, '127.0.0.1', 9199);
-
-    // Connect Functions (Port 5001)
     connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 
     console.log("🔥 Firebase Emulators Connected! 🔥");
+    
+    // Enable App Check Debug Token for Localhost
+    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
 }
 
-export{ app, auth, db, rtdb, storage, functions }
-
-// 5. Export Models (Using the latest 2026 stable IDs)
-// Use 'gemini-3-flash-preview' for the best speed/cost balance
-export const model = getGenerativeModel(ai, { model: "gemini-3-flash-preview" });
-
-export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-3-flash-preview",
-  systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
-});
-
-// 4. App Check (Client-side safety)
+// 5. Initialize App Check
+// We wrap this check so it only runs in the browser
 if (typeof window !== 'undefined') {
-  // If you aren't using App Check yet, you can keep this commented out
-  // to prevent 'missing-token' errors during your initial tests.
-  if (process.env.NODE_ENV === 'development') {
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  }
   initializeAppCheck(app, {
+    // Make sure NEXT_PUBLIC_RECAPTCHA_SITE_KEY is in your .env
     provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
     isTokenAutoRefreshEnabled: true,
   });
 }
+
+// 6. Exports
+export { app, auth, db, rtdb, storage, functions };
+
+// Export Models
+export const model = getGenerativeModel(ai, { 
+  model: "gemini-1.5-flash" 
+}); // Updated to standard model name
+
+export const lessonModel = getGenerativeModel(ai, {
+  model: "gemini-1.5-flash",
+  systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
+});

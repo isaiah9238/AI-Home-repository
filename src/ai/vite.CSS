@@ -1,5 +1,5 @@
 interface CSSModulesOptions {
-    getJSON?: (
+    getJSON: (
       cssFileName: string,
       json: Record<string, string>,
       outputFileName: string,

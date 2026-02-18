@@ -4,12 +4,6 @@ import { z } from 'genkit';
 // @ts-ignore
 import { ai } from '@/ai/genkit';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-
-const HomeBaseInputSchema = z.object({
-  userName: z.string(),
-  interests: z.array(z.string()),
-});
 
 export const getHomeBase = ai.defineFlow(
   {

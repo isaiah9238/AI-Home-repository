@@ -2,14 +2,9 @@
 
 import { z } from 'zod';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
-import { establishHomeBase } from '@/ai/discovery/establish-home-base';
-import { filterAIOutput } from '@/ai/domains/surveying/filter-ai-output';
 import { filterUserInput } from '@/ai/domains/surveying/filter-user-input';
-import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
-import { integrateLessonPlans } from '@/ai/discovery/integrate-lesson-plans';
 import { fluxEcho } from '@/ai/discovery/flux-echo';
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
-import { EpitomizeFetchedContent } from '@/ai/domains/research/Epitomize-fetched-content';
 
 const CodeAnalysisSchema = z.object({
   code: z
@@ -82,7 +77,7 @@ export async function performLinkSearch(prevState: any, formData: FormData) {
   try {
     const result = await fluxEcho(query);
     return { message: 'Search successful', data: result };
-  } catch (error) {
+  } catch (_error) {
     return { message: 'Search failed', data: null };
   }
 }
@@ -93,7 +88,7 @@ export async function getMentorResponse(prevState: any, formData: FormData) {
   try {
     const result = await mentorAiFlow({ request });
     return { response: result.response };
-  } catch (error) {
+  } catch (_error) {
     return { response: 'Error fetching mentor advice.' };
   }
 }

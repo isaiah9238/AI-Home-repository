@@ -1,7 +1,6 @@
 'use server';
 
 import { z } from 'genkit';
-// @ts-ignore - The module is verified on disk via 'ls'
 import { ai } from '@/ai/genkit';
 
 export const fluxEcho = ai.defineFlow(

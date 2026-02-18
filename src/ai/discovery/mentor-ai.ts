@@ -1,5 +1,4 @@
 import { z } from 'genkit';
-// @ts-ignore
 import { ai } from '@/ai/genkit';
 
 const MentorAiInputSchema = z.object({

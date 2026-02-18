@@ -1,7 +1,6 @@
 'use server';
 
 import { z } from 'genkit';
-// @ts-ignore
 import { ai } from '@/ai/genkit';
 import { db } from '@/lib/firebase';
 

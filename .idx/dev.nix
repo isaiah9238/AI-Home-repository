@@ -6,7 +6,6 @@
   packages = [
     pkgs.nodejs_22
     pkgs.nodePackages.firebase-tools
-    pkgs.tsx
     pkgs.jdk21
     pkgs.sudo
     pkgs.psmisc

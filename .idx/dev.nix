@@ -15,6 +15,7 @@
   # 3. Environment Variables
   env = {
     FUNCTIONS_DISCOVERY_TIMEOUT = "60";
+    PORT = "3000";
   };
 
   # 4. Project IDX Specifics
@@ -38,7 +39,7 @@
       enable = true; # <--- THE ONLY "ENABLE" YOU NEED
       previews = {
         web = {
-          command = ["npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0"];
+          command = ["npm" "run" "dev" "--" "--port" "3000" "--hostname" "0.0.0.0"];
           manager = "web";
         };
       };

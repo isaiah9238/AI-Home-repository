@@ -49,9 +49,8 @@ if (isDev) {
     connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 
     console.log("🔥 Firebase Emulators Connected! 🔥");
-    
-    // ✅ New way (Uses your permanent token)
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NEXT_PUBLIC_APP_CHECK_DEBUG_TOKEN;
+     
+    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
 }
 

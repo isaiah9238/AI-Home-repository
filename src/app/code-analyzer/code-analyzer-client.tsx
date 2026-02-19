@@ -3,9 +3,6 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { performCodeAnalysis, type CodeAnalysisState } from './actions';
 import { Button } from '@/components/ui/button';
 import {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,9 +11,9 @@ const MOCK_BRIEFING = "Welcome to AI Home! It looks like there might be an issue
 const MOCK_INTERESTS = ["AI Development", "Next.js", "Firebase", "React"];
 
 export default function Dashboard() {
-  const [morningBriefing, setMorningBriefing] = useState<string | null>(MOCK_BRIEFING);
-  const [userInterests, setUserInterests] = useState<string[] | null>(MOCK_INTERESTS);
-  const [loading, setLoading] = useState(false);
+  const [morningBriefing] = useState<string | null>(MOCK_BRIEFING);
+  const [userInterests] = useState<string[] | null>(MOCK_INTERESTS);
+  const [loading] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-900 text-white font-sans">

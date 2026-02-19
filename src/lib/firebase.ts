@@ -50,8 +50,8 @@ if (isDev) {
 
     console.log("🔥 Firebase Emulators Connected! 🔥");
     
-    // Enable App Check Debug Token for Localhost
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    // ✅ New way (Uses your permanent token)
+    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NEXT_PUBLIC_APP_CHECK_DEBUG_TOKEN;
   }
 }
 

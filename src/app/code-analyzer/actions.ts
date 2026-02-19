@@ -77,7 +77,7 @@ export async function performLinkSearch(prevState: any, formData: FormData) {
   try {
     const result = await fluxEcho(query);
     return { message: 'Search successful', data: result };
-  } catch (_error) {
+  } catch {
     return { message: 'Search failed', data: null };
   }
 }
@@ -88,7 +88,7 @@ export async function getMentorResponse(prevState: any, formData: FormData) {
   try {
     const result = await mentorAiFlow({ request });
     return { response: result.response };
-  } catch (_error) {
+  } catch {
     return { response: 'Error fetching mentor advice.' };
   }
 }

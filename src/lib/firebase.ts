@@ -44,7 +44,7 @@ if (isDev) {
     
     // Connect Other Services
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    connectDatabaseEmulator(rtdb, '127.0.0.1', 9001);
+    connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
     connectStorageEmulator(storage, '127.0.0.1', 9199);
     connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 

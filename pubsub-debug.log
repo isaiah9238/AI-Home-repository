@@ -1,15 +1,13 @@
 This is the Google Pub/Sub fake.
 Implementation may be incomplete or differ from the real system.
-Feb 19, 2026 8:33:15 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 25, 2026 5:04:40 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: IAM integration is disabled. IAM policy methods and ACL checks are not supported
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
-Feb 19, 2026 8:33:18 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 25, 2026 5:04:43 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: Server started, listening on 8085
-Feb 19, 2026 8:33:22 AM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Feb 19, 2026 8:33:24 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 25, 2026 5:04:48 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
 io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET / 
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
@@ -36,9 +34,9 @@ io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET /
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
-Feb 19, 2026 8:33:24 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 25, 2026 5:04:48 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
-io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303795bde41592359d4a4e8848ce6
+io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303416e97ad49246fb5cd9f24f187
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.readClientPrefaceString(Http2ConnectionHandler.java:321)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.decode(Http2ConnectionHandler.java:247)
@@ -63,3 +61,5 @@ io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missin
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
+Feb 25, 2026 5:04:49 AM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.

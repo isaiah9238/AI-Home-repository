@@ -1,21 +1,61 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BotMessageSquare } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BotMessageSquare, Loader2 } from "lucide-react";
+// Corrected imports
+import { getMorningBriefing } from "@/app/actions";
+import { getHomeBase } from "@/ai/discovery/establish-home-base";
 
 export default function MentorshipPage() {
+  const [briefing, setBriefing] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function init() {
+      try {
+        // 1. Fetch data from your Firestore 'primary_user'
+        const homeBase = await getHomeBase();
+        
+        if (homeBase.success && homeBase.data) {
+          // 2. Pass that data to your Mentor action
+          const response = await getMorningBriefing(homeBase.data);
+          setBriefing(response);
+        } else {
+          setBriefing("Please establish your Home Base (primary_user) in Firestore first.");
+        }
+      } catch (err) {
+        setBriefing("Connection error. Check if Emulators are running.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+  }, []);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <div className="mx-auto bg-primary/10 p-3 rounded-full">
-                    <BotMessageSquare className="w-8 h-8 text-primary" />
-                </div>
-                <CardTitle className="mt-4">AI Mentor</CardTitle>
-                <CardDescription>This feature is coming soon. You&apos;ll be able to receive guidance from an experienced AI mentor.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground">Stay tuned for updates!</p>
-            </CardContent>
-        </Card>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
+            <BotMessageSquare className="w-8 h-8 text-primary" />
+          </div>
+          <CardTitle className="mt-4 text-2xl">Web Intel Mentor</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <Loader2 className="animate-spin h-8 w-8 text-primary" />
+            </div>
+          ) : (
+            <div className="bg-muted/30 p-6 rounded-lg border">
+              <p className="whitespace-pre-wrap leading-relaxed italic text-foreground/90">
+                "{briefing}"
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

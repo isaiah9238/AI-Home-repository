@@ -67,10 +67,10 @@ export { app, auth, db, rtdb, storage, functions };
 
 // Export Models
 export const model = getGenerativeModel(ai, { 
-  model: "gemini-2.0-flash" 
+  model: "gemini-2.0-flash-exp" 
 }); // Updated to standard model name
 
 export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-2.0-flash",
+  model: "gemini-2.0-flash-exp",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });

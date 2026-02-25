@@ -38,18 +38,16 @@ const ai = getAI(app);
 const isDev = process.env.NODE_ENV === 'development';
 
 if (isDev) {
-  if (typeof window !== 'undefined') {
-    // Connect Auth (Standard Port 9099)
-    connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
-    
-    // Connect Other Services
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
-    connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+  // 1. Logic for BOTH Terminal (Node) and Browser
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
+  connectStorageEmulator(storage, '127.0.0.1', 9199);
+  connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 
+  // 2. Logic ONLY for the Browser (window)
+  if (typeof window !== 'undefined') {
+    connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
     console.log("🔥 Firebase Emulators Connected! 🔥");
-     
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
 }

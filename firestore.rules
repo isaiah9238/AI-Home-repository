@@ -2,6 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Allow the script (and you) to edit the primary_user
+    match /users/primary_user {
+      allow read, write: if true;
+    }
+
     // Helper: Check if user is logged in (if you use Firebase Auth)
     function isSignedIn() {
       return request.auth != null;

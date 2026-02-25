@@ -60,8 +60,12 @@ export async function performCodeAnalysis(
 
     const analysisResult = await analyzeCodeSnippet({ code, language });
 
-    if (analysisResult && analysisResult.analysis) {
-        return { message: 'Analysis successful.', data: analysisResult.analysis, errors: {} };
+    if (analysisResult) {
+        return { 
+          message: 'Analysis successful.', 
+          data: analysisResult, 
+          errors: {} 
+        };
     } else {
         return { message: 'Analysis failed to produce a result.', data: null, errors: {} };
     }

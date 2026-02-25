@@ -116,19 +116,19 @@ export function CodeAnalyzerClient() {
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-lg">Complexity</h3>
-                <p className="text-muted-foreground text-sm">{state.data.complexity}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{state.data.complexity}</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Potential Bugs</h3>
-                <p className="text-muted-foreground text-sm">{state.data.bugs}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{state.data.bugs}</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Security Vulnerabilities</h3>
-                <p className="text-muted-foreground text-sm">{state.data.vulnerabilities}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{state.data.vulnerabilities}</p>
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Suggested Fixes</h3>
-                <p className="text-muted-foreground text-sm">{state.data.suggestedFixes}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{state.data.suggestedFixes}</p>
               </div>
             </div>
           ) : (

@@ -13,8 +13,8 @@ async function seed() {
   console.log("🚀 Powering through... Writing directly to Firestore.");
   try {
     await db.collection('users').doc('primary_user').set({
-      name: "Isaiah",
-      interests: ["Web Dev", "ASL Projects", "Math"],
+      name: "Isaiah Smith",
+      interests: ["soccer", "music", "web app development", "land surveying", "traveling"],
       established: true
     });
     console.log("✅ SUCCESS: Home Base established!");

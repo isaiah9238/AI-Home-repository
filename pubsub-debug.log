@@ -1,15 +1,15 @@
 This is the Google Pub/Sub fake.
 Implementation may be incomplete or differ from the real system.
-Feb 26, 2026 1:14:46 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 26, 2026 2:27:38 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: IAM integration is disabled. IAM policy methods and ACL checks are not supported
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
-Feb 26, 2026 1:14:54 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 26, 2026 2:27:42 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: Server started, listening on 8085
-Feb 26, 2026 1:14:56 AM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Feb 26, 2026 2:27:44 AM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Feb 26, 2026 1:14:57 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 26, 2026 2:27:44 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
 io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET / 
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
@@ -36,9 +36,9 @@ io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET /
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
-Feb 26, 2026 1:14:58 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 26, 2026 2:27:44 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
-io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303412cfd3919e2c05ebb56cea946
+io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303ae7cbb4bd125997ba20e555c25
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.readClientPrefaceString(Http2ConnectionHandler.java:321)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.decode(Http2ConnectionHandler.java:247)

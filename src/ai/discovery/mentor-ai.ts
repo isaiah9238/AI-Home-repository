@@ -1,47 +1,23 @@
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
-
-const MentorAiInputSchema = z.object({
-  request: z.string(),
-  userProfile: z.object({
-    name: z.string(),
-    interests: z.array(z.string()),
-  }).optional(),
-});
-
+import { adminDb } from '@/lib/firebaseAdmin'; // Use the Admin SDK here!
 
 export const mentorAiFlow = ai.defineFlow(
-  {
-    name: 'mentorAi',
-    inputSchema: MentorAiInputSchema,
-    outputSchema: z.object({ 
-      response: z.string(),
-      contextUsed: z.boolean() 
-    }),
-  },
-  async (input) => {
-    // 1. Use the passed-in profile
-    const profile = input.userProfile;
-    
-    // 2. Build the context dynamically
+  { name: 'mentorAi', inputSchema: z.string() }, // Input is just the user's question
+  async (question) => {
+    // 1. Fetch from the Emulator/Production directly via Admin
+    const userDoc = await adminDb.collection('users').doc('primary_user').get();
+    const profile = userDoc.data();
+
     const aiContext = profile 
       ? `User: ${profile.name}. Interests: ${profile.interests.join(', ')}.` 
       : "User profile not found.";
 
-    const globalGuidelines = "Be a supportive mentor. Prioritize clarity for web dev, surveying math, and ASL projects.";
-
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash', // OR the model variable from your config
-      prompt: `
-        Context: ${aiContext}
-        Guidelines: ${globalGuidelines}
-        Request: ${input.request}
-      `,
+      model: 'googleai/gemini-2.0-flash-exp',
+      prompt: `Context: ${aiContext}\nQuestion: ${question}`,
     });
 
-    return { 
-      response: text,
-      contextUsed: !!profile 
-    };
+    return { response: text };
   }
 );

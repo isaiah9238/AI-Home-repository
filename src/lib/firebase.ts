@@ -6,11 +6,10 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
-import { getAI, getGenerativeModel } from "firebase/ai";
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+// import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'; // Stay muted
 
 // 1. Web App Configuration
-// Note: These MUST start with NEXT_PUBLIC_ to work in the browser.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -30,36 +29,24 @@ const rtdb = getDatabase(app);
 const storage = getStorage(app);
 const functions = getFunctions(app);
 
-// Initialize Vertex AI for Firebase
-// (Make sure you have enabled the Vertex AI API in Google Cloud Console)
-const ai = getAI(app);
+// Initialize Vertex AI for Firebase with the Google AI Provider
+const ai = getAI(app, {
+  backend: new GoogleAIBackend() 
+});
 
 // 4. Connect to Emulators (ONLY in Development)
 const isDev = process.env.NODE_ENV === 'development';
 
 if (isDev) {
-  // 1. Logic for BOTH Terminal (Node) and Browser
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
   connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
   connectStorageEmulator(storage, '127.0.0.1', 9199);
   connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 
-  // 2. Logic ONLY for the Browser (window)
   if (typeof window !== 'undefined') {
     connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
     console.log("🔥 Firebase Emulators Connected! 🔥");
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
-}
-
-// 5. Initialize App Check
-// We wrap this check so it only runs in the browser
-if (typeof window !== 'undefined') {
-  initializeAppCheck(app, {
-    // Make sure NEXT_PUBLIC_RECAPTCHA_SITE_KEY is in your .env
-    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
-    isTokenAutoRefreshEnabled: true,
-  });
 }
 
 // 6. Exports
@@ -68,7 +55,7 @@ export { app, auth, db, rtdb, storage, functions };
 // Export Models
 export const model = getGenerativeModel(ai, { 
   model: "gemini-2.0-flash-exp" 
-}); // Updated to standard model name
+});
 
 export const lessonModel = getGenerativeModel(ai, {
   model: "gemini-2.0-flash-exp",

@@ -18,8 +18,8 @@ export default function MentorshipPage() {
         const homeBase = await getHomeBase();
         
         if (homeBase.success && homeBase.data) {
-          // 2. Pass that data to your Mentor action
-          const response = await getMorningBriefing(homeBase.data);
+          // Temporary test in MentorshipPage.tsx
+          const response = await getMorningBriefing({ name: "Isaiah", interests: ["Soccer"] });
           setBriefing(response);
         } else {
           setBriefing("Please establish your Home Base (primary_user) in Firestore first.");

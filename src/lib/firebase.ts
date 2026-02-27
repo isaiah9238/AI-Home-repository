@@ -38,36 +38,26 @@ const ai = getAI(app, {
 
 // 4. Connect to Emulators (ONLY in Development)
 const isDev = process.env.NODE_ENV === 'development';
+const host = process.env.NEXT_PUBLIC_EMULATOR_HOST;
 
-// inside your if (isDev) block in firebase.ts
-
-if (isDev) {
-  const host = process.env.NEXT_PUBLIC_EMULATOR_HOST;
-
-  if (host) {
-    // We use the mapped hostname and the standard HTTPS port (443)
-    // Firestore
+if (isDev && host) {
+  if (typeof window !== 'undefined') {
+    // BROWSER SIDE: Use the Mapped URLs for the Workstation Tunnel
     connectFirestoreEmulator(db, `8080-${host}`, 443);
-
-    // Realtime Database
     connectDatabaseEmulator(rtdb, `7000-${host}`, 443);
-
-    // Storage
     connectStorageEmulator(storage, `9199-${host}`, 443);
-
-    // Functions
     connectFunctionsEmulator(functions, `5001-${host}`, 443);
-
-    if (typeof window !== 'undefined') {
-      // Auth requires the full URL with protocol
-      connectAuthEmulator(auth, `https://9099-${host}`, { disableWarnings: true });
-      
-      console.log("🚀 Connected to Cloud Workstation Emulators via Mapped URLs");
-    }
+    connectAuthEmulator(auth, `https://9099-${host}`, { disableWarnings: true });
+    
+    console.log("🚀 Browser: Connected via Workstation Tunnel");
   } else {
-    // Local Fallback
+    // SERVER SIDE (Next.js SSR): Use local 127.0.0.1 to prevent "Invalid URL" errors
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    console.log("🏠 Connected to Localhost (127.0.0.1)");
+    connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
+    connectStorageEmulator(storage, '127.0.0.1', 9199);
+    connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+    
+    console.log("🖥️  Server: Connected via Localhost");
   }
 }
 

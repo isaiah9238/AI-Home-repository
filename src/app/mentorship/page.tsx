@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BotMessageSquare, Loader2 } from "lucide-react";
 import { getMorningBriefing } from "@/app/actions";
 import { getHomeBase } from "@/ai/discovery/establish-home-base";
+import { getMorningBriefing, seedHomeBaseAction } from "@/app/actions";
 
 export default function MentorshipPage() {
   const [briefing, setBriefing] = useState<string | null>(null);
@@ -52,19 +53,27 @@ export default function MentorshipPage() {
                   "{briefing}"
                 </p>
               </div>
-
               {/* Only show the seed button if profile is missing or offline */}
-              {(briefing?.includes("don't know your interests") || briefing?.includes("offline")) && (
-                <div className="flex flex-col items-center gap-2 pt-4">
-                  <p className="text-xs text-muted-foreground">Dev Tool: No profile detected.</p>
-                  <button 
-                    onClick={() => alert("Run 'npx tsx src/scripts/seed.ts' in your terminal now!")}
-                    className="text-xs underline text-primary hover:text-primary/80"
-                  >
-                    How do I seed this?
-                  </button>
-                </div>
-              )}
+            {(briefing?.includes("don't know your interests") || briefing?.includes("offline")) && (
+              <div className="flex flex-col items-center gap-4 pt-6 border-t border-destructive/20 mt-4">
+                <p className="text-sm font-medium text-destructive">
+                  No Home Base detected in Emulators.
+                </p>
+                <button 
+              onClick={async () => {
+                const res = await seedHomeBaseAction();
+                if (res.success) {
+                  // Refresh the page to trigger the AI briefing now that data exists
+                  window.location.reload();
+                }
+              }}
+              className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-xl uppercase tracking-wider transition-all"
+            >
+              🔥 Initialize Home Base
+            </button>
+              </div>
+            )}
+              
             </div>
           )}
         </CardContent>

@@ -4,6 +4,33 @@
 import { fluxEcho } from "@/ai/discovery/flux-echo";
 import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
 import type { DocumentData } from "firebase/firestore";
+import * as admin from 'firebase-admin';
+
+export async function seedHomeBaseAction() {
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  // Ensure the server knows to look at the local emulator
+  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
+
+  if (!admin.apps.length) {
+    admin.initializeApp({ projectId });
+  }
+
+  const db = admin.firestore();
+
+  try {
+    await db.collection('users').doc('primary_user').set({
+      name: "Isaiah Smith",
+      interests: ["Soccer", "Web Development", "AI Engineering", "UI/UX Design"],
+      role: "Primary User",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Seeding failed from UI:", error);
+    return { success: false, error: "Failed to seed database" };
+  }
+}
 
 export async function getMorningBriefing(userProfile: DocumentData | null) {
   const { response } = await mentorAiFlow({ 

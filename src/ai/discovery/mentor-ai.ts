@@ -30,7 +30,19 @@ export const mentorAiFlow = ai.defineFlow(
     // 3. Generate the response
     const { text } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-exp',
-      prompt: `Context: ${aiContext}\n\nTask: ${input.request}`,
+      prompt: `
+        ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor.
+        CONTEXT: ${aiContext}
+        
+        INSTRUCTIONS:
+        1. Acknowledge the user by name if available.
+        2. Reference at least two of their specific interests (e.g., ${profile?.interests?.slice(0,2).join(', ')}).
+        3. Keep the briefing under 4 sentences.
+        4. End with a "Signal of the Day"—a tiny, actionable technical tip related to their interests.
+        5. Maintain a "terminal-style" professional tone.
+    
+        USER REQUEST: ${input.request}
+      `,
     });
 
     return { response: text };

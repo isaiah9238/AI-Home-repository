@@ -1,13 +1,13 @@
 This is the Google Pub/Sub fake.
 Implementation may be incomplete or differ from the real system.
-Feb 27, 2026 1:31:46 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 27, 2026 2:40:17 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: IAM integration is disabled. IAM policy methods and ACL checks are not supported
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
-Feb 27, 2026 1:31:50 AM com.google.cloud.pubsub.testing.v1.Main main
+Feb 27, 2026 2:40:21 AM com.google.cloud.pubsub.testing.v1.Main main
 INFO: Server started, listening on 8085
-Feb 27, 2026 1:31:52 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 27, 2026 2:40:23 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
 io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET / 
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
@@ -34,9 +34,9 @@ io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET /
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
-Feb 27, 2026 1:31:52 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 27, 2026 2:40:24 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
-io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a403035dd86ea18718cb9eee20254cbf
+io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303e85567c23c54e73112fe907c74
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.readClientPrefaceString(Http2ConnectionHandler.java:321)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.decode(Http2ConnectionHandler.java:247)
@@ -61,7 +61,7 @@ io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missin
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
-Feb 27, 2026 1:31:52 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 27, 2026 2:40:24 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
 io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET / 
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
@@ -88,9 +88,9 @@ io.netty.handler.codec.http2.Http2Exception: Unexpected HTTP/1.x request: GET /
 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 
-Feb 27, 2026 1:31:52 AM io.grpc.netty.NettyServerTransport notifyTerminated
+Feb 27, 2026 2:40:24 AM io.grpc.netty.NettyServerTransport notifyTerminated
 INFO: Transport failed
-io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303d7524b52a99ae52061643f3150
+io.netty.handler.codec.http2.Http2Exception: HTTP/2 client preface string missing or corrupt. Hex dump for received bytes: 16030105a8010005a40303a22c9ec47cae8732ec8f5cd900
 	at io.netty.handler.codec.http2.Http2Exception.connectionError(Http2Exception.java:109)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.readClientPrefaceString(Http2ConnectionHandler.java:321)
 	at io.netty.handler.codec.http2.Http2ConnectionHandler$PrefaceDecoder.decode(Http2ConnectionHandler.java:247)

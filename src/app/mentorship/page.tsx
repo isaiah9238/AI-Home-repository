@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BotMessageSquare, Loader2 } from "lucide-react";
-import { getMorningBriefing } from "@/app/actions";
 import { getHomeBase } from "@/ai/discovery/establish-home-base";
 import { getMorningBriefing, seedHomeBaseAction } from "@/app/actions";
 

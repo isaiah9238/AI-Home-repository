@@ -1,44 +1,41 @@
 { pkgs, ... }: {
-  # 1. System Configuration
   channel = "stable-24.05"; 
 
-  # 2. Package Installation
   packages = [
-    pkgs.nodejs_22
-    pkgs.nodePackages.firebase-tools
-    pkgs.jdk21
-    pkgs.sudo
-    pkgs.psmisc
+    pkgs.nodejs_20
+    pkgs.jdk21        # Required for Firebase Emulators
+    pkgs.psmisc       # Gives you the 'fuser' command to kill ports
     pkgs.nano
   ];
 
-  # 3. Environment Variables
   env = {
     FUNCTIONS_DISCOVERY_TIMEOUT = "60";
   };
 
-  # 4. Project IDX Specifics
   idx = {
-    # Extensions to install in VS Code
     extensions = [ 
       "mtxr.sqltools-driver-pg"
       "mtxr.sqltools"
+      "google.gcp-integrated-cloud-sdk" # Highly recommended for this setup
     ];
 
-    # Workspace Lifecycle Hooks
     workspace = {
+      onCreate = {
+        # Runs only once when the workspace is created
+        npm-install = "npm install";
+      };
       onStart = {
-        repair-sudo = "chmod 4755 /usr/bin/sudo";
-        install = "npm install";
+        # Runs every time the workspace starts
+        # Removed the repair-sudo line
       };
     };
 
-    # Previews Configuration
     previews = {
-      enable = true; # <--- THE ONLY "ENABLE" YOU NEED
+      enable = true;
       previews = {
         web = {
-          command = ["npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0"];
+          # Simplified command for IDX/Workstations
+          command = ["npm" "run" "dev" "--" "--port" "$PORT"];
           manager = "web";
         };
       };

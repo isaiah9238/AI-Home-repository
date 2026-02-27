@@ -7,7 +7,7 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, CustomProvider } from 'firebase/app-check';
 
 // 1. Web App Configuration
 const firebaseConfig = {
@@ -35,13 +35,13 @@ if (typeof window !== "undefined") {
   // In development, we use the Debug Provider.
   // This will print a debug token to your browser console.
   if (process.env.NODE_ENV === 'development') {
+    // Setting this to true tells App Check to look for a token in the console
+    // or use a pre-registered one.
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
 
   initializeAppCheck(app, {
-    // Replace 'YOUR_RECAPTCHA_SITE_KEY' with your actual site key from Google Cloud Console 
-    // when you're ready for production.
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || 'YOUR_RECAPTCHA_SITE_KEY'),
+    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LcNv9sqAAAAAM-S_p-m7r_Xm_q-S_p-m7r_Xm_q'),
     isTokenAutoRefreshEnabled: true
   });
 }

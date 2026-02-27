@@ -25,7 +25,8 @@ export default function MentorshipPage() {
           setBriefing("Please establish your Home Base (primary_user) in Firestore first.");
         }
       } catch (err) {
-        setBriefing("Connection error. Check if Emulators are running.");
+        console.error("AI Mentor Initialization Error:", err); // Look at your terminal/browser console for this!
+        setBriefing("Connection error. Check terminal logs.");
       } finally {
         setLoading(false);
       }

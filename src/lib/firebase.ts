@@ -7,7 +7,7 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
-// import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'; // Stay muted
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'; // Stay muted
 
 // 1. Web App Configuration
 const firebaseConfig = {
@@ -35,6 +35,16 @@ const functions = getFunctions(app);
 const ai = getAI(app, {
   backend: new GoogleAIBackend() 
 });
+
+if (typeof window !== "undefined") {
+  // This line tells Firebase to allow your local environment to bypass the 401 error
+  (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider('YOUR_SITE_KEY'),
+    isTokenAutoRefreshEnabled: true
+  });
+}
 
 // 4. Connect to Emulators (ONLY in Development)
 const isDev = process.env.NODE_ENV === 'development';

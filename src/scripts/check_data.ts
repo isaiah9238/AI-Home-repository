@@ -3,11 +3,16 @@ import * as admin from 'firebase-admin';
 // Suggested Fix #1: Externalize Configuration
 const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
 
-// Suggested Fix #2: Set emulator host safely
+// 1. Ensure the host is set correctly for the current terminal session
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
+// 2. Add the "Owner" header (The 'Master Key' for emulators)
 if (!admin.apps.length) {
-  admin.initializeApp({ projectId });
+  admin.initializeApp({
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373',
+    // This tells the emulator: "I am the owner, don't check my ID"
+    credential: admin.credential.applicationDefault(), 
+  });
 }
 
 const db = admin.firestore();

@@ -7,7 +7,7 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
-import { initializeAppCheck, ReCaptchaEnterpriseProvider, CustomProvider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 // 1. Web App Configuration
 const firebaseConfig = {
@@ -32,12 +32,13 @@ const functions = getFunctions(app);
 
 // 4. Initialize App Check
 if (typeof window !== "undefined") {
-  // In development, we use the Debug Provider.
-  // This will print a debug token to your browser console.
-  if (process.env.NODE_ENV === 'development') {
-    // Setting this to true tells App Check to look for a token in the console
-    // or use a pre-registered one.
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  if (isDev) {
+    // Explicitly set the debug token to true before initializing App Check.
+    // This tells Firebase to generate a new debug token and print it to the console.
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    console.log("🛠️ App Check: Debug Mode Enabled. Check console for your Debug Token.");
   }
 
   initializeAppCheck(app, {

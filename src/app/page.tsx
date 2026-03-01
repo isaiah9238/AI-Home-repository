@@ -1,13 +1,12 @@
+
 'use client';
 
-import { PortalInterface } from "@/components/portal-interface";
+import { InteriorDashboard } from "@/components/interior-dashboard";
 
 export default function Dashboard() {
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-white font-sans overflow-hidden">
-      <main className="flex-1 p-8 flex flex-col relative">
-        <PortalInterface />
-      </main>
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30">
+      <InteriorDashboard />
     </div>
   );
 }

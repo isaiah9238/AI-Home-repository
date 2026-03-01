@@ -4,11 +4,11 @@ import { InteriorDashboard } from "@/components/interior-dashboard";
 
 /**
  * The main entry point for the AI Home.
- * This file acts as the "app.jsx" controller for the HUD environment.
+ * Updated to allow scrolling and ensure full visibility of HUD elements.
  */
 export default function AIHomeApp() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30">
+    <div className="w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-x-hidden">
       {/* Global HUD Interface */}
       <InteriorDashboard />
       
@@ -20,7 +20,7 @@ export default function AIHomeApp() {
         }
         
         .hud-scanline {
-          position: absolute;
+          position: fixed;
           inset: 0;
           background: linear-gradient(
             to bottom,

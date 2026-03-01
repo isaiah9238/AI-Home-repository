@@ -18,6 +18,7 @@ import { getHomeBase } from '@/app/actions';
 /**
  * The "Interior" of the AI Home. 
  * Designed as a cybernetic HUD that surrounds the user with system data.
+ * Updated to allow natural scrolling and prevent bottom clipping.
  */
 export function InteriorDashboard() {
   const [time, setTime] = useState('');
@@ -25,12 +26,10 @@ export function InteriorDashboard() {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    // Clock Implementation
     const timer = setInterval(() => {
       setTime(new Date().toLocaleTimeString([], { hour12: false }));
     }, 1000);
 
-    // Uptime Simulation
     let seconds = 0;
     const uptimeTimer = setInterval(() => {
       seconds++;
@@ -40,7 +39,6 @@ export function InteriorDashboard() {
       setUptime(`${h}:${m}:${s}`);
     }, 1000);
 
-    // Fetch User Profile (Librarian)
     getHomeBase().then(res => {
       if (res.success) setProfile(res.data);
     });
@@ -52,7 +50,7 @@ export function InteriorDashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen p-4 gap-4 relative">
+    <div className="flex flex-col w-full gap-4 relative pb-12">
       {/* Scanline Effect */}
       <div className="hud-scanline" />
 
@@ -138,7 +136,7 @@ export function InteriorDashboard() {
         </div>
 
         {/* Center Column: The Portal (Gateway) */}
-        <div className="col-span-12 lg:col-span-6 flex flex-col relative min-h-[400px] bg-black/40 rounded-xl border border-white/10 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-sm group">
+        <div className="col-span-12 lg:col-span-6 flex flex-col relative min-h-[500px] bg-black/40 rounded-xl border border-white/10 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-sm group">
           <div className="absolute top-4 left-4 z-30 opacity-40 group-hover:opacity-100 transition-opacity">
             <Badge className="bg-white/5 border-white/10 text-[8px] font-mono tracking-widest uppercase">
               Operational_Visualizer
@@ -149,7 +147,7 @@ export function InteriorDashboard() {
 
         {/* Right Column: Librarian Activity Feed */}
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col min-h-[300px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/40 uppercase tracking-widest flex items-center gap-2">
                 <Database className="w-3 h-3 text-purple-500" /> Librarian_Stream

@@ -11,7 +11,7 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 
 // 1. Web App Configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyAvydFedHHp-P0Gldx_QsZ0JV9psd5hoNU",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIza....",
   authDomain: "studio-3863072923-d4373.firebaseapp.com",
   databaseURL: "https://studio-3863072923-d4373-default-rtdb.firebaseio.com", 
   projectId: "studio-3863072923-d4373",
@@ -42,7 +42,7 @@ if (typeof window !== "undefined") {
   }
 
   initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LewdWQsAAAAAAmRE94NsbKPY0gfwD787wc1fgpE'),
+    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6Lew....'),
     isTokenAutoRefreshEnabled: true
   });
 }

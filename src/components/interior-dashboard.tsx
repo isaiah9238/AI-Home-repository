@@ -7,9 +7,6 @@ import {
   Cpu, 
   ShieldCheck, 
   Database,
-  Search,
-  BookOpen,
-  MessageSquareCode,
   Terminal as TerminalIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,7 +52,7 @@ export function InteriorDashboard() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen p-4 gap-4 overflow-hidden relative">
+    <div className="flex flex-col min-h-screen p-4 gap-4 relative">
       {/* Scanline Effect */}
       <div className="hud-scanline" />
 
@@ -81,7 +78,7 @@ export function InteriorDashboard() {
         
         <div className="flex items-center gap-4">
           <Badge variant="outline" className="border-white/10 text-white/40 bg-white/5 font-mono text-[10px] tracking-widest px-3">
-            AUTH_STATE: ISAIAH_S
+            AUTH_STATE: {profile?.name ? profile.name.split(' ')[0].toUpperCase() : 'ISAIAH_S'}
           </Badge>
           <div className="h-8 w-[1px] bg-white/10 mx-2" />
           <h1 className="text-lg font-light tracking-[0.5em] uppercase text-white/80 font-mono">AI_Home_Interior</h1>
@@ -89,10 +86,10 @@ export function InteriorDashboard() {
       </header>
 
       {/* Main Operational Grid */}
-      <div className="flex-1 grid grid-cols-12 gap-4 min-h-0 overflow-hidden z-20">
+      <div className="grid grid-cols-12 gap-4 z-20">
         
         {/* Left Column: Home Base (Identity) */}
-        <div className="col-span-3 flex flex-col gap-4 overflow-hidden">
+        <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
           <Card className="bg-black/60 border-white/5 backdrop-blur-md">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/40 uppercase tracking-widest flex items-center gap-2">
@@ -123,28 +120,25 @@ export function InteriorDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 min-h-0">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/40 uppercase tracking-widest flex items-center gap-2">
                 <Activity className="w-3 h-3 text-blue-500" /> Core_Interests
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 font-mono pr-2 overflow-y-auto custom-scrollbar h-full">
+            <CardContent className="space-y-2 font-mono pr-2">
               {(profile?.interests || ["Next.js", "AI", "UI Design"]).map((interest: string) => (
                 <div key={interest} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5 group hover:bg-white/10 transition-all cursor-crosshair">
                   <span className="text-[10px] text-white/60 group-hover:text-blue-400 uppercase tracking-tight">{interest}</span>
                   <div className="w-1 h-1 rounded-full bg-blue-500/50 group-hover:animate-ping" />
                 </div>
               ))}
-              <div className="pt-4 mt-4 border-t border-white/5 text-[9px] text-white/20 italic text-center">
-                AWAITING_NEW_VECTORS...
-              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Center Column: The Portal (Gateway) */}
-        <div className="col-span-6 flex flex-col relative overflow-hidden bg-black/40 rounded-xl border border-white/10 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-sm group">
+        <div className="col-span-12 lg:col-span-6 flex flex-col relative min-h-[400px] bg-black/40 rounded-xl border border-white/10 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-sm group">
           <div className="absolute top-4 left-4 z-30 opacity-40 group-hover:opacity-100 transition-opacity">
             <Badge className="bg-white/5 border-white/10 text-[8px] font-mono tracking-widest uppercase">
               Operational_Visualizer
@@ -154,14 +148,14 @@ export function InteriorDashboard() {
         </div>
 
         {/* Right Column: Librarian Activity Feed */}
-        <div className="col-span-3 flex flex-col gap-4 overflow-hidden">
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 min-h-0 flex flex-col">
+        <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/40 uppercase tracking-widest flex items-center gap-2">
                 <Database className="w-3 h-3 text-purple-500" /> Librarian_Stream
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 overflow-y-auto font-mono text-[9px] space-y-4 pr-2 custom-scrollbar">
+            <CardContent className="font-mono text-[9px] space-y-4 pr-2">
               <div className="space-y-1">
                 <div className="text-green-500/70">[14:30:01] FLUX_ECHO: RECON_COMPLETE</div>
                 <div className="text-white/40 pl-3 leading-relaxed border-l border-green-500/20 ml-1">Target link analyzed. Vectors stored in Home Base.</div>
@@ -173,9 +167,6 @@ export function InteriorDashboard() {
               <div className="space-y-1">
                 <div className="text-purple-500/70">[14:25:12] SYSTEM: STORAGE_SYNC</div>
                 <div className="text-white/40 pl-3 leading-relaxed border-l border-purple-500/20 ml-1">Primary profile synchronized with Librarian core.</div>
-              </div>
-              <div className="text-white/10 animate-pulse mt-8 text-center uppercase tracking-widest">
-                Listening_For_Changes...
               </div>
             </CardContent>
           </Card>
@@ -202,7 +193,7 @@ export function InteriorDashboard() {
       </div>
 
       {/* Bottom Interface: Terminal Input */}
-      <footer className="h-[35%] flex-shrink-0 z-20 border border-white/10 bg-black/60 backdrop-blur-xl rounded-xl p-4 shadow-2xl relative">
+      <footer className="z-20 border border-white/10 bg-black/60 backdrop-blur-xl rounded-xl p-4 shadow-2xl relative mt-4">
         <div className="absolute top-2 right-4 text-[9px] font-mono text-white/20 flex items-center gap-2">
            <TerminalIcon className="w-3 h-3" /> MENTOR_TERMINAL_V2.0.4
         </div>

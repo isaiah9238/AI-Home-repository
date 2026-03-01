@@ -8,7 +8,7 @@ import { InteriorDashboard } from "@/components/interior-dashboard";
  */
 export default function AIHomeApp() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-hidden">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30">
       {/* Global HUD Interface */}
       <InteriorDashboard />
       

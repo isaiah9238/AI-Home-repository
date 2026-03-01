@@ -1,11 +1,11 @@
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getStorage, connectStorageEmulator } from "firebase/storage";
-import { getDatabase, connectDatabaseEmulator } from "firebase/database";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
+import { getFunctions } from "firebase/functions";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
@@ -48,33 +48,15 @@ if (typeof window !== "undefined") {
 }
 
 // 5. Initialize Vertex AI for Firebase
-// Initialize the Gemini Developer API backend service
 const ai = getAI(app, { backend: new GoogleAIBackend() });
 
-// 6. Connect to Emulators (ONLY in Development)
-const host = process.env.NEXT_PUBLIC_EMULATOR_HOST;
-
-if (isDev && host) {
-  if (typeof window !== 'undefined') {
-    connectFirestoreEmulator(db, `8080-${host}`, 443);
-    connectDatabaseEmulator(rtdb, `7000-${host}`, 443);
-    connectStorageEmulator(storage, `9199-${host}`, 443);
-    connectFunctionsEmulator(functions, `5001-${host}`, 443);
-    connectAuthEmulator(auth, `https://9099-${host}`, { disableWarnings: true });
-    
-    console.log("🚀 Browser: Connected via Workstation Tunnel");
-  } else {
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    connectDatabaseEmulator(rtdb, '127.0.0.1', 7000);
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
-    connectFunctionsEmulator(functions, '127.0.0.1', 5001);
-  }
-}
-
+// 6. Export Services
 export { app, auth, db, rtdb, storage, functions };
 
-// Export Models
-export const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+// 7. Export Models
+export const model = getGenerativeModel(ai, { 
+  model: "gemini-2.5-flash" 
+});
 
 export const lessonModel = getGenerativeModel(ai, {
   model: "gemini-2.5-flash",

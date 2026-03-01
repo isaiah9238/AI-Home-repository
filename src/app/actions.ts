@@ -1,4 +1,3 @@
-
 "use server";
 
 import { fluxEcho } from "@/ai/discovery/flux-echo";
@@ -6,14 +5,10 @@ import { mentorAiFlow } from "@/ai/discovery/mentor-ai";
 import { getHomeBase} from "@/ai/discovery/establish-home-base";
 import type { DocumentData } from "firebase/firestore";
 import * as admin from 'firebase-admin';
-import { googleAI } from '@genkit-ai/google-genai';import { User } from "lucide-react";
-;
+import { googleAI } from '@genkit-ai/google-genai';
 
 export async function seedHomeBaseAction() {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-
-  // Ensure the server knows to look at the local emulator
-  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
   if (!admin.apps.length) {
     admin.initializeApp({ projectId });
@@ -53,14 +48,18 @@ export type EpitomizeState = {
 }
 
 export async function getAIBriefingAction() {
-  const profile = await getHomeBase(); // This looks at the Emulator
-  if (!profile) return "No profile found. Please click the Red Button.";
+  const profileResponse = await getHomeBase();
+  if (!profileResponse.success || !profileResponse.data) {
+    return "No profile found. Please initialize your Home Base.";
+  }
+  
+  const profile = profileResponse.data;
 
-  // This runs on the server (No App Check required!)
+  // This runs on the server
   const model = googleAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
   const prompt = `System: You are an AI Mentor. 
                   User: ${profile.name}. 
-                  Interests: ${profile.interests.join(', ')}. 
+                  Interests: ${profile.interests?.join(', ') || 'AI'}. 
                   Give a 1-sentence greeting based on these interests.`;
 
   const result = await model.generateContent(prompt);

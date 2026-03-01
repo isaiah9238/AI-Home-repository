@@ -30,13 +30,13 @@ const rtdb = getDatabase(app);
 const storage = getStorage(app);
 const functions = getFunctions(app);
 
+// Check if we are in development mode
+const isDev = process.env.NODE_ENV === 'development';
+
 // 4. Initialize App Check
 if (typeof window !== "undefined") {
-  const isDev = process.env.NODE_ENV === 'development';
-  
   if (isDev) {
     // Explicitly set the debug token to true before initializing App Check.
-    // This tells Firebase to generate a new debug token and print it to the console.
     (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     console.log("🛠️ App Check: Debug Mode Enabled. Check console for your Debug Token.");
   }
@@ -51,11 +51,7 @@ if (typeof window !== "undefined") {
 // Initialize the Gemini Developer API backend service
 const ai = getAI(app, { backend: new GoogleAIBackend() });
 
-// Create a `GenerativeModel` instance with a model that supports your use case
-const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
-
 // 6. Connect to Emulators (ONLY in Development)
-const isDev = process.env.NODE_ENV === 'development';
 const host = process.env.NEXT_PUBLIC_EMULATOR_HOST;
 
 if (isDev && host) {
@@ -80,7 +76,7 @@ export { app, auth, db, rtdb, storage, functions };
 // Export Models
 export const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
 
-//export const lessonModel = getGenerativeModel(ai, {
-  //model: "gemini-2.5-flash",
-  //systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
-//});
+export const lessonModel = getGenerativeModel(ai, {
+  model: "gemini-2.5-flash",
+  systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
+});

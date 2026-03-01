@@ -1,31 +1,23 @@
-'use server';
-
+import { ai } from '../genkit';
 import { z } from 'genkit';
-import { ai } from '@/ai/genkit';
-import { db } from '@/lib/firebase';
 
-export const getHomeBase = ai.defineFlow(
+export const establishHomeBase = ai.defineFlow(
   {
-    name: 'getHomeBase',
-    inputSchema: z.void(), // No input needed to fetch the primary profile
-    outputSchema: z.object({ 
-      success: z.boolean(), 
-      data: z.any().optional(),
-      message: z.string().optional() 
-    }),
+    name: 'establishHomeBase',
+    inputSchema: z.object({ userId: z.string() }),
+    outputSchema: z.object({ status: z.string(), userContext: z.any() }),
   },
-  async () => {
-    try {
-      const { getDoc, doc } = await import('firebase/firestore');
-      const userDoc = await getDoc(doc(db, 'users', 'primary_user'));
-
-      if (!userDoc.exists()) {
-        return { success: false, message: "Home Base not established yet." };
+  async (input) => {
+    // Placeholder: Connect to Firestore here
+    // const userProfile = await firestore.get(input.userId);
+    
+    return {
+      status: 'Home Base Established',
+      userContext: {
+        name: 'Isaiah Smith', // Hardcoded for the "AI Birthday" concept until Firestore is live
+        role: 'Primary User',
+        established: '2026-02-06'
       }
-
-      return { success: true, data: userDoc.data() };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
+    };
   }
 );

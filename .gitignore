@@ -19,6 +19,10 @@ dist/
 /.next/
 /out/
 
+# documents
+*.md\
+*.mp\
+
 # production
 /build
 

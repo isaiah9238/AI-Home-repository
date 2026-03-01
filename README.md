@@ -1,25 +1,31 @@
 # AI Home 🚀
 
-Welcome to AI Home, your personal development environment for creating, training, and interacting with a bespoke Generative AI. This project is designed to be your launchpad into the world of AI-powered applications, providing a suite of tools to build and manage your AI's capabilities.
+Welcome to **AI Home**, the architecture for your personal "Portal" and "Cabinet" of AI tools. This project represents the transition from hacking on external platforms to architecting a system on your own server—one that cannot be turned off.
 
 ## Project Philosophy
 
-The core idea behind AI Home is to create a transparent and educational space for building with generative AI. It's a hands-on learning tool where you can:
+The core idea is to build a **Portal**: a doorway between your clean "Home" and the powerful AI "Drawers" (tools) you’ve built.
 
--   **Build Incrementally:** Start with a basic structure and add complexity feature by feature.
--   **Understand the Pieces:** See how a frontend (Next.js), AI toolkit (Genkit), and UI components (ShadCN) work together.
--   **Interact Directly:** Use the tools you build to understand the capabilities and limitations of your AI.
+-   **The Clean Room:** The interface is minimalist. Tools are "summoned" only when needed.
+-   **The Cabinet:** The backend is organized into specific **Domains** (Discovery, Research, Safety) rather than a flat pile of scripts.
+-   **Universal Template:** The system is designed as a house that adapts to its inhabitant, using variables like `The User` instead of hardcoded names.
 
-## Features
+## The Cabinet (Features)
 
-This application includes the following features. We'll be building these out together!
+The system is organized into "Drawers" that you can open via the Portal:
 
--   **Dashboard**: A central hub that provides a "morning briefing" from your AI, tailored to your interests.
--   **Code Analyzer**: Analyze code snippets for bugs, vulnerabilities, and performance bottlenecks.
--   **Content Reports**: Review and manage content flagged by the AI moderation system.
--   **Flux Echo**: Fetch and Epitomize content from any URL.
--   **Lesson Plans**: *(Coming Soon)* Provide structured lesson plans to guide your AI's learning journey.
--   **AI Mentor**: *(Coming Soon)* Receive guidance and advice from an experienced AI mentor.
+### 🔭 The Research Domain (Scout & Analyst)
+-   **Flux Echo**: A scout that runs to a URL and brings back a quick briefing.
+-   **Epitomizer**: Deep reads webpages and turns noise into clean notes.
+-   **Code Inspector**: Reviews code snippets for bugs and security vulnerabilities.
+
+### 🧠 The Discovery Domain (Memory & Growth)
+-   **Home Base**: The heart of the system. Connects to Firestore to ensure the AI knows who you are.
+-   **The Architect**: A "3D printer for code" that generates folder structures from blueprints.
+-   **The Tutor**: Ingests lesson plans (PDFs, guides) to teach the AI new contexts.
+
+### 🛡️ The Safety Domain (Gatekeepers)
+-   **Input/Output Filters**: Ensures structural integrity by vetting what enters and leaves the system.
 
 ## Tech Stack
 
@@ -67,17 +73,25 @@ npm run dev
 
 Open the local URL provided in your terminal (e.g., http://localhost:9004) with your browser to see the result.
 
-## Project Structure
+## Project Structure: The Cabinet Architecture
 
-Here's a high-level overview of the key files and folders:
+The system has been reorganized from a flat structure into specific **Domains**.
 
--   `src/ai/`: The engine room. This is where the core AI logic resides.
-    -   `src/ai/genkit.ts`: Configures Genkit and connects it to the Gemini model.
-    -   `src/ai/flows/`: Contains the specific AI workflows, like analyzing code or providing mentorship.
--   `src/app/`: The frontend. This folder controls what you see on the screen.
-    -   `src/app/page.tsx`: The main dashboard page.
-    -   `src/app/layout.tsx`: The main layout component that wraps all pages.
-    -   `src/app/[feature]/page.tsx`: Individual pages for each feature (e.g., Code Analyzer).
--   `src/components/`: Shared React components, especially the UI components from ShadCN.
--   `.env`: Stores your secret API keys. This file is not committed to version control.
+-   **`src/ai/discovery/`** (Memory & Growth)
+    -   `establish-home-base.ts`: Connects to Firestore and maintains AI self-awareness.
+    -   `generate-initial-files.ts`: The Architect tool for building file structures.
+    -   `integrate-lesson-plans.ts`: The Tutor for ingesting new knowledge.
 
+-   **`src/ai/domains/research/`** (The Scout & Analyst)
+    -   `link-genie.ts`: (Flux Echo) Fetches content from URLs.
+    -   `epitomize-fetched-content.ts`: Summarizes and cleans web content.
+    -   `analyze-code-snippet.ts`: The Code Inspector.
+
+-   **`src/ai/domains/safety/`** (The Gatekeepers)
+    -   Contains filters for User Input and AI Output.
+
+-   **`src/ai/flows/`**
+    -   `userBrain.ts`: The Core Brain. Connects the "Librarian" (Firestore) to the "Mentor" (AI).
+
+-   **`src/app/`** (The Portal Interface)
+    -   Follows a "Clean Room" aesthetic. The UI acts as a floating "Portal" that summons specific drawers.

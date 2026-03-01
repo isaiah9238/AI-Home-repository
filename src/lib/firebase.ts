@@ -11,7 +11,7 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 
 // 1. Web App Configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIza...",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyAvydFedHHp-P0Gldx_QsZ0JV9psd5hoNU",
   authDomain: "studio-3863072923-d4373.firebaseapp.com",
   databaseURL: "https://studio-3863072923-d4373-default-rtdb.firebaseio.com", 
   projectId: "studio-3863072923-d4373",
@@ -42,15 +42,17 @@ if (typeof window !== "undefined") {
   }
 
   initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LcNv9sqAAAAAM-S_p-m7r_Xm_q-S_p-m7r_Xm_q'),
+    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LewdWQsAAAAAAmRE94NsbKPY0gfwD787wc1fgpE'),
     isTokenAutoRefreshEnabled: true
   });
 }
 
 // 5. Initialize Vertex AI for Firebase
-const ai = getAI(app, {
-  backend: new GoogleAIBackend() 
-});
+// Initialize the Gemini Developer API backend service
+const ai = getAI(app, { backend: new GoogleAIBackend() });
+
+// Create a `GenerativeModel` instance with a model that supports your use case
+const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
 
 // 6. Connect to Emulators (ONLY in Development)
 const isDev = process.env.NODE_ENV === 'development';
@@ -76,11 +78,9 @@ if (isDev && host) {
 export { app, auth, db, rtdb, storage, functions };
 
 // Export Models
-export const model = getGenerativeModel(ai, { 
-  model: "gemini-2.0-flash-exp" 
-});
+export const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
 
-export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-2.0-flash-exp",
-  systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
-});
+//export const lessonModel = getGenerativeModel(ai, {
+  //model: "gemini-2.5-flash",
+  //systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
+//});

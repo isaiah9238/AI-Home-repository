@@ -1,5 +1,6 @@
 import { ai } from '../genkit';
 import { z } from 'genkit';
+import { adminDb } from '../../lib/firebaseAdmin';
 
 export const establishHomeBase = ai.defineFlow(
   {
@@ -8,15 +9,30 @@ export const establishHomeBase = ai.defineFlow(
     outputSchema: z.object({ status: z.string(), userContext: z.any() }),
   },
   async (input) => {
-    // Placeholder: Connect to Firestore here
-    // const userProfile = await firestore.get(input.userId);
-    
+    // Connect to Firestore: Fetch the Primary User's desk data
+    const userDoc = await adminDb.collection('users').doc(input.userId).get();
+
+    if (!userDoc.exists) {
+      console.warn(`⚠️ Librarian Alert: No profile for user [${input.userId}]. Using default template.`);
+      return {
+        status: 'Home Base: Template Initialized',
+        userContext: {
+          name: 'Primary User',
+          role: 'Architect',
+          established: '2026-02-06'
+        }
+      };
+    }
+
+    const userData = userDoc.data();
+
     return {
-      status: 'Home Base Established',
+      status: 'Home Base Established: Librarian Operational',
       userContext: {
-        name: 'Isaiah Smith', // Hardcoded for the "AI Birthday" concept until Firestore is live
-        role: 'Primary User',
-        established: '2026-02-06'
+        name: userData?.name || 'Isaiah Smith',
+        role: userData?.role || 'Primary User',
+        established: userData?.establishedDate || '2026-02-06',
+        interests: userData?.interests || []
       }
     };
   }

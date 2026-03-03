@@ -8,6 +8,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {recordGem} from './gems-logger';
 
 const FilterUserInputInputSchema = z.object({
   text: z.string().describe('The text to filter for inappropriate language.'),
@@ -53,6 +54,17 @@ const filterUserInputFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
+
+    // 💎 Record Gem if inappropriate
+    if (output && !output.isAppropriate) {
+      await recordGem({
+        type: 'user_input',
+        reason: output.reason || 'Unknown violation',
+        content: input.text,
+        severity: 'medium', // Default for user input
+      });
+    }
+
     return output!;
   }
 );

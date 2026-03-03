@@ -1,4 +1,8 @@
 {
+  "apphosting": {
+    "backendId": "studio-3863072923-d4373",
+    "region": "us-central1"
+  },
   "hosting": {
     "source": ".",
     "ignore": [

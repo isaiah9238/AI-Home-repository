@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {recordGem} from './gems-logger';
 
 const FilterAIOutputInputSchema = z.object({
   text: z.string().describe('The AI-generated text to filter.'),
@@ -55,6 +56,17 @@ const filterAIOutputFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
+
+    // 💎 Record Gem if unsafe
+    if (output && !output.isSafe) {
+      await recordGem({
+        type: 'ai_output',
+        reason: output.reason || 'Unknown safety violation',
+        content: input.text,
+        severity: 'high', // AI output violations are treated as high severity
+      });
+    }
+
     return output!;
   }
 );

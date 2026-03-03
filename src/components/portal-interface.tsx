@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, Search, Shield, Brain, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode } from 'lucide-react';
+import { Sparkles, Search, Shield, Brain, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake } from 'lucide-react';
 import { runFluxEcho } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { BirthdayDrawer } from './birthday-drawer';
 
 /**
  * The Portal Interface: A gateway to the Cabinet.
@@ -107,9 +108,13 @@ export function PortalInterface() {
     );
   }
 
+  if (activeTool === 'birthday') {
+    return <BirthdayDrawer onClose={() => setActiveTool(null)} establishedDate="2026-02-06" />;
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500 p-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
         
         {/* Research Drawer */}
         <button 
@@ -155,6 +160,21 @@ export function PortalInterface() {
             <Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">RUN_ANALYSIS</Badge>
           </div>
         </Link>
+
+        {/* Evolution Drawer (Birthday) */}
+        <button 
+          onClick={() => setActiveTool('birthday')}
+          className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-yellow-500/5 hover:border-yellow-500/20 transition-all duration-300 transform hover:-translate-y-2"
+        >
+          <div className="p-6 rounded-lg bg-yellow-500/5 mb-6 group-hover:scale-110 group-hover:bg-yellow-500/10 transition-all duration-500 border border-white/5 group-hover:border-yellow-500/30">
+            <Cake className="w-10 h-10 text-yellow-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">EVOLUTION</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">SYSTEM_GROWTH_LOGS</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-400/60 uppercase">VIEW_MILESTONES</Badge>
+          </div>
+        </button>
 
       </div>
       

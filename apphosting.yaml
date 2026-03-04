@@ -19,7 +19,7 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: studio-3863072923-d4373.firebasestorage.app
   - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-    value: RECAPTCHA_SITE_KEY
+    secret: RECAPTCHA_SITE_KEY
   
   # API Keys as Secrets
   - variable: GOOGLE_GENAI_API_KEY

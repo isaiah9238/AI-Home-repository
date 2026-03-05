@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, Search, Shield, Brain, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake } from 'lucide-react';
+import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake } from 'lucide-react';
 import { runFluxEcho } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,6 @@ export function PortalInterface() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
   const [url, setUrl] = useState('');
   const [fluxResult, setFluxResult] = useState<{ summary: string; keyPoints: string[] } | null>(null);
 
@@ -36,16 +35,16 @@ export function PortalInterface() {
   if (!isOpen) {
     return (
       <div className="flex flex-col items-center justify-center h-full animate-in fade-in duration-1000">
-        <button 
+        <button
           onClick={() => setIsOpen(true)}
           className="group relative flex items-center justify-center w-48 h-48 rounded-full bg-black border border-white/10 shadow-[0_0_80px_-12px_rgba(34,197,94,0.15)] hover:shadow-[0_0_120px_-12px_rgba(52,211,153,0.3)] transition-all duration-700 hover:scale-105 active:scale-95"
         >
           <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-green-500/10 to-blue-500/10 animate-pulse" />
           <div className="absolute inset-0 rounded-full border border-dashed border-white/10 animate-[spin_30s_linear_infinite]" />
           <div className="absolute inset-2 rounded-full border border-white/5 animate-[spin_20s_linear_infinite_reverse]" />
-          
+
           <Sparkles className="w-14 h-14 text-white/20 group-hover:text-green-400 transition-colors duration-700" />
-          
+
           <span className="absolute -bottom-16 text-[10px] tracking-[0.8em] text-white/20 group-hover:text-green-400/80 transition-all duration-700 uppercase font-mono">
             ENGAGE_PORTAL_CORE
           </span>
@@ -68,14 +67,14 @@ export function PortalInterface() {
         </div>
 
         <div className="flex gap-4 mb-8">
-          <Input 
-            placeholder="ENTER_URL_FOR_RECONNAISSANCE..." 
+          <Input
+            placeholder="ENTER_URL_FOR_RECONNAISSANCE..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             className="bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-xs tracking-wider"
           />
-          <Button 
-            onClick={handleFluxEcho} 
+          <Button
+            onClick={handleFluxEcho}
             disabled={loading}
             className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/40"
           >
@@ -97,7 +96,7 @@ export function PortalInterface() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fluxResult.keyPoints.map((point, i) => (
                 <div key={i} className="p-4 rounded border border-white/5 bg-white/5 text-[10px] font-mono text-white/50 flex items-start gap-3">
-                  <span className="text-blue-500 font-bold">{"//"}</span> 
+                  <span className="text-blue-500 font-bold">{"//"}</span>
                   <span>{point}</span>
                 </div>
               ))}
@@ -115,9 +114,9 @@ export function PortalInterface() {
   return (
     <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500 p-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
-        
+
         {/* Research Drawer */}
-        <button 
+        <button
           onClick={() => setActiveTool('flux-echo')}
           className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-300 transform hover:-translate-y-2"
         >
@@ -132,7 +131,7 @@ export function PortalInterface() {
         </button>
 
         {/* Discovery Drawer */}
-        <Link 
+        <Link
           href="/lesson-plans"
           className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-300 transform hover:-translate-y-2"
         >
@@ -147,7 +146,7 @@ export function PortalInterface() {
         </Link>
 
         {/* Development Drawer */}
-        <Link 
+        <Link
           href="/code-analyzer"
           className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2"
         >
@@ -162,7 +161,7 @@ export function PortalInterface() {
         </Link>
 
         {/* Evolution Drawer (Birthday) */}
-        <button 
+        <button
           onClick={() => setActiveTool('birthday')}
           className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-yellow-500/5 hover:border-yellow-500/20 transition-all duration-300 transform hover:-translate-y-2"
         >
@@ -177,9 +176,9 @@ export function PortalInterface() {
         </button>
 
       </div>
-      
-      <button 
-        onClick={() => setIsOpen(false)} 
+
+      <button
+        onClick={() => setIsOpen(false)}
         className="mt-16 text-white/10 hover:text-white transition-all flex items-center gap-3 group font-mono text-[10px] uppercase tracking-[0.6em]"
       >
         <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />

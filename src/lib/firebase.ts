@@ -40,7 +40,7 @@ if (typeof window !== "undefined") {
   }
 
   initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6Lew....'),
+    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "RECAPTCHA_SITE_KEY"),
     isTokenAutoRefreshEnabled: true
   });
 }

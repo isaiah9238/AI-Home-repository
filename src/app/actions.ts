@@ -5,6 +5,7 @@ import { linkGenie } from '@/ai/domains/research/link-genie';
 import { fluxEcho } from '@/ai/discovery/flux-echo';
 import { adminDb } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -125,7 +126,13 @@ export async function getCurriculumProgress() {
   }
 }
 
-// --- 8. Safety: Check System Integrity ---
+// --- 8. Migrate lesson Plan
+export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
+  // This runs strictly on the server
+  return await migrateLessonToDb(data);
+}
+
+// --- . Safety: Check System Integrity ---
 export async function getSystemIntegrity() {
   try {
     // Check for any 'pending' gems with 'high' or 'critical' severity

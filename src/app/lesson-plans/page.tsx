@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { BookOpen, Loader2 } from "lucide-react";
 import { lessonModel } from "@/lib/firebase"; 
 // 1. Fixed: Import the migration function
-import { migrateLessonToDb } from "@/ai/discovery/migrate-lesson-to-db"; 
+import { migrateLessonToDb } from "@/ai/discovery/migrate-lesson-to-db";
+// Change this import:
+import { integrateLessonAction } from "@/app/actions";
 
 export default function LessonPlansPage() {
   const [subject, setSubject] = useState('');
@@ -31,11 +33,12 @@ export default function LessonPlansPage() {
     }
   };
 
+  // Update the function inside the component:
   const handleIntegrate = async () => {
     if (!plan || !subject) return;
     setIsMigrating(true);
     try {
-      const result = await migrateLessonToDb({
+      const result = await integrateLessonAction({ // Use the Action instead of the direct script
         title: subject,
         subject: "AI Generated Lesson",
         complexityGain: 5 

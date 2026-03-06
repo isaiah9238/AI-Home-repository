@@ -2,6 +2,12 @@ import { ai } from '../genkit';
 import { z } from 'genkit';
 import { adminDb } from '../../lib/firebaseAdmin';
 
+/**
+ * @fileOverview A flow to establish the user's home base and fetch profile context.
+ *
+ * - establishHomeBase - A function that fetches or initializes the user profile.
+ */
+
 export const establishHomeBase = ai.defineFlow(
   {
     name: 'establishHomeBase',

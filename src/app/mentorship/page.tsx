@@ -16,14 +16,13 @@ export default function MentorshipPage() {
   useEffect(() => {
     async function init() {
       try {
-        // Use the Server Action instead of importing the AI flow directly
         const homeBase = await getHomeBase();
         
         if (homeBase.success && homeBase.data) {
           const response = await getMorningBriefing(homeBase.data);
           setBriefing(response);
         } else {
-          setBriefing("Welcome! I don't know your interests yet. Use the command line on the Dashboard to set your profile variables.");
+          setBriefing("Welcome! I don&apos;t know your interests yet. Use the command line on the Dashboard to set your profile variables.");
         }
       } catch (err) {
         console.error("Initialization Error:", err);
@@ -53,7 +52,7 @@ export default function MentorshipPage() {
             <div className="space-y-4">
               <div className="bg-white/5 p-6 rounded-lg border border-white/5">
                 <p className="whitespace-pre-wrap leading-relaxed italic text-white/70 font-mono text-sm">
-                  "{briefing}"
+                  &quot;{briefing}&quot;
                 </p>
               </div>
               

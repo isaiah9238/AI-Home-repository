@@ -9,21 +9,25 @@ export const userBrain = ai.defineFlow(
     inputSchema: z.object({ query: z.string() }),
     outputSchema: z.string(),
   },
+  // Updated userBrain.ts logic
   async (input) => {
     // 1. Establish context (The Librarian)
     const context = await ai.run('establish-context', async () => {
-        return await establishHomeBase({ userId: 'primary_user' });
-    });
+      // We now fetch the full Home Base which includes identity and stats
+      return await establishHomeBase({ userId: 'primary_user' });
+  });
 
-    // 2. Process query with context (The Mentor)
-    const { text } = await ai.generate({
-      prompt: `
-        Context: You are speaking to ${context.userContext.name}.
-        Role: Mentor / Personal AI.
-        User Query: ${input.query}
-      `,
-    });
-    
-    return text;
-  }
+  // 2. Process query with expanded context (The Mentor)
+  const { text } = await ai.generate({
+    prompt: `
+      Context: Speaking to ${context.userContext.name}.
+      System Age: ${context.userContext.daysOld || 'unknown'} days since activation.
+      Recent Learning: ${context.userContext.lastTopic || 'Initial Systems'}.
+      Role: Mentor / Personal AI.
+      User Query: ${input.query}
+    `,
+  });
+  
+  return text;
+}
 );

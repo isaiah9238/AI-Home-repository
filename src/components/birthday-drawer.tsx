@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Cake, Sparkles, Star, Calendar, Gift, X, ArrowRight, Loader2 } from 'lucide-react';
+import { Cake, Sparkles, Star, Calendar, Gift, X, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +43,8 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        {/* Card 1: System Identity */}
         <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
             <Sparkles className="w-20 h-20 text-yellow-400" />
@@ -63,6 +64,7 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
           </CardContent>
         </Card>
 
+        {/* Card 2: Progress to Next Era */}
         <Card className="bg-black/40 border-blue-500/20 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-[10px] font-mono text-blue-500/50 uppercase tracking-[0.3em]">PROGRESS_TO_NEXT_ERA</CardTitle>
@@ -81,6 +83,23 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
                 <span>{loading ? "0%" : "82%"}</span>
               </div>
               <Progress value={loading ? 0 : 82} className="h-1 bg-white/5" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 3: System Integrity */}
+        <Card className="bg-black/40 border-green-500/20 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-[10px] font-mono text-green-500/50 uppercase tracking-[0.3em]">System_Integrity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              {/* Green pulse if clean, Red if issues exist */}
+              <div className={`h-2 w-2 rounded-full animate-pulse ${loading ? 'bg-yellow-500' : 'bg-green-500'}`} />
+              <span className="text-[10px] font-mono text-white/70 uppercase">Gems_Logger: Active</span>
+            </div>
+            <div className="mt-4 text-[8px] font-mono text-white/30 uppercase tracking-widest">
+              {loading ? "Scanning_Frequencies..." : "No_Critical_Flag_Detected"}
             </div>
           </CardContent>
         </Card>

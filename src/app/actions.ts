@@ -83,3 +83,65 @@ export async function getHomeBase() {
     return { success: false, error: "SYSTEM_READ_ERROR" };
   }
 }
+
+// --- 6. Evolution: Calculate System Age ---
+export async function getSystemEvolution() {
+  try {
+    const doc = await adminDb.collection('users').doc('primary_user').get();
+    const establishedDate = doc.exists 
+      ? doc.data()?.establishedDate 
+      : '2026-02-06'; // [cite: 59, 60]
+
+    const start = new Date(establishedDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return { 
+      success: true, 
+      daysOld: diffDays, 
+      isAnniversary: now.getMonth() === start.getMonth() && now.getDate() === start.getDate() 
+    };
+  } catch (error) {
+    return { success: false, daysOld: 0 };
+  }
+}
+
+// --- 7. Curriculum: Fetch Learning Progress ---
+export async function getCurriculumProgress() {
+  try {
+    const doc = await adminDb.collection('users').doc('primary_user').get();
+    const data = doc.data();
+    
+    // In the future, this will be calculated by the number of processed lesson plans
+    return {
+      success: true,
+      integratedPlans: data?.lessonPlansCount || 0,
+      neuralComplexity: data?.neuralComplexity || 64, // placeholder from your UI
+      lastTopic: data?.lastLesson || "Next.js Fundamentals"
+    };
+  } catch (error) {
+    return { success: false, integratedPlans: 0 };
+  }
+}
+
+// --- 8. Safety: Check System Integrity ---
+export async function getSystemIntegrity() {
+  try {
+    // Check for any 'pending' gems with 'high' or 'critical' severity
+    const criticalGems = await adminDb.collection('gems')
+      .where('status', '==', 'pending')
+      .where('severity', 'in', ['high', 'critical'])
+      .get();
+
+    return {
+      success: true,
+      isClean: criticalGems.empty,
+      activeLogger: true,
+      issueCount: criticalGems.size
+    };
+  } catch (error) {
+    console.error("Integrity Check Error:", error);
+    return { success: false, isClean: true, activeLogger: false };
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, GraduationCap, CheckCircle2, Trophy } from 'lucide-react';
+import { BookOpen, GraduationCap, CheckCircle2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -38,6 +38,25 @@ export function CurriculumDrawer({ progress }: { progress: any }) {
               <p className="text-xs font-bold tracking-widest">{progress.lastTopic}</p>
               <p className="text-[8px] text-white/30 uppercase mt-1">Status: Processing_New_Context</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Milestones Section */}
+      <div className="mt-4">
+        <h3 className="text-[10px] font-mono text-white/20 uppercase tracking-[0.5em] mb-4">Ingested_Milestones</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 rounded border border-blue-500/20 bg-blue-500/5">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-mono text-blue-400 uppercase">Knowledge_Ingested</span>
+              <CheckCircle2 className="w-3 h-3 text-blue-400" />
+            </div>
+            <p className="text-xs font-bold text-white uppercase tracking-tighter">
+              Introduction to Architecture
+            </p>
+            <p className="text-[8px] text-white/40 mt-1 uppercase">
+              Focus: Form, Function, Structure, Aesthetics, Context
+            </p>
           </div>
         </div>
       </div>

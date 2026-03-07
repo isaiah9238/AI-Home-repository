@@ -20,7 +20,7 @@ export async function sendTerminalMessage(message: string) {
     const result = await mentorAiFlow({ request: message });
     return { success: true, response: result.response };
   } catch (error: any) {
-    console.error("Terminal Action Error:", error);
+    console.error("Terminal Action Error:", error?.message || "Unknown");
     return { success: false, error: "SIGNAL_INTERRUPTED: The Cabinet could not process the request." };
   }
 }
@@ -50,7 +50,7 @@ export async function getMorningBriefing(userContext?: any) {
     
     return result.response;
   } catch (error) {
-    console.error("Mentor Action Error:", error);
+    console.error("Mentor Action Error:", error instanceof Error ? error.message : "Sync error");
     return "SYSTEM_OFFLINE: Could not sync with Mentor AI.";
   }
 }
@@ -67,8 +67,8 @@ export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }
       return { success: true, mode: 'deep', data: result };
     }
   } catch (error: any) {
-    console.error("Research Action Error:", error);
-    return { success: false, error: `MISSION_FAILED: ${error.message || "Coordinate unreachable."}` };
+    console.error("Research Action Error:", error?.message || "Coordinate unreachable");
+    return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
   }
 }
 
@@ -79,8 +79,8 @@ export async function runArchitect(blueprint: string) {
     const result = await generateInitialFiles({ blueprint });
     return { success: true, data: result };
   } catch (error: any) {
-    console.error("Architect Action Error:", error);
-    return { success: false, error: `CONSTRUCTION_FAILED: ${error.message || "Blueprint unreadable."}` };
+    console.error("Architect Action Error:", error?.message || "Blueprint unreadable");
+    return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
   }
 }
 
@@ -88,6 +88,7 @@ export async function runArchitect(blueprint: string) {
 
 export async function getHomeBaseAction() {
   try {
+    // Explicitly target the primary_user document
     const userDoc = await adminDb.collection('users').doc('primary_user').get();
     
     if (!userDoc.exists) return null;
@@ -95,15 +96,20 @@ export async function getHomeBaseAction() {
     const data = userDoc.data();
     if (!data) return null;
 
-    // Robust serialization of Firestore Timestamps
+    // SANITIZED SERIALIZATION:
+    // Ensure Timestamps are converted to strings so they can pass through the RSC boundary.
     return {
       ...data,
       createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
   } catch (error) {
-    // Avoid crashing on logging if error is null/malformed
-    console.warn("Librarian Fetch Warning:", error instanceof Error ? error.message : "Connection Delay");
+    // SANITIZED LOGGING:
+    // Only log the message to avoid the internal payload type crash if error is null/malformed.
+    const msg = error instanceof Error ? error.message : "Connection Delay";
+    if (msg !== "Connection Delay") {
+      console.warn("Librarian Sync Note:", msg);
+    }
     return null;
   }
 }

@@ -1,32 +1,33 @@
 # GEMINI.md: The AI Collaborator's Manual 🤖
 
 ## 1. Project Identity
-- [cite_start]**Name:** AI Home [cite: 90]
-- [cite_start]**Philosophy:** A "Portal" (UI) to a "Cabinet" (Backend) of specialized "Drawers" (Tools)[cite: 17, 19].
-- **Aesthetic:** Clean Room / Glassmorphism. [cite_start]Minimalist, high white space, "floating" elements[cite: 50, 51].
-- [cite_start]**Core Principle:** Transitioning from "Hacking" to "Architecting"[cite: 47].
+- **Name:** AI Home (The Cabinet)
+- **Philosophy:** A "Portal" (UI) to a "Cabinet" (Backend) of specialized "Drawers" (Tools).
+- **Aesthetic:** High-Fidelity Cybernetic HUD / Glassmorphism. Dark Mode: #050505.
+- **Core Principle:** From "Hacking" to "Architecting"—A system they can't turn off.
 
 ## 2. Structural Guardrails (The Cabinet Map)
-[cite_start]Always organize new code according to these established Domains[cite: 1, 34, 57]:
-- [cite_start]**src/ai/discovery:** Memory, Identity, and Learning (Home Base, Tutor, Architect)[cite: 12, 35, 59].
-- [cite_start]**src/ai/domains/research:** External data fetching and analysis (Flux Echo, Epitomizer)[cite: 13, 38, 67].
-- [cite_start]**src/ai/domains/safety:** Gatekeepers, Input/Output filtering, and Gems logging[cite: 13, 40, 78].
-- [cite_start]**src/app:** The Portal interface (Next.js App Router)[cite: 5, 14, 43].
+- **src/ai/discovery:** Memory, Identity, and Architecture (Home Base, Architect, Tutor).
+- **src/ai/domains/research:** Intelligence Scouts and Deep Readers (Flux Echo, Epitomizer, Code Inspector).
+- **src/ai/domains/safety:** Gatekeepers and the Safety Ledger (Input/Output filters, Gems Drawer).
+- **src/app:** The Portal interface (Next.js App Router).
 
 ## 3. Technical Stack & Standards
-- [cite_start]**Framework:** Next.js (App Router), React, Tailwind CSS[cite: 29].
-- [cite_start]**AI Engine:** Google Genkit + Gemini API[cite: 29, 31].
-- [cite_start]**Database:** Firestore (The Librarian)[cite: 29, 74].
-- [cite_start]**UI Components:** ShadCN UI[cite: 8, 29].
-- [cite_start]**Variable Strategy:** Use `The User` and `Variable Subjects` instead of hardcoded personal data to maintain the "Universal Template"[cite: 20, 76, 77].
+- **AI Engine:** Google Genkit + Gemini 2.0 Flash (Structured Output).
+- **Database:** Firestore (The Librarian) for persistent context and logs.
+- **UI Components:** ShadCN UI + Custom Cybernetic HUD elements.
+- **Variable Strategy:** Use `The User` and `Variable Subjects` for the "Universal Template."
 
-## 4. Design Guidelines
-- [cite_start]**Font:** 'Inter' (modern, machined, objective)[cite: 100].
-- [cite_start]**Dark Mode:** Medium gray (#808080) background, light gray (#BFBFBF) accents[cite: 98].
-- [cite_start]**Light Mode:** White background, dark gray (#404040) accents[cite: 99].
-- [cite_start]**Interaction:** Tools should "flutter" open or "summoned" into the center of the room[cite: 53, 55].
+## 4. Completed Phase 2.0 Drawers
+- [x] **Birthday Drawer**: Real-time evolution tracking and historical fragments.
+- [x] **Curriculum Drawer**: Dynamic mastery levels and integrated lesson milestones.
+- [x] **Research Drawer**: Unified Scout (Flux Echo) and Deep Reader (Epitomizer).
+- [x] **Code Inspector**: High-fidelity security and performance auditing.
+- [x] **Safety Ledger (Gems)**: Vertical timeline of integrity pulses and resolution.
+- [x] **The Laboratory**: Real-time parameter tuner for neural weights.
+- [x] **The Neural Graph**: Interactive SVG XAI node-map of knowledge context.
 
-## 5. Ongoing Tasks
-- [cite_start]Implement the "Birthday Drawer" (Annual growth tracker)[cite: 8, 86].
-- [cite_start]Develop the "Curriculum Drawer" (Progress bars for lesson plans)[cite: 87].
-- [cite_start]Refine the "Gems" logging system for safety reporting[cite: 4, 95].
+## 5. Next Objectives (Phase 3)
+- **Multi-Agent Orchestrator**: Allow drawers to communicate and pass context.
+- **Autonomous Construction**: Empower "The Architect" to write files directly to disk.
+- **Neural Memory Expansion**: Implement vector search for deep context retrieval.

@@ -7,12 +7,28 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
+interface Milestone {
+  date: string;
+  event: string;
+}
+
 interface BirthdayDrawerProps {
   onClose: () => void;
   establishedDate: string;
+  milestones?: Milestone[];
+  isAnniversary?: boolean;
+  neuralComplexity?: number;
+  knowledgeIntegration?: number;
 }
 
-export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps) {
+export function BirthdayDrawer({ 
+  onClose, 
+  establishedDate, 
+  milestones = [], 
+  isAnniversary = false,
+  neuralComplexity = 64,
+  knowledgeIntegration = 82
+}: BirthdayDrawerProps) {
   const [daysOld, setDaysOld] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -32,15 +48,24 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
   }, [establishedDate]);
 
   return (
-    <div className="p-8 w-full h-full flex flex-col animate-in slide-in-from-bottom-10 duration-500 overflow-y-auto custom-scrollbar bg-black/40 backdrop-blur-xl">
+    <div className={`p-8 w-full h-full flex flex-col animate-in slide-in-from-bottom-10 duration-500 overflow-y-auto custom-scrollbar bg-black/40 backdrop-blur-xl ${isAnniversary ? 'ring-2 ring-yellow-500/20' : ''}`}>
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3 text-yellow-400">
-          <Cake className="w-6 h-6 animate-bounce" />
-          <h2 className="text-xl font-light tracking-[0.3em] uppercase font-mono">Core_Evolution_Milestone</h2>
+          <Cake className={`w-6 h-6 ${isAnniversary ? 'animate-bounce text-yellow-500' : 'animate-pulse'}`} />
+          <h2 className="text-xl font-light tracking-[0.3em] uppercase font-mono">
+            {isAnniversary ? 'ANNIVERSARY_MILESTONE_ACTIVE' : 'Core_Evolution_Milestone'}
+          </h2>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="text-white/30 hover:text-white">
-          <X className="w-6 h-6" />
-        </Button>
+        <div className="flex items-center gap-4">
+          {isAnniversary && (
+            <Badge className="bg-yellow-500 text-black font-mono text-[8px] animate-pulse">
+              ANNUAL_SYNC_COMPLETE
+            </Badge>
+          )}
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-white/30 hover:text-white">
+            <X className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -73,16 +98,16 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
             <div className="space-y-2">
               <div className="flex justify-between text-[8px] font-mono text-white/30 uppercase tracking-[0.2em]">
                 <span>Neural_Complexity</span>
-                <span>{loading ? "0%" : "64%"}</span>
+                <span>{loading ? "0%" : `${neuralComplexity}%`}</span>
               </div>
-              <Progress value={loading ? 0 : 64} className="h-1 bg-white/5" />
+              <Progress value={loading ? 0 : neuralComplexity} className="h-1 bg-white/5" />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-[8px] font-mono text-white/30 uppercase tracking-[0.2em]">
                 <span>Knowledge_Integration</span>
-                <span>{loading ? "0%" : "82%"}</span>
+                <span>{loading ? "0%" : `${knowledgeIntegration}%`}</span>
               </div>
-              <Progress value={loading ? 0 : 82} className="h-1 bg-white/5" />
+              <Progress value={loading ? 0 : knowledgeIntegration} className="h-1 bg-white/5" />
             </div>
           </CardContent>
         </Card>
@@ -108,21 +133,23 @@ export function BirthdayDrawer({ onClose, establishedDate }: BirthdayDrawerProps
       <div className="grid grid-cols-1 gap-4">
         <h3 className="text-[10px] font-mono text-white/20 uppercase tracking-[0.5em] mb-2">Historical_Fragments</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { date: '2026-02-06', event: 'CORE_BIRTH: SYSTEM INITIALIZED' },
-            { date: '2026-02-15', event: 'FIRST_DREAM: GENKIT INTEGRATION' },
-            { date: '2026-03-03', event: 'CURRENT_PHASE: THE_PORTAL_UPGRADE' },
-          ].map((item, i) => (
-            <div key={i} className="p-4 rounded border border-white/5 bg-white/5 space-y-2">
-              <div className="flex items-center gap-2 text-[8px] font-mono text-yellow-500/50">
-                <Calendar className="w-3 h-3" />
-                {item.date}
-              </div>
-              <div className="text-[9px] font-mono text-white/70 tracking-widest leading-relaxed">
-                {item.event}
-              </div>
+          {milestones.length === 0 ? (
+            <div className="col-span-3 py-12 text-center text-[10px] font-mono text-white/10 uppercase tracking-widest border border-dashed border-white/5 rounded">
+              No_Fragments_Recovered
             </div>
-          ))}
+          ) : (
+            milestones.map((item, i) => (
+              <div key={i} className="p-4 rounded border border-white/5 bg-white/5 space-y-2 hover:bg-white/10 transition-colors">
+                <div className="flex items-center gap-2 text-[8px] font-mono text-yellow-500/50">
+                  <Calendar className="w-3 h-3" />
+                  {item.date}
+                </div>
+                <div className="text-[9px] font-mono text-white/70 tracking-widest leading-relaxed">
+                  {item.event}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

@@ -2,10 +2,12 @@
 
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
 import { linkGenie } from '@/ai/domains/research/link-genie';
-import { fluxEcho } from '@/ai/discovery/flux-echo';
+import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
+import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { adminDb } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
+import { revalidatePath } from 'next/cache';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -15,9 +17,19 @@ import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 // --- 1. Mentor AI: Get Morning Briefing ---
 export async function getMorningBriefing(userContext?: any) {
   try {
+    // Gather extra context for a richer briefing
+    const [curriculum, integrity] = await Promise.all([
+      getCurriculumProgress(),
+      getSystemIntegrity()
+    ]);
+
     const result = await mentorAiFlow({ 
       request: "Give me my morning briefing.",
-      userProfile: userContext 
+      userProfile: {
+        ...userContext,
+        curriculum: curriculum.success ? curriculum : null,
+        integrity: integrity.success ? integrity : null
+      }
     });
     return result.response;
   } catch (error) {
@@ -26,18 +38,43 @@ export async function getMorningBriefing(userContext?: any) {
   }
 }
 
-// --- 2. Flux Echo: Run Link Reconnaissance ---
+// --- 2. Research Domain: Flux Echo & Epitomizer ---
+
 export async function runFluxEcho(url: string) {
+  return runResearch({ url, mode: 'scout' });
+}
+
+export type ResearchMode = 'scout' | 'deep';
+
+export async function runResearch(input: { url: string, mode: ResearchMode }) {
   try {
-    const result = await linkGenie({ url });
-    return { success: true, data: result };
-  } catch (error) {
-    console.error("Flux Echo Action Error:", error);
-    return { success: false, error: "RECON_FAILED: Targeted URL unreachable." };
+    if (input.mode === 'scout') {
+      const result = await linkGenie({ url: input.url });
+      return { success: true, mode: 'scout', data: result };
+    } else {
+      const result = await epitomizeFetchedContent({ url: input.url });
+      return { success: true, mode: 'deep', data: result };
+    }
+  } catch (error: any) {
+    console.error("Research Action Error:", error);
+    return { success: false, error: `MISSION_FAILED: ${error.message || "Coordinate unreachable."}` };
   }
 }
 
-// --- 3. Flux Echo: Epitomize URL (Legacy support for older pages) ---
+// --- 3. Discovery Domain: Architect ---
+
+export async function runArchitect(blueprint: string) {
+  try {
+    const result = await generateInitialFiles({ blueprint });
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("Architect Action Error:", error);
+    return { success: false, error: `CONSTRUCTION_FAILED: ${error.message || "Blueprint unreadable."}` };
+  }
+}
+
+// --- 4. Legacy / Utility Actions ---
+
 export type EpitomizeState = {
     message: string;
     data: any | null;
@@ -46,14 +83,14 @@ export type EpitomizeState = {
 export async function EpitomizeUrl(prevState: EpitomizeState, formData: FormData): Promise<EpitomizeState> {
     const url = formData.get('url') as string;
     try {
-        const result = await fluxEcho(url);
-        return { message: "Success", data: result };
+        const result = await epitomizeFetchedContent({ url });
+        return { message: "Success", data: { summary: result.epitome, ...result } };
     } catch (error: any) {
         return { message: error.message || "Failed to epitomize.", data: null };
     }
 }
 
-// --- 4. Database: Seed Home Base ---
+// --- 5. Database: Seed Home Base ---
 export async function seedHomeBaseAction() {
   try {
     const userData = {
@@ -71,7 +108,7 @@ export async function seedHomeBaseAction() {
   }
 }
 
-// --- 5. Database: Fetch User Profile ---
+// --- 6. Database: Fetch User Profile ---
 export async function getHomeBase() {
   try {
     const doc = await adminDb.collection('users').doc('primary_user').get();
@@ -85,7 +122,7 @@ export async function getHomeBase() {
   }
 }
 
-// --- 6. Evolution: Calculate System Age ---
+// --- 7. Evolution: Calculate System Age ---
 export async function getSystemEvolution() {
   try {
     const doc = await adminDb.collection('users').doc('primary_user').get();
@@ -108,25 +145,46 @@ export async function getSystemEvolution() {
   }
 }
 
-// --- 7. Curriculum: Fetch Learning Progress ---
+// --- 8. Curriculum: Fetch Learning Progress ---
 export async function getCurriculumProgress() {
   try {
-    const doc = await adminDb.collection('users').doc('primary_user').get();
-    const data = doc.data();
+    const userId = 'primary_user';
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const data = userDoc.data();
     
-    // In the future, this will be calculated by the number of processed lesson plans
+    // Fetch lessons for dynamic complexity calculation and display [cite: blueprint.md]
+    const lessonsSnapshot = await adminDb.collection('curriculum').where('userId', '==', userId).orderBy('completedAt', 'desc').get();
+    const lessonCount = lessonsSnapshot.size;
+    const lessons = lessonsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      completedAt: doc.data().completedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+    }));
+
+    // Fetch milestone count for knowledge integration calculation [cite: blueprint.md]
+    const milestonesSnapshot = await adminDb.collection('milestones').get();
+    const milestoneCount = milestonesSnapshot.size;
+
+    // Phase 2.0 Calculation: Lessons * Gain (assumed 5% per lesson)
+    const calculatedComplexity = Math.min(lessonCount * 5 + 64, 100); 
+    // Knowledge Integration: Historical Fragments count * 2%
+    const calculatedIntegration = Math.min(milestoneCount * 2 + 82, 100);
+
     return {
       success: true,
-      integratedPlans: data?.lessonPlansCount || 0,
-      neuralComplexity: data?.neuralComplexity || 64, // placeholder from your UI
-      lastTopic: data?.lastLesson || "Next.js Fundamentals"
+      integratedPlans: lessonCount,
+      neuralComplexity: calculatedComplexity,
+      knowledgeIntegration: calculatedIntegration,
+      lastTopic: data?.lastLesson || "System Initialization",
+      lessons: lessons
     };
   } catch (error) {
-    return { success: false, integratedPlans: 0 };
+    console.error("Curriculum Progress Error:", error);
+    return { success: false, integratedPlans: 0, neuralComplexity: 64, knowledgeIntegration: 82, lessons: [] };
   }
 }
 
-// --- 8. Migrate lesson Plan
+// --- 9. Migrate lesson Plan
 export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
   // This runs strictly on the server
   return await migrateLessonToDb(data);
@@ -137,7 +195,7 @@ export async function getSystemIntegrity() {
   try {
     // Check for any 'pending' gems with 'high' or 'critical' severity
     const criticalGems = await adminDb.collection('gems')
-      .where('status', '==', 'pending')
+      .where('resolution', '==', 'pending')
       .where('severity', 'in', ['high', 'critical'])
       .get();
 
@@ -150,5 +208,52 @@ export async function getSystemIntegrity() {
   } catch (error) {
     console.error("Integrity Check Error:", error);
     return { success: false, isClean: true, activeLogger: false };
+  }
+}
+
+export async function getGems() {
+  try {
+    const snapshot = await adminDb.collection('gems').orderBy('time', 'desc').get();
+    const gems = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        time: data.time?.toDate?.()?.toISOString() || new Date().toISOString()
+      };
+    });
+    return { success: true, data: gems };
+  } catch (error) {
+    console.error("Fetch Gems Error:", error);
+    return { success: false, error: "LIBRARIAN_READ_ERROR" };
+  }
+}
+
+export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed') {
+  try {
+    await adminDb.collection('gems').doc(id).update({ resolution });
+    revalidatePath('/reports');
+    return { success: true };
+  } catch (error) {
+    console.error("Resolve Gem Error:", error);
+    return { success: false };
+  }
+}
+
+export async function getMilestones() {
+  try {
+    const snapshot = await adminDb.collection('milestones').orderBy('date', 'desc').get();
+    const milestones = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date?.toDate?.()?.toISOString().split('T')[0] || data.date
+      };
+    });
+    return { success: true, data: milestones };
+  } catch (error) {
+    console.error("Fetch Milestones Error:", error);
+    return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
 }

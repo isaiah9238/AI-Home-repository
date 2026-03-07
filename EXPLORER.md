@@ -8,21 +8,19 @@ studio/
 │   ├── ai/                      # THE BRAIN (Genkit Flows & Prompts)
 │   │   ├── discovery/           # Memory & Identity Domain
 │   │   │   ├── establish-home-base.ts
-│   │   │   ├── flux-echo.ts
-│   │   │   ├── generate-initial-files.ts
-│   │   │   ├── integrate-lesson-plans.ts
+│   │   │   ├── generate-initial-files.ts (The Architect)
+│   │   │   ├── integrate-lesson-plans.ts (The Tutor)
 │   │   │   ├── mentor-ai.ts
-│   │   │   └── web-intel.ts
+│   │   │   └── migrate-lesson-to-db.ts
 │   │   ├── domains/             # Specialized Toolsets
 │   │   │   ├── research/        # Scout & Analyst Domain
-│   │   │   │   ├── analyze-code-snippet.ts
-│   │   │   │   ├── epitomize-fetched-content.ts
-│   │   │   │   ├── link-genie.ts
-│   │   │   │   └── summarize-fetched-content.ts
+│   │   │   │   ├── analyze-code-snippet.ts (Inspector)
+│   │   │   │   ├── epitomize-fetched-content.ts (Deep Reader)
+│   │   │   │   └── link-genie.ts (Flux Echo)
 │   │   │   └── safety/          # The Gatekeepers
 │   │   │       ├── filter-ai-output.ts
 │   │   │       ├── filter-user-input.ts
-│   │   │       └── gems-logger.ts
+│   │   │       └── gems-logger.ts (The Ledger)
 │   │   ├── flows/               # Core Orchestration
 │   │   │   └── userBrain.ts
 │   │   ├── genkit.ts            # Genkit Configuration
@@ -30,12 +28,11 @@ studio/
 │   │
 │   ├── app/                     # THE PORTAL (Next.js Routes)
 │   │   ├── (auth)/              # Authentication
-│   │   │   └── login/
-│   │   ├── code-analyzer/       # Development Drawer
-│   │   ├── flux-echo/           # Research Drawer
-│   │   ├── lesson-plans/        # Discovery Drawer
-│   │   ├── mentorship/          # Mentor UI
-│   │   ├── reports/             # Safety Logs
+│   │   │   └── login/           # Access Terminal
+│   │   ├── code-analyzer/       # Code Inspector UI
+│   │   ├── flux-echo/           # Research Drawer UI
+│   │   ├── lesson-plans/        # Discovery Drawer UI
+│   │   ├── reports/             # Security Logs
 │   │   ├── actions.ts           # The "Cabinet" Switchboard (Server Actions)
 │   │   ├── layout.tsx           # HUD Frame
 │   │   └── page.tsx             # The Interior Dashboard
@@ -45,34 +42,32 @@ studio/
 │   │   ├── logo/                # Branding (Vault & Portal)
 │   │   ├── app-shell.tsx        # Navigation & Sidebar
 │   │   ├── birthday-drawer.tsx  # Evolution Tracker
+│   │   ├── curriculum-drawer.tsx# Progress Visualizer
+│   │   ├── gems-drawer.tsx      # Safety Ledger Visualizer
+│   │   ├── laboratory-drawer.tsx# Parameter Tuner
+│   │   ├── neural-graph.tsx     # Context Map Visualizer
 │   │   ├── interior-dashboard.ts# Cybernetic HUD
 │   │   ├── portal-interface.tsx # The Engagable Core
 │   │   └── MainLogo.tsx         # Logo Switchboard
 │   │
-│   ├── firebase/                # Firebase Custom Error Handling
-│   ├── hooks/                   # React Hooks (useToast, useMobile)
-│   └── lib/                     # SHARED LIBRARIES
-│       ├── firebase.ts          # Client SDK Init
-│       ├── firebaseAdmin.ts     # Admin SDK Init
-│       └── utils.ts             # Tailwind Helpers
+│   ├── lib/                     # SHARED LIBRARIES
+│   │   ├── firebase.ts          # Client SDK Init
+│   │   └── firebaseAdmin.ts     # Admin SDK Init
 │
-├── .agents/                     # AI Skill Manifests
+├── docs/
+│   └── blueprint.md             # The Technical Roadmap
 ├── ARCHITECTURE.md              # The Vision Document
 ├── EXPLORER.md                  # This Map
-├── README.md                    # Project Overview
-├── firebase.json                # Firebase Infrastructure Config
-└── package.json                 # Dependencies & Scripts
+└── README.md                    # Project Overview
 ```
 
 ### Domain Key:
-- **Discovery (src/ai/discovery)**: Where the AI learns who you are and ingests new knowledge.
-- **Research (src/ai/domains/research)**: The "Scouts" that fetch and analyze external data.
-- **Safety (src/ai/domains/safety)**: The gatekeepers that ensure system integrity.
-- **Portal (src/app)**: The interface where you summon and interact with these domains.
+- **Discovery**: Where the AI learns who you are and constructs new architecture.
+- **Research**: The Scouts and Analysts that fetch and vet external data.
+- **Safety**: The gatekeepers ensuring system integrity and logging "Gems."
+- **Portal**: The high-fidelity interface for system interaction.
 
 ### 📂 Explorer: The Cabinet Files
-
-- `src/ai/discovery/migrate-lesson-to-db.ts`: The bridge between raw files and the Librarian.
-- `src/ai/domains/safety/gems-logger.ts`: The security ledger.
-- `src/components/birthday-drawer.tsx`: The primary evolution HUD.
-- `src/app/lesson-plans/page.tsx`: The interface for the "Tutor" role.
+- `src/components/gems-drawer.tsx`: The Safety Ledger (Black Box).
+- `src/components/laboratory-drawer.tsx`: Neural weight parameter tuner.
+- `src/components/neural-graph.tsx`: interactive XAI node-map.

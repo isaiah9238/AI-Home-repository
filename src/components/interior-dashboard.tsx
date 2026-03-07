@@ -18,14 +18,18 @@ import { PortalInterface } from '@/components/portal-interface';
 import { Badge } from '@/components/ui/badge';
 import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity } from '@/app/actions';
 
+interface InteriorDashboardProps {
+  initialUserData?: any;
+}
+
 /**
  * The "Interior" of the AI Home. 
  * Designed as a high-fidelity cybernetic HUD.
  */
-export function InteriorDashboard() {
+export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
   const [time, setTime] = useState('');
   const [uptime, setUptime] = useState('00:00:00');
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(initialUserData);
   const [curriculum, setCurriculum] = useState<any>(null);
   const [evolution, setEvolution] = useState<any>(null);
   const [integrity, setIntegrity] = useState<any>(null);
@@ -45,18 +49,26 @@ export function InteriorDashboard() {
       setUptime(`${h}:${m}:${s}`);
     }, 1000);
 
-    // Initial Data Fetch
-    Promise.all([
-      getHomeBase(),
-      getCurriculumProgress(),
-      getSystemEvolution(),
-      getSystemIntegrity()
-    ]).then(([profileRes, curriculumRes, evolutionRes, integrityRes]) => {
-      if (profileRes.success) setProfile(profileRes.data);
+    // Initial Data Fetch for all Cabinet domains
+    const fetchProgress = async () => {
+      const [curriculumRes, evolutionRes, integrityRes] = await Promise.all([
+        getCurriculumProgress(),
+        getSystemEvolution(),
+        getSystemIntegrity()
+      ]);
+
       if (curriculumRes.success) setCurriculum(curriculumRes);
       if (evolutionRes.success) setEvolution(evolutionRes);
       if (integrityRes.success) setIntegrity(integrityRes);
-    });
+
+      // If no initial user data was passed from server, fetch it now
+      if (!initialUserData) {
+        const profileRes = await getHomeBase();
+        if (profileRes.success) setProfile(profileRes.data);
+      }
+    };
+
+    fetchProgress();
 
     // Welcome sequence
     const welcomeTimer = setTimeout(() => setIsWelcomeActive(false), 3000);
@@ -66,7 +78,7 @@ export function InteriorDashboard() {
       clearInterval(uptimeTimer);
       clearTimeout(welcomeTimer);
     };
-  }, []);
+  }, [initialUserData]);
 
   return (
     <div className="flex flex-col w-full gap-4 relative pb-12 animate-in fade-in duration-1000">
@@ -108,7 +120,7 @@ export function InteriorDashboard() {
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Badge variant="outline" className="border-blue-500/20 text-blue-400/60 bg-blue-500/5 font-mono text-[9px] tracking-widest px-4 py-1">
-              AUTH: {profile?.name ? profile.name.split(' ')[0].toUpperCase() : 'ISAIAH'}
+              AUTH: {profile?.name ? profile.name.split(' ')[0].toUpperCase() : 'USER'}
             </Badge>
             <span className="text-[7px] text-white/10 uppercase tracking-[0.4em] mt-1">Cabinet_V4.2.0</span>
           </div>
@@ -223,8 +235,8 @@ export function InteriorDashboard() {
                 <div className="text-white/30 pl-3 leading-relaxed border-l border-blue-500/20 ml-1">Contextual briefing generated based on recent progress.</div>
               </div>
               <div className="space-y-1 group">
-                <div className="text-purple-400/70 group-hover:text-purple-400 transition-colors">[{evolution?.daysOld || 30}D] EVOLUTION: MILESTONE_SYNC</div>
-                <div className="text-white/30 pl-3 leading-relaxed border-l border-purple-500/20 ml-1">System operational for {evolution?.daysOld || 30} cycles. Growth steady.</div>
+                <div className="text-purple-400/70 group-hover:text-purple-400 transition-colors">[{evolution?.daysOld || 0}D] EVOLUTION: MILESTONE_SYNC</div>
+                <div className="text-white/30 pl-3 leading-relaxed border-l border-purple-500/20 ml-1">System operational for {evolution?.daysOld || 0} cycles. Growth steady.</div>
               </div>
               <div className="space-y-1 group">
                 <div className="text-green-400/70 group-hover:text-green-400 transition-colors">[GLOBAL] LIBRARIAN: MEMORY_SYNC</div>
@@ -254,7 +266,7 @@ export function InteriorDashboard() {
                 <div className="flex flex-col gap-1">
                   <span className="text-[8px] text-white/20 uppercase font-mono tracking-widest">Integrity_Risk</span>
                   <span className={`text-[10px] font-mono font-bold tracking-widest ${integrity?.isClean ? 'text-green-500' : 'text-red-500'}`}>
-                    {integrity?.isClean ? 'NULL_ISSUES' : `${integrity?.issueCount}_PENDING`}
+                    {integrity?.isClean ? 'NULL_ISSUES' : `${integrity?.issueCount || 0}_PENDING`}
                   </span>
                 </div>
                 <ShieldCheck className={`w-5 h-5 ${integrity?.isClean ? 'text-green-500/40' : 'text-red-500/60 group-hover:animate-bounce'}`} />

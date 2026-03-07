@@ -1,19 +1,24 @@
 import * as admin from 'firebase-admin';
 
-// Check if we are in development mode
 const isDev = process.env.NODE_ENV === 'development';
 
 export const initAdmin = () => {
   if (admin.apps.length > 0) return admin.app();
 
-  if (isDev) {
-    console.log("🛠️ Admin SDK: Initializing for Local Project");
+  // Use Secret Manager / Env Var approach
+  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (isDev && serviceAccountKey) {
+    console.log("🛠️ Admin SDK: Initializing with Secret Key");
+    const serviceAccount = JSON.parse(serviceAccountKey);
+
     return admin.initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373',
+      credential: admin.credential.cert(serviceAccount),
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     });
   }
 
-  // Production path: Firebase App Hosting handles credentials automatically
+  // Production path: Usually handles credentials automatically in cloud environments
   return admin.initializeApp();
 };
 

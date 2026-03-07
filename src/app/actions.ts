@@ -15,13 +15,8 @@ import { revalidatePath } from 'next/cache';
 
 // --- 1. Terminal / Chat Logic ---
 
-/**
- * Sends a message to the Mentor terminal.
- * This server-side entry point bypasses App Check issues on the client.
- */
 export async function sendTerminalMessage(message: string) {
   try {
-    // We use the mentorAiFlow as the engine for the terminal
     const result = await mentorAiFlow({ request: message });
     return { success: true, response: result.response };
   } catch (error: any) {
@@ -100,14 +95,15 @@ export async function getHomeBaseAction() {
     const data = userDoc.data();
     if (!data) return null;
 
-    // Sanitize Firestore Classes (Timestamps) into plain strings for Client hydration
+    // Robust serialization of Firestore Timestamps
     return {
       ...data,
       createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
   } catch (error) {
-    console.warn("Librarian Fetch Error:", error);
+    // Avoid crashing on logging if error is null/malformed
+    console.warn("Librarian Fetch Warning:", error instanceof Error ? error.message : "Connection Delay");
     return null;
   }
 }
@@ -137,9 +133,8 @@ export async function getHomeBase() {
 export async function getSystemEvolution() {
   try {
     const doc = await adminDb.collection('users').doc('primary_user').get();
-    const establishedDate = doc.exists 
-      ? doc.data()?.establishedDate 
-      : '2026-02-06';
+    const data = doc.data();
+    const establishedDate = data?.establishedDate || '2026-02-06';
 
     const start = new Date(establishedDate);
     const now = new Date();

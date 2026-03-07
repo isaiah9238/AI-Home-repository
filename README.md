@@ -1,3 +1,34 @@
+UPDATE: (3/6/26)
+
+# 🏢 AI Home: The Digital Cabinet
+
+An advanced, domain-driven AI assistant environment built with **Next.js 14**, **Firebase Admin**, and **Google Genkit**.
+
+## 🚀 Current Capabilities
+- **Evolutionary Tracking**: The system tracks its own "age" and "complexity" based on user interaction.
+- **Curriculum Integration**: Generates structured lesson plans and migrates them into a persistent Firestore "Knowledge Base."
+- **Safety Gatekeepers**: Integrated "Gems" logging system for monitoring AI output integrity.
+- **Glassmorphism UI**: A "Clean Room" aesthetic featuring summoned drawers and real-time status pulses.
+
+## 🛠️ Tech Stack
+- **Framework**: Next.js (App Router)
+- **AI Engine**: Google Genkit + Gemini 1.5 Flash
+- **Database**: Firestore (Firebase Admin SDK)
+- **UI Components**: Tailwind CSS + Shadcn/UI + Lucide Icons
+
+## 📂 Project Structure
+- `/src/ai`: The Brain (Domains: Discovery, Research, Safety)
+- `/src/app/actions.ts`: The Switchboard (Server-side logic)
+- `/src/components`: The Portal (UI Drawers and HUD elements)
+- `/src/lib`: The Librarian (Firebase/Admin initialization)
+
+## 📈 Roadmap
+- [x] Phase 1: Initial Portal & Architect Tool
+- [x] Phase 2: Curriculum Integration & System Birthday
+- [ ] Phase 3: "Neural" Search & Memory Retrieval
+
+NEW UPDATE ENDS HERE.
+
 # AI Home 🚀
 
 Welcome to **AI Home**, the architecture for your personal "Portal" and "Cabinet" of AI tools. This project represents the transition from hacking on external platforms to architecting a system on your own server—one that cannot be turned off.
@@ -95,3 +126,4 @@ The system has been reorganized from a flat structure into specific **Domains**.
 
 -   **`src/app/`** (The Portal Interface)
     -   Follows a "Clean Room" aesthetic. The UI acts as a floating "Portal" that summons specific drawers.
+

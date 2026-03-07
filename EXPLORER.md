@@ -69,3 +69,10 @@ studio/
 - **Research (src/ai/domains/research)**: The "Scouts" that fetch and analyze external data.
 - **Safety (src/ai/domains/safety)**: The gatekeepers that ensure system integrity.
 - **Portal (src/app)**: The interface where you summon and interact with these domains.
+
+### 📂 Explorer: The Cabinet Files
+
+- `src/ai/discovery/migrate-lesson-to-db.ts`: The bridge between raw files and the Librarian.
+- `src/ai/domains/safety/gems-logger.ts`: The security ledger.
+- `src/components/birthday-drawer.tsx`: The primary evolution HUD.
+- `src/app/lesson-plans/page.tsx`: The interface for the "Tutor" role.

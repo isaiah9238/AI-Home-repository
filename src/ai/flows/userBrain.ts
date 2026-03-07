@@ -24,6 +24,19 @@ export const userBrain = ai.defineFlow(
       System Age: ${context.userContext.daysOld || 'unknown'} days since activation.
       Recent Learning: ${context.userContext.lastTopic || 'Initial Systems'}.
       Role: Mentor / Personal AI.
+      User Query: ${input.query}.
+    `,
+  });
+
+  return text;
+
+  // 3. Future thought update for userBrain.ts:
+  const { text } = await ai.generate({
+    prompt: `
+      Context: Speaking to ${context.userContext.name}.
+      System Age: ${context.systemStats.daysActive} days.
+      Recent Learning: The Algorithmic Architect (Generative Design & BIM).
+      Current Capability: The system understands its own 'Cabinet' as an interplay of physical form and generative code.
       User Query: ${input.query}
     `,
   });

@@ -13,7 +13,24 @@ import { revalidatePath } from 'next/cache';
  * These functions bridge the UI to the AI flows and Database.
  */
 
-// --- 1. Mentor AI: Get Morning Briefing ---
+// --- 1. Terminal / Chat Logic ---
+
+/**
+ * Sends a message to the Mentor terminal.
+ * This server-side entry point bypasses App Check issues on the client.
+ */
+export async function sendTerminalMessage(message: string) {
+  try {
+    // We use the mentorAiFlow as the engine for the terminal
+    const result = await mentorAiFlow({ request: message });
+    return { success: true, response: result.response };
+  } catch (error: any) {
+    console.error("Terminal Action Error:", error);
+    return { success: false, error: "SIGNAL_INTERRUPTED: The Cabinet could not process the request." };
+  }
+}
+
+// --- 2. Mentor AI: Get Morning Briefing ---
 export async function getMorningBriefing(userContext?: any) {
   try {
     const [curriculum, integrity] = await Promise.all([
@@ -43,7 +60,7 @@ export async function getMorningBriefing(userContext?: any) {
   }
 }
 
-// --- 2. Research Domain: Flux Echo & Epitomizer ---
+// --- 3. Research Domain: Flux Echo & Epitomizer ---
 
 export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }) {
   try {
@@ -60,7 +77,7 @@ export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }
   }
 }
 
-// --- 3. Discovery Domain: Architect ---
+// --- 4. Discovery Domain: Architect ---
 
 export async function runArchitect(blueprint: string) {
   try {
@@ -72,7 +89,7 @@ export async function runArchitect(blueprint: string) {
   }
 }
 
-// --- 4. Database: Home Base Logic ---
+// --- 5. Database: Home Base Logic ---
 
 export async function getHomeBaseAction() {
   try {
@@ -90,8 +107,7 @@ export async function getHomeBaseAction() {
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
   } catch (error) {
-    // Return null silently to allow the UI to handle the missing state gracefully
-    console.warn("Librarian Sync Warning: Could not reach Home Base. Check connection.");
+    console.warn("Librarian Fetch Error:", error);
     return null;
   }
 }
@@ -116,7 +132,7 @@ export async function getHomeBase() {
   }
 }
 
-// --- 5. Evolution & Curriculum ---
+// --- 6. Evolution & Curriculum ---
 
 export async function getSystemEvolution() {
   try {
@@ -180,7 +196,7 @@ export async function integrateLessonAction(data: { title: string; subject: stri
   return await migrateLessonToDb(data);
 }
 
-// --- 6. Safety & Integrity ---
+// --- 7. Safety & Integrity ---
 
 export async function getSystemIntegrity() {
   try {

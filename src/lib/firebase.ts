@@ -35,14 +35,20 @@ if (typeof window !== "undefined") {
       console.error("Persistence failure:", error.message);
     });
 
-  if (isDev) {
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  }
+  // Only initialize App Check if a valid key is provided
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  if (siteKey && siteKey !== "RECAPTCHA_SITE_KEY") {
+    if (isDev) {
+      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    }
 
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "RECAPTCHA_SITE_KEY"),
-    isTokenAutoRefreshEnabled: true
-  });
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(siteKey),
+      isTokenAutoRefreshEnabled: true
+    });
+  } else {
+    console.warn("Librarian Note: App Check site key missing. Protection disabled for this session.");
+  }
 }
 
 const ai = getAI(app, { backend: new GoogleAIBackend() });

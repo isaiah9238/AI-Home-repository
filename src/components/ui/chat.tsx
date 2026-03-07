@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { model } from '@/lib/firebase';
-import { Card, CardContent } from './card';
 import { Button } from './button';
+import { sendTerminalMessage } from '@/app/actions';
 
 export function AIChat() {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // Profile state for terminal variables
+  // Profile state for terminal variables (Local simulation)
   const [profile, setProfile] = useState({
     name: 'ISAIAH_SMITH',
     age: '24',
@@ -58,12 +57,20 @@ export function AIChat() {
         return;
       }
 
-      const result = await model.generateContent(input);
-      setResponse(result.response.text());
+      // CALL THE CABINET: Use the Server Action instead of the client-side model
+      // This bypasses App Check token issues and centralizes logic in the Cabinet.
+      const result = await sendTerminalMessage(input);
+      
+      if (result.success) {
+        setResponse(result.response || 'NO_SIGNAL_RETURNED');
+      } else {
+        setResponse(`ERROR: ${result.error || "Failed to sync with the Cabinet."}`);
+      }
+      
       setInput('');
     } catch (error: any) {
-      console.error("AI Error:", error);
-      setResponse(`Error: ${error.message || "Failed to connect to Gemini."}`);
+      console.error("Terminal Sync Error:", error);
+      setResponse(`CRITICAL_ERROR: ${error.message || "Failed to reach the Mentor."}`);
     } finally {
       setLoading(false);
     }
@@ -82,7 +89,7 @@ export function AIChat() {
       <div className="p-4 border border-green-900 bg-black rounded-md min-h-[120px] shadow-inner">
         <p className="text-green-600 font-mono text-[10px] mb-2 opacity-50 uppercase tracking-tighter">/sys/logs/output.bin</p>
         <div className="text-green-400 font-mono text-sm whitespace-pre-wrap">
-          {loading ? "> Processing vector data..." : response || "> Awaiting instruction..."}
+          {loading ? "> Processing neural logic..." : response || "> Awaiting instruction..."}
         </div>
       </div>
 
@@ -108,6 +115,7 @@ export function AIChat() {
         {keys.map((key) => (
           <button
             key={key}
+            type="button"
             onClick={() => handleKeyboardClick(key)}
             className={`
               p-2 font-mono text-xs rounded border transition-all active:scale-95
@@ -121,7 +129,7 @@ export function AIChat() {
         ))}
       </div>
 
-      {/* SYSTEM_PROFILE_STATE (Moved here from Sidebar) */}
+      {/* SYSTEM_PROFILE_STATE */}
       <div className="mt-6">
         <div className="bg-green-900/10 border border-green-900 p-4 rounded-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 p-1 bg-green-900 text-[8px] font-mono text-green-300 uppercase px-2">
@@ -158,7 +166,7 @@ export function AIChat() {
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-green-900/30 flex justify-between items-center text-[10px] font-mono text-green-900 italic">
-            <span>* Use "SET [FIELD] [VALUE]" to update profile metrics.</span>
+            <span>* Use "SET [FIELD] [VALUE]" to update terminal metrics.</span>
             <span className="animate-pulse">_LISTENING_</span>
           </div>
         </div>

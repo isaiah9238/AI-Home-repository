@@ -1,18 +1,23 @@
-'use client';
-
 import { InteriorDashboard } from "@/components/interior-dashboard";
+import { getHomeBaseAction } from "@/app/actions";
 
 /**
  * The main entry point for the AI Home.
- * Updated to allow scrolling and ensure full visibility of HUD elements.
+ * Now a Server Component to handle data sanitization before hydration.
  */
-export default function AIHomeApp() {
+export default async function AIHomeApp() {
+  // Fetch and sanitize data on the server
+  const userData = await getHomeBaseAction();
+
   return (
     <div className="w-full bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-x-hidden">
-      {/* Global HUD Interface */}
-      <InteriorDashboard />
+      <div className="hud-scanline" />
       
-      {/* Global CSS for CRT and UI Effects */}
+      {/* Pass the serialized data to your Client Component.
+          Note: You'll need to update InteriorDashboard to accept this prop! 
+      */}
+      <InteriorDashboard initialUserData={userData} />
+      
       <style jsx global>{`
         @keyframes scanline {
           0% { transform: translateY(-100%); }

@@ -90,21 +90,25 @@ export async function EpitomizeUrl(prevState: EpitomizeState, formData: FormData
     }
 }
 
-// --- 5. Database: Seed Home Base ---
-export async function seedHomeBaseAction() {
+// ✅ Update your FETCH logic, not just the SEED logic
+export async function getHomeBaseAction() {
   try {
-    const userData = {
-      name: "Isaiah Smith",
-      interests: ["Next.js", "AI Engineering", "UI/UX Design", "Land Surveying"],
-      role: "Primary User",
-      createdAt: FieldValue.serverTimestamp(),
-    };
+    const userDoc = await adminDb.collection('users').doc('primary_user').get();
     
-    await adminDb.collection('users').doc('primary_user').set(userData);
-    return { success: true };
+    if (!userDoc.exists) return null;
+
+    const data = userDoc.data();
+
+    // The Critical Step: Convert Firestore Class -> Plain String
+    return {
+      ...data,
+      createdAt: data?.createdAt?.toDate().toISOString() || null,
+      // If you have an updatedAt, do the same:
+      updatedAt: data?.updatedAt?.toDate().toISOString() || null,
+    };
   } catch (error) {
-    console.error("Seeding Action Error:", error);
-    return { success: false, error: "SEED_FAILED: Librarian cannot write to disk." };
+    console.error("Librarian Fetch Error:", error);
+    return null;
   }
 }
 

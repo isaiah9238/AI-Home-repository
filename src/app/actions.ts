@@ -17,7 +17,6 @@ import { revalidatePath } from 'next/cache';
 // --- 1. Mentor AI: Get Morning Briefing ---
 export async function getMorningBriefing(userContext?: any) {
   try {
-    // Gather extra context for a richer briefing
     const [curriculum, integrity] = await Promise.all([
       getCurriculumProgress(),
       getSystemIntegrity()
@@ -27,10 +26,18 @@ export async function getMorningBriefing(userContext?: any) {
       request: "Give me my morning briefing.",
       userProfile: {
         ...userContext,
-        curriculum: curriculum.success ? curriculum : null,
-        integrity: integrity.success ? integrity : null
+        // LANDMARK: Map the properties directly since 'data' isn't a type
+        curriculum: curriculum.success ? {
+          integratedPlans: curriculum.integratedPlans,
+          lastTopic: curriculum.lastTopic
+        } : null,
+        integrity: integrity.success ? {
+          isClean: integrity.isClean,
+          issueCount: integrity.issueCount
+        } : null
       }
     });
+    
     return result.response;
   } catch (error) {
     console.error("Mentor Action Error:", error);

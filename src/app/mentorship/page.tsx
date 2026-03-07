@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BotMessageSquare, Loader2 } from "lucide-react";
-import { getMorningBriefing, seedHomeBaseAction, getHomeBase } from "@/app/actions";
+import { getMorningBriefing, getHomeBaseAction, getHomeBase } from "@/app/actions";
 
 /**
  * Mentorship Page
@@ -18,7 +18,7 @@ export default function MentorshipPage() {
       try {
         const homeBase = await getHomeBase();
         
-        if (homeBase.success && homeBase.data) {
+        if (homeBase && homeBase.data) {
           const response = await getMorningBriefing(homeBase.data);
           setBriefing(response);
         } else {
@@ -63,8 +63,8 @@ export default function MentorshipPage() {
                   </p>
                   <button 
                     onClick={async () => {
-                      const res = await seedHomeBaseAction();
-                      if (res.success) {
+                      const res = await getHomeBaseAction();
+                      if (res) {
                         window.location.reload();
                       }
                     }}

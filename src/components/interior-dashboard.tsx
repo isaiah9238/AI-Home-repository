@@ -29,7 +29,7 @@ interface InteriorDashboardProps {
 export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
   const [time, setTime] = useState('');
   const [uptime, setUptime] = useState('00:00:00');
-  const [profile, setProfile] = useState<any>(initialUserData);
+  const [profile, setProfile] = useState<any>(initialUserData || null);
   const [curriculum, setCurriculum] = useState<any>(null);
   const [evolution, setEvolution] = useState<any>(null);
   const [integrity, setIntegrity] = useState<any>(null);
@@ -49,8 +49,9 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       setUptime(`${h}:${m}:${s}`);
     }, 1000);
 
-    // Initial Data Fetch for all Cabinet domains
-    const fetchProgress = async () => {
+    // Replace your Promise.all block with this:
+    const loadData = async () => {
+    // 1. Fetch the other three (Curriculum, Evolution, Integrity)
       const [curriculumRes, evolutionRes, integrityRes] = await Promise.all([
         getCurriculumProgress(),
         getSystemEvolution(),
@@ -61,14 +62,14 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       if (evolutionRes.success) setEvolution(evolutionRes);
       if (integrityRes.success) setIntegrity(integrityRes);
 
-      // If no initial user data was passed from server, fetch it now
+      // 2. Only fetch the profile if the server didn't give it to us
       if (!initialUserData) {
         const profileRes = await getHomeBase();
         if (profileRes.success) setProfile(profileRes.data);
       }
     };
 
-    fetchProgress();
+  loadData();
 
     // Welcome sequence
     const welcomeTimer = setTimeout(() => setIsWelcomeActive(false), 3000);

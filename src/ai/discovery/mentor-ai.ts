@@ -22,17 +22,25 @@ export const mentorAiFlow = ai.defineFlow(
       return { response: "SIGNAL_INTERRUPTED: Your request triggered a safety flag. Please refine your query." };
     }
 
-    // 2. Fetch profile context
-    let profile = input.userProfile;
-    if (!profile) {
+    // 2. Fetch profile context (LANDMARK: Replace this section)
+    let rawData = input.userProfile;
+    if (!rawData) {
       const userDoc = await adminDb.collection('users').doc('primary_user').get();
-      profile = userDoc.data();
+      rawData = userDoc.data();
     }
+    // --- NEW SANITIZATION LAYER ---
+    const profile = rawData ? {
+      ...rawData,
+      // Convert the "illegal" Class to a "legal" String
+      createdAt: rawData.createdAt?.toDate?.()?.toISOString() || null,
+      updatedAt: rawData.updatedAt?.toDate?.()?.toISOString() || null,
+    } : null;
+    // ---
 
-    // 3. Build the Persona
+    // 3. Build the Persona (This now uses the 'clean' profile)
     const curriculumCtx = profile?.curriculum 
-      ? `Curriculum: ${profile.curriculum.integratedPlans} plans integrated, last topic was ${profile.curriculum.lastTopic}.`
-      : "";
+    ? `Curriculum: ${profile.curriculum.integratedPlans} plans integrated, last topic was ${profile.curriculum.lastTopic}.`
+    : "";
     const integrityCtx = profile?.integrity
       ? `System Integrity: ${profile.integrity.isClean ? 'Clean' : profile.integrity.issueCount + ' pending issues'}.`
       : "";

@@ -5,7 +5,6 @@ import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { adminDb } from '@/lib/firebaseAdmin';
-import { FieldValue } from 'firebase-admin/firestore';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
 
@@ -26,7 +25,6 @@ export async function getMorningBriefing(userContext?: any) {
       request: "Give me my morning briefing.",
       userProfile: {
         ...userContext,
-        // LANDMARK: Map the properties directly since 'data' isn't a type
         curriculum: curriculum.success ? {
           integratedPlans: curriculum.integratedPlans,
           lastTopic: curriculum.lastTopic
@@ -47,13 +45,7 @@ export async function getMorningBriefing(userContext?: any) {
 
 // --- 2. Research Domain: Flux Echo & Epitomizer ---
 
-export async function runFluxEcho(url: string) {
-  return runResearch({ url, mode: 'scout' });
-}
-
-export type ResearchMode = 'scout' | 'deep';
-
-export async function runResearch(input: { url: string, mode: ResearchMode }) {
+export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }) {
   try {
     if (input.mode === 'scout') {
       const result = await linkGenie({ url: input.url });
@@ -80,24 +72,8 @@ export async function runArchitect(blueprint: string) {
   }
 }
 
-// --- 4. Legacy / Utility Actions ---
+// --- 4. Database: Home Base Logic ---
 
-export type EpitomizeState = {
-    message: string;
-    data: any | null;
-};
-
-export async function EpitomizeUrl(prevState: EpitomizeState, formData: FormData): Promise<EpitomizeState> {
-    const url = formData.get('url') as string;
-    try {
-        const result = await epitomizeFetchedContent({ url });
-        return { message: "Success", data: { summary: result.epitome, ...result } };
-    } catch (error: any) {
-        return { message: error.message || "Failed to epitomize.", data: null };
-    }
-}
-
-// ✅ Update your FETCH logic, not just the SEED logic
 export async function getHomeBaseAction() {
   try {
     const userDoc = await adminDb.collection('users').doc('primary_user').get();
@@ -105,41 +81,49 @@ export async function getHomeBaseAction() {
     if (!userDoc.exists) return null;
 
     const data = userDoc.data();
+    if (!data) return null;
 
-    // The Critical Step: Convert Firestore Class -> Plain String
+    // Sanitize Firestore Classes (Timestamps) into plain strings for Client hydration
     return {
       ...data,
-      createdAt: data?.createdAt?.toDate().toISOString() || null,
-      // If you have an updatedAt, do the same:
-      updatedAt: data?.updatedAt?.toDate().toISOString() || null,
+      createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+      updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
   } catch (error) {
-    console.error("Librarian Fetch Error:", error);
+    // Return null silently to allow the UI to handle the missing state gracefully
+    console.warn("Librarian Sync Warning: Could not reach Home Base. Check connection.");
     return null;
   }
 }
 
-// --- 6. Database: Fetch User Profile ---
 export async function getHomeBase() {
   try {
     const doc = await adminDb.collection('users').doc('primary_user').get();
     if (doc.exists) {
-      return { success: true, data: doc.data() };
+      const data = doc.data();
+      return { 
+        success: true, 
+        data: {
+          ...data,
+          createdAt: data?.createdAt?.toDate?.()?.toISOString() || null,
+          updatedAt: data?.updatedAt?.toDate?.()?.toISOString() || null,
+        }
+      };
     }
     return { success: false, error: "HOME_BASE_NOT_FOUND" };
   } catch (error) {
-    console.error("Fetch Home Base Error:", error);
     return { success: false, error: "SYSTEM_READ_ERROR" };
   }
 }
 
-// --- 7. Evolution: Calculate System Age ---
+// --- 5. Evolution & Curriculum ---
+
 export async function getSystemEvolution() {
   try {
     const doc = await adminDb.collection('users').doc('primary_user').get();
     const establishedDate = doc.exists 
       ? doc.data()?.establishedDate 
-      : '2026-02-06'; // [cite: 59, 60]
+      : '2026-02-06';
 
     const start = new Date(establishedDate);
     const now = new Date();
@@ -156,55 +140,50 @@ export async function getSystemEvolution() {
   }
 }
 
-// --- 8. Curriculum: Fetch Learning Progress ---
 export async function getCurriculumProgress() {
   try {
     const userId = 'primary_user';
     const userDoc = await adminDb.collection('users').doc(userId).get();
     const data = userDoc.data();
     
-    // Fetch lessons for dynamic complexity calculation and display [cite: blueprint.md]
-    const lessonsSnapshot = await adminDb.collection('curriculum').where('userId', '==', userId).orderBy('completedAt', 'desc').get();
-    const lessonCount = lessonsSnapshot.size;
-    const lessons = lessonsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      completedAt: doc.data().completedAt?.toDate?.()?.toISOString() || new Date().toISOString()
-    }));
+    const lessonsSnapshot = await adminDb.collection('curriculum')
+      .where('userId', '==', userId)
+      .orderBy('completedAt', 'desc')
+      .get();
 
-    // Fetch milestone count for knowledge integration calculation [cite: blueprint.md]
+    const lessons = lessonsSnapshot.docs.map(doc => {
+      const l = doc.data();
+      return {
+        id: doc.id,
+        ...l,
+        completedAt: l.completedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+      };
+    });
+
     const milestonesSnapshot = await adminDb.collection('milestones').get();
     const milestoneCount = milestonesSnapshot.size;
 
-    // Phase 2.0 Calculation: Lessons * Gain (assumed 5% per lesson)
-    const calculatedComplexity = Math.min(lessonCount * 5 + 64, 100); 
-    // Knowledge Integration: Historical Fragments count * 2%
-    const calculatedIntegration = Math.min(milestoneCount * 2 + 82, 100);
-
     return {
       success: true,
-      integratedPlans: lessonCount,
-      neuralComplexity: calculatedComplexity,
-      knowledgeIntegration: calculatedIntegration,
+      integratedPlans: lessons.length,
+      neuralComplexity: Math.min(lessons.length * 5 + 64, 100),
+      knowledgeIntegration: Math.min(milestoneCount * 2 + 82, 100),
       lastTopic: data?.lastLesson || "System Initialization",
       lessons: lessons
     };
   } catch (error) {
-    console.error("Curriculum Progress Error:", error);
     return { success: false, integratedPlans: 0, neuralComplexity: 64, knowledgeIntegration: 82, lessons: [] };
   }
 }
 
-// --- 9. Migrate lesson Plan
 export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
-  // This runs strictly on the server
   return await migrateLessonToDb(data);
 }
 
-// --- . Safety: Check System Integrity ---
+// --- 6. Safety & Integrity ---
+
 export async function getSystemIntegrity() {
   try {
-    // Check for any 'pending' gems with 'high' or 'critical' severity
     const criticalGems = await adminDb.collection('gems')
       .where('resolution', '==', 'pending')
       .where('severity', 'in', ['high', 'critical'])
@@ -213,12 +192,10 @@ export async function getSystemIntegrity() {
     return {
       success: true,
       isClean: criticalGems.empty,
-      activeLogger: true,
       issueCount: criticalGems.size
     };
   } catch (error) {
-    console.error("Integrity Check Error:", error);
-    return { success: false, isClean: true, activeLogger: false };
+    return { success: false, isClean: true, issueCount: 0 };
   }
 }
 
@@ -235,7 +212,6 @@ export async function getGems() {
     });
     return { success: true, data: gems };
   } catch (error) {
-    console.error("Fetch Gems Error:", error);
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
 }
@@ -246,7 +222,6 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     revalidatePath('/reports');
     return { success: true };
   } catch (error) {
-    console.error("Resolve Gem Error:", error);
     return { success: false };
   }
 }
@@ -264,7 +239,6 @@ export async function getMilestones() {
     });
     return { success: true, data: milestones };
   } catch (error) {
-    console.error("Fetch Milestones Error:", error);
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
 }

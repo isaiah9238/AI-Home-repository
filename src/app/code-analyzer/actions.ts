@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { filterUserInput } from '@/ai/domains/safety/filter-user-input';
-import { adminDb } from '@/lib/firebaseAdmin';
+import { getAdminDb } from '@/lib/firebaseAdmin';
 
 const CodeAnalysisSchema = z.object({
   code: z
@@ -64,7 +64,12 @@ export async function performCodeAnalysis(
     if (analysisResult) {
       // 📚 LIBRARIAN HANDSHAKE
       try {
-        await adminDb.collection('internal_comms').add({
+        // Old way:
+        // await adminDb.collection('internal_comms').add(...)
+
+       // New way:
+       const db = adminDb(); 
+       await db.collection('internal_comms').add({
           agent: 'Code Inspector',
           action: 'security_audit',
           language,

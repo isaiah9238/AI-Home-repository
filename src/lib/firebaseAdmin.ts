@@ -40,7 +40,16 @@ export const initAdmin = () => {
   });
 };
 
-// Export singleton instances
-const adminApp = initAdmin();
-export const adminDb = adminApp.firestore();
-export const adminAuth = adminApp.auth();
+// 1. Remove the old: const adminApp = initAdmin();
+// 2. Remove the old: export const adminDb = adminApp.firestore();
+
+// 3. Add these dynamic "Getters" instead:
+export const getAdminDb = () => {
+  const app = admin.apps.length > 0 ? admin.app() : initAdmin();
+  return app.firestore();
+};
+
+export const getAdminAuth = () => {
+  const app = admin.apps.length > 0 ? admin.app() : initAdmin();
+  return app.auth();
+};

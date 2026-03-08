@@ -14,6 +14,7 @@
 
   idx = {
     extensions = [ 
+      "gui.npm-scripts"
       "mtxr.sqltools-driver-pg"
       "mtxr.sqltools"
       "google.gcp-integrated-cloud-sdk" # Highly recommended for this setup
@@ -22,11 +23,12 @@
     workspace = {
       onCreate = {
         # Runs only once when the workspace is created
-        npm-install = "npm install";
+        npm-install = "npm ci";
       };
       onStart = {
         # Runs every time the workspace starts
         # Removed the repair-sudo line
+        npm-install = "npm install";
       };
     };
 

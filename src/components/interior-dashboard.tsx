@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIChat } from '@/components/ui/chat';
 import { PortalInterface } from '@/components/portal-interface';
 import { Badge } from '@/components/ui/badge';
-import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity } from '@/app/actions';
+import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, syncArchitectureLesson } from '@/app/actions';
 
 interface InteriorDashboardProps {
   initialUserData?: any;
@@ -34,6 +34,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
   const [evolution, setEvolution] = useState<any>(null);
   const [integrity, setIntegrity] = useState<any>(null);
   const [isWelcomeActive, setIsWelcomeActive] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,6 +81,17 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       clearTimeout(welcomeTimer);
     };
   }, [initialUserData]);
+
+  const handleManualSync = async () => {
+    setSyncing(true);
+    const result = await syncArchitectureLesson();
+    if (result.success) {
+      alert("Librarian filed the Architecture Lesson successfully.");
+    } else {
+      alert("Sync failed. Check server logs.");
+    }
+    setSyncing(false);
+  };
 
   return (
     <div className="flex flex-col w-full gap-4 relative pb-12 animate-in fade-in duration-1000">
@@ -186,6 +198,13 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                       style={{ width: `${curriculum?.knowledgeIntegration || 82}%` }} 
                     />
                   </div>
+                  <button 
+                    onClick={handleManualSync}
+                    disabled={syncing}
+                    className="fixed bottom-4 right-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest z-50"
+                  >
+                    {syncing ? "SYNCING..." : "EXEC: SYNC_STORAGE_FILES"}
+                  </button>
                 </div>
               </div>
             </CardContent>

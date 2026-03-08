@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { filterUserInput } from '@/ai/domains/safety/filter-user-input';
+import { adminDb } from '@/lib/firebaseAdmin';
 
 const CodeAnalysisSchema = z.object({
   code: z
@@ -61,6 +62,14 @@ export async function performCodeAnalysis(
     const analysisResult = await analyzeCodeSnippet({ code, language });
 
     if (analysisResult) {
+        // 📚 LIBRARIAN HANDSHAKE: Log the audit event
+        await adminDb.collection('internal_comms').add({
+          agent: 'Code Inspector',
+          action: 'security_audit',
+          language,
+          timestamp: new Date().toISOString(),
+          status: 'SUCCESS'
+        });
         return { 
           message: 'Analysis successful.', 
           data: analysisResult, 

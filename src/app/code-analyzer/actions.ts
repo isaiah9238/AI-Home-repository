@@ -62,40 +62,39 @@ export async function performCodeAnalysis(
     const analysisResult = await analyzeCodeSnippet({ code, language });
 
     if (analysisResult) {
-        // 📚 LIBRARIAN HANDSHAKE: Log the audit event
-        try {
-          await adminDb.collection('internal_comms').add({
-            agent: 'Code Inspector',
-            action: 'security_audit',
-            language,
-            timestamp: new Date().toISOString(),
-            status: 'SUCCESS'
-          });
-        } catch (dbError) {
-          console.error("Librarian logging failed, but analysis continues:", dbError);
-        }
+      // 📚 LIBRARIAN HANDSHAKE
+      try {
+        await adminDb.collection('internal_comms').add({
+          agent: 'Code Inspector',
+          action: 'security_audit',
+          language,
+          timestamp: new Date().toISOString(),
+          status: 'SUCCESS'
+        });
+      } catch (dbError) {
+        console.error("Librarian logging failed:", dbError);
+      }
 
-        // Return strictly plain strings to avoid serialization errors
-        return { 
-          message: 'Analysis successful.',
-          data: {
-            complexity: String(analysisResult.complexity || 'N/A'),
-            bugs: String(analysisResult.bugs || 'NONE'),
-            vulnerabilities: String(analysisResult.vulnerabilities || 'NONE'),
-            suggestedFixes: String(analysisResult.suggestedFixes || '')
-          }, 
-          errors: {}
-        };
+      // Return strictly plain strings
+      return { 
+        message: 'Analysis successful.',
+        data: {
+          complexity: String(analysisResult.complexity || 'N/A'),
+          bugs: String(analysisResult.bugs || 'NONE'),
+          vulnerabilities: String(analysisResult.vulnerabilities || 'NONE'),
+          suggestedFixes: String(analysisResult.suggestedFixes || '')
+        }, 
+        errors: {}
+      };
     } else {
-        return { message: 'Analysis failed: Inspector offline.', data: null, errors: {} };
+      return { message: 'Analysis failed: Inspector offline.', data: null, errors: {} };
     }
   } catch (error: any) {
     console.error('Code analysis error:', error);
-    // Crucial: Only return the error message as a string
     return { 
       message: `SYSTEM_ERROR: ${error?.message || "Unknown error."}`, 
       data: null, 
       errors: {} 
     };
   }
-}
+} // <--- This last brace closes the whole function

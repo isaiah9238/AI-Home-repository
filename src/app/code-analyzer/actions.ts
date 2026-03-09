@@ -5,21 +5,15 @@ import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { filterUserInput } from '@/ai/domains/safety/filter-user-input';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 
+// 1. SCHEMAS & TYPES (Keep these at the top)
 const CodeAnalysisSchema = z.object({
-  code: z
-    .string({ required_error: 'Code snippet is required.' })
-    .min(10, { message: 'Code snippet must be at least 10 characters long.' }),
-  language: z
-    .string({ required_error: 'Please select a language.' })
-    .min(1, { message: 'Please select a language.' }),
+  code: z.string().min(10),
+  language: z.string().min(1),
 });
 
 export type CodeAnalysisState = {
   message?: string | null;
-  errors?: {
-    code?: string[];
-    language?: string[];
-  };
+  errors?: { code?: string[]; language?: string[] };
   data?: {
     complexity: string;
     bugs: string;
@@ -28,6 +22,29 @@ export type CodeAnalysisState = {
   } | null;
 };
 
+// 2. THE LIBRARIAN'S ARCHIVE ACTION (Standalone)
+export async function getAuditHistory(limitCount = 10) {
+  try {
+    const db = getAdminDb(); // Call the function
+    const snapshot = await db.collection('internal_comms')
+      .where('agent', '==', 'Code Inspector') // 🔍 Keep the archive focused
+      .orderBy('timestamp', 'desc')
+      .limit(limitCount)
+      .get();
+
+    const history = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return { success: true, data: history };
+  } catch (error: any) {
+    console.error("LIBRARIAN_ERROR: Could not retrieve archives.", error.message);
+    return { success: false, data: [], error: error.message };
+  }
+}
+
+// 3. THE INSPECTOR'S ANALYSIS ACTION
 export async function performCodeAnalysis(
   prevState: CodeAnalysisState,
   formData: FormData
@@ -38,38 +55,24 @@ export async function performCodeAnalysis(
   });
 
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Validation failed. Please check your input.',
-      data: null,
-    };
+    return { errors: validatedFields.error.flatten().fieldErrors, message: 'Validation failed.', data: null };
   }
 
   const { code, language } = validatedFields.data;
 
   try {
-    // 🛡️ Safety: Filter User Input
     const filterResult = await filterUserInput({ text: code });
     if (!filterResult.isAppropriate) {
-      return {
-        message: `SIGNAL_REJECTED: ${filterResult.reason || 'Input violates safety protocols.'}`,
-        errors: {},
-        data: null,
-      };
+      return { message: `SIGNAL_REJECTED: ${filterResult.reason}`, errors: {}, data: null };
     }
 
-    // 🔍 Analysis: Execute Inspector Flow
     const analysisResult = await analyzeCodeSnippet({ code, language });
 
     if (analysisResult) {
       // 📚 LIBRARIAN HANDSHAKE
       try {
-        // Old way:
-        // await adminDb.collection('internal_comms').add(...)
-
-       // New way:
-       const db = adminDb(); 
-       await db.collection('internal_comms').add({
+        const db = getAdminDb(); // Added parentheses here!
+        await db.collection('internal_comms').add({
           agent: 'Code Inspector',
           action: 'security_audit',
           language,
@@ -80,7 +83,6 @@ export async function performCodeAnalysis(
         console.error("Librarian logging failed:", dbError);
       }
 
-      // Return strictly plain strings
       return { 
         message: 'Analysis successful.',
         data: {
@@ -91,15 +93,9 @@ export async function performCodeAnalysis(
         }, 
         errors: {}
       };
-    } else {
-      return { message: 'Analysis failed: Inspector offline.', data: null, errors: {} };
     }
+    return { message: 'Analysis failed: Inspector offline.', data: null, errors: {} };
   } catch (error: any) {
-    console.error('Code analysis error:', error);
-    return { 
-      message: `SYSTEM_ERROR: ${error?.message || "Unknown error."}`, 
-      data: null, 
-      errors: {} 
-    };
+    return { message: `SYSTEM_ERROR: ${error?.message}`, data: null, errors: {} };
   }
-} // <--- This last brace closes the whole function
+}

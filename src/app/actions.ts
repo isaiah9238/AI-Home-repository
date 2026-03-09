@@ -4,7 +4,7 @@ import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
-import { adminDb } from '@/lib/firebaseAdmin';
+import { getAdminDb } from '@/lib/firebaseAdmin';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
 
@@ -67,7 +67,7 @@ export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }
     }
 
     // INTERNAL HANDSHAKE: Log the research mission to the database
-    await adminDb.collection('internal_comms').add({
+    await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: input.mode,
       target_url: input.url,
@@ -78,7 +78,7 @@ export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
     // Log the failure too
-    await adminDb.collection('internal_comms').add({
+    await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: input.mode,
       error: error?.message || "Unknown",
@@ -106,7 +106,7 @@ export async function runArchitect(blueprint: string) {
 
 export async function getHomeBaseAction() {
   try {
-    const userDoc = await adminDb.collection('users').doc('primary_user').get();
+    const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
     if (!userDoc.exists) return null;
 
     const data = userDoc.data() || {};
@@ -126,7 +126,7 @@ export async function getHomeBaseAction() {
 // Do the same for getHomeBase() to keep the Mentorship page stable
 export async function getHomeBase() {
   try {
-    const doc = await adminDb.collection('users').doc('primary_user').get();
+    const doc = await getAdminDb().collection('users').doc('primary_user').get();
     if (doc.exists) {
       const data = doc.data() || {};
       return { 
@@ -149,7 +149,7 @@ export async function getHomeBase() {
 
 export async function getSystemEvolution() {
   try {
-    const doc = await adminDb.collection('users').doc('primary_user').get();
+    const doc = await getAdminDb().collection('users').doc('primary_user').get();
     const data = doc.data();
     const establishedDate = data?.establishedDate || '2026-02-06';
     const start = new Date(establishedDate);
@@ -170,10 +170,10 @@ export async function getSystemEvolution() {
 export async function getCurriculumProgress() {
   try {
     const userId = 'primary_user';
-    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userDoc = await getAdminDb().collection('users').doc(userId).get();
     const data = userDoc.data();
     
-    const lessonsSnapshot = await adminDb.collection('curriculum')
+    const lessonsSnapshot = await getAdminDb().collection('curriculum')
       .where('userId', '==', userId)
       .orderBy('completedAt', 'desc')
       .get();
@@ -187,7 +187,7 @@ export async function getCurriculumProgress() {
       };
     });
 
-    const milestonesSnapshot = await adminDb.collection('milestones').get();
+    const milestonesSnapshot = await getAdminDb().collection('milestones').get();
     const milestoneCount = milestonesSnapshot.size;
 
     return {
@@ -222,7 +222,7 @@ export async function integrateLessonAction(data: { title: string; subject: stri
 
 export async function savePlanToCabinet(planData: { title: string; type: string; content: any }) {
   try {
-    const docRef = await adminDb.collection('plans').add({
+    const docRef = await getAdminDb().collection('plans').add({
       ...planData,
       userId: 'primary_user',
       createdAt: new Date().toISOString(),
@@ -238,7 +238,7 @@ export async function savePlanToCabinet(planData: { title: string; type: string;
 
 export async function getSystemIntegrity() {
   try {
-    const criticalGems = await adminDb.collection('gems')
+    const criticalGems = await getAdminDb().collection('gems')
       .where('resolution', '==', 'pending')
       .where('severity', 'in', ['high', 'critical'])
       .get();
@@ -255,7 +255,7 @@ export async function getSystemIntegrity() {
 
 export async function getGems() {
   try {
-    const snapshot = await adminDb.collection('gems').orderBy('time', 'desc').get();
+    const snapshot = await getAdminDb().collection('gems').orderBy('time', 'desc').get();
     const gems = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -272,7 +272,7 @@ export async function getGems() {
 
 export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed') {
   try {
-    await adminDb.collection('gems').doc(id).update({ resolution });
+    await getAdminDb().collection('gems').doc(id).update({ resolution });
     revalidatePath('/reports');
     return { success: true };
   } catch (error) {
@@ -282,7 +282,7 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
 
 export async function getMilestones() {
   try {
-    const snapshot = await adminDb.collection('milestones').orderBy('date', 'desc').get();
+    const snapshot = await getAdminDb().collection('milestones').orderBy('date', 'desc').get();
     const milestones = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -308,7 +308,7 @@ export async function getMilestones() {
  */
 export async function fileToCabinet(type: string, details: { reason: string, severity: 'low' | 'medium' | 'high' | 'critical', content: string }) {
   try {
-    const docRef = await adminDb.collection('gems').add({
+    const docRef = await getAdminDb().collection('gems').add({
       type,
       reason: details.reason,
       severity: details.severity,
@@ -341,7 +341,7 @@ export async function linkStorageFileToCabinet(fileData: {
     const userId = 'primary_user';
     
     // Create a searchable reference in the 'plans' collection
-    const docRef = await adminDb.collection('plans').add({
+    const docRef = await getAdminDb().collection('plans').add({
       title: fileData.fileName,
       type: fileData.category,
       storageUrl: `gs://studio-3863072923-d4373.firebasestorage.app/${fileData.storagePath}`,
@@ -364,7 +364,7 @@ export async function linkStorageFileToCabinet(fileData: {
 export async function syncArchitectureLesson() {
   try {
     // This connects the file path in your screenshot to the 'plans' collection
-    const docRef = await adminDb.collection('plans').add({
+    const docRef = await getAdminDb().collection('plans').add({
       title: "First Lesson Plan on Architecture",
       type: "Lesson Plan",
       storagePath: "Vault/QlgcLKxywSXa.../First lesson Plan on Achitecture.txt",
@@ -388,7 +388,7 @@ export async function runCodeAnalysis(code: string) {
   try {
     // Here you would eventually call your analyzer AI flow
     // For now, we log the intent and return a success signal.
-    await adminDb.collection('internal_comms').add({
+    await getAdminDb().collection('internal_comms').add({
       agent: 'Code Analyzer',
       action: 'code_inspection',
       timestamp: new Date().toISOString(),

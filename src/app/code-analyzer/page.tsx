@@ -5,6 +5,22 @@ import { Cpu } from 'lucide-react'; // Assuming lucide-react for the icon
 import { CodeAnalyzerClient } from '@/app/code-analyzer/code-analyzer-client';
 import AuditSidebar from '@/components/AuditSidebar';
 
+// 1. Define the interface (or import it if you exported it from the sidebar)
+interface Audit {
+  id: string;
+  fileName: string;
+  agent: string;
+  status: 'SUCCESS' | 'FAILED' | 'PENDING';
+  data?: any; 
+}
+
+// 2. Update your state and the selection function
+const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
+// Change the function that handles the click:
+const handleSelect = (audit: Audit) => { // Adding the : Audit type here fixes error 7006
+  setSelectedAudit(audit);
+};
+
 export default function CodeAnalyzerPage() {
   return (
     // changed to flex to allow sidebar and main content to sit side-by-side

@@ -1,3 +1,5 @@
+'use client';
+
 // src/app/code-analyzer/page.tsx
 import { Cpu } from 'lucide-react'; // Assuming lucide-react for the icon
 import { CodeAnalyzerClient } from '@/app/code-analyzer/code-analyzer-client';

@@ -1,27 +1,27 @@
 import * as admin from 'firebase-admin';
 
-/**
- * Initializes the Firebase Admin SDK.
- * This handles the transition between local development and production environments.
- * It is explicitly configured to prevent accidental emulator connections in the Studio environment.
- */
 export const initAdmin = () => {
-  // If an app already exists, return it to avoid initialization conflicts
+  // 1. Safety Check: If an app already exists, return it to avoid initialization conflicts
   if (admin.apps.length > 0) return admin.app();
 
+  // 2. Variables (Restored): These are essential for the "Librarian" to find your data
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
   const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
-  // AGGRESSIVE PURGE: Ensure the Admin SDK does NOT attempt to connect to emulators
-  // unless we are explicitly in a local dev environment that requires them.
-  // This prevents the ECONNREFUSED errors in cloud-based Studio sessions.
-  if (process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.FIREBASE_STUDIO) {
+  // 3. The Purge (Updated): Catch all scenarios that aren't local dev
+  if (process.env.NODE_ENV === 'production' || 
+      process.env.VERCEL || 
+      process.env.FIREBASE_STUDIO || 
+      process.env.NEXT_PUBLIC_VERCEL_ENV) {
+    
     delete process.env.FIRESTORE_EMULATOR_HOST;
     delete process.env.FIREBASE_AUTH_EMULATOR_HOST;
     delete process.env.FIREBASE_STORAGE_EMULATOR_HOST;
+    
+    console.log("Librarian: Purging emulator hosts to force cloud connection.");
   }
 
-  // 1. Prioritize Service Account Key if available (Secret-based Auth)
+  // 4. Authenticate: Prioritize Service Account Key if available
   if (serviceAccountKey) {
     try {
       const serviceAccount = JSON.parse(serviceAccountKey);
@@ -34,16 +34,13 @@ export const initAdmin = () => {
     }
   }
 
-  // 2. Fallback to Application Default Credentials
+  // 5. Fallback: Use Application Default Credentials
   return admin.initializeApp({
     projectId: projectId,
   });
 };
 
-// 1. Remove the old: const adminApp = initAdmin();
-// 2. Remove the old: export const adminDb = adminApp.firestore();
-
-// 3. Add these dynamic "Getters" instead:
+// Getters for your Server Actions
 export const getAdminDb = () => {
   const app = admin.apps.length > 0 ? admin.app() : initAdmin();
   return app.firestore();

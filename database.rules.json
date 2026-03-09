@@ -1,6 +1,11 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true
+    ".read": "auth != null && now < 1774065600000",
+    ".write": "auth != null && now < 1774065600000",
+
+    "system_status": {
+      ".read": "now < 1774065600000",
+      ".write": "auth != null && now < 1774065600000"
+    }
   }
 }

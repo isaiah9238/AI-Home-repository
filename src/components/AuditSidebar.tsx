@@ -1,55 +1,68 @@
-// src/components/AuditSidebar.tsx
-'use client';
+import React from 'react';
+import { Trash2 } from 'lucide-react'; // Removed FileCode since it's unused
+import { deleteAudit } from '@/app/actions';
 
-import { useState, useEffect } from 'react';
-import { getAuditHistory } from '@/app/code-analyzer/actions';
+// 🏛️ 1. Define the shape of the Audit for TypeScript
+interface Audit {
+  id: string;
+  fileName: string;
+  agent: string;
+  status: 'SUCCESS' | 'FAILED' | 'PENDING';
+}
 
-export default function AuditSidebar({ onSelectAudit }: { onSelectAudit: (audit: any) => void }) {
-  const [history, setHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface AuditSidebarProps {
+  history: Audit[];
+  onSelectAudit: (item: Audit) => void;
+}
 
-  useEffect(() => {
-    const loadHistory = async () => {
-      const response = await getAuditHistory();
-      
-      // 🛡️ Only set history if the Librarian successfully found the data
-      if (response.success && response.data) {
-        setHistory(response.data); 
-      } else {
-        console.error("LIBRARIAN_ERROR:", response.error);
-      }
-      
-      setLoading(false);
-    };
-    loadHistory();
-  }, []);
-  
+export function AuditSidebar({ history, onSelectAudit }: AuditSidebarProps) {
   return (
-    <div className="w-64 bg-black border-r border-cyber-blue p-4 h-full overflow-y-auto">
-      <h3 className="text-greenish-yellow uppercase tracking-widest text-xs mb-6">
-        _LIBRARIAN_ARCHIVE
-      </h3>
+    <div className="flex flex-col w-64 h-full bg-black/20 border-r border-white/5 p-4 overflow-y-auto">
+      <h2 className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-6 font-bold">
+        Librarian Archive
+      </h2>
       
-      {loading ? (
-        <div className="animate-pulse text-cyber-blue text-xs">SYNCING...</div>
-      ) : (
-        <div className="space-y-4">
-          {history.map((audit) => (
+      <div className="space-y-2">
+        {/* Added a check to ensure history exists before mapping */}
+        {history?.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => onSelectAudit(item)}
+            className="group flex w-full items-center justify-between p-3 rounded-lg border border-transparent hover:border-white/10 hover:bg-white/5 transition-all cursor-pointer min-w-0"
+          >
+            {/* TEXT SECTION */}
+            <div className="flex items-center gap-3 min-w-0 mr-2">
+              {/* The Status Dot */}
+              <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                item.status === 'SUCCESS' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 
+                item.status === 'FAILED' ? 'bg-red-500' : 'bg-yellow-500'
+              }`} />
+      
+              <div className="flex flex-col min-w-0">
+                <span className="truncate text-xs font-mono text-white/80 group-hover:text-green-400 transition-colors">
+                  {item.fileName}
+                </span>
+                <span className="text-[9px] text-white/30 uppercase tracking-widest font-medium">
+                  {item.agent}
+                </span>
+              </div>
+            </div>
+
+            {/* TRASH CAN */}
             <button
-              key={audit.id}
-              onClick={() => onSelectAudit(audit)}
-              className="w-full text-left group border-l-2 border-transparent hover:border-greenish-yellow pl-2 transition-all"
+              onClick={async (e) => {
+                e.stopPropagation(); 
+                if (confirm(`Wipe ${item.fileName} from Ledger?`)) {
+                  await deleteAudit(item.id);
+                }
+              }}
+              className="opacity-0 group-hover:opacity-100 p-2 text-white/20 hover:text-red-500 transition-all shrink-0"
             >
-              <div className="text-cyber-blue text-[10px] font-mono opacity-70">
-                {new Date(audit.timestamp).toLocaleDateString()}
-              </div>
-              <div className="text-white text-xs truncate group-hover:text-greenish-yellow">
-                {audit.fileName || 'Untitled_Logic'}
-              </div>
+              <Trash2 size={14} />
             </button>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

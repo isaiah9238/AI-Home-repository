@@ -403,3 +403,17 @@ export async function runCodeAnalysis(code: string) {
     return { success: false, error: "ANALYSIS_INTERRUPTED" };
   }
 }
+
+export async function deleteAudit(docId: string) {
+  try {
+    const db = getAdminDb();
+    await db.collection('internal_comms').doc(docId).delete();
+    
+    // Refresh the sidebar immediately
+    revalidatePath('/code-analyzer');
+    return { success: true };
+  } catch (error) {
+    console.error("LIBRARIAN_ERROR: Delete failed", error);
+    return { success: false, error: "Deletion failed" };
+  }
+}

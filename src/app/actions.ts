@@ -7,6 +7,7 @@ import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
+import { ai } from '@/ai/genkit';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -90,7 +91,7 @@ export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }
   }
 }
 
-// --- 4. Discovery Domain: Architect ---
+// --- 4. Discovery Domain: Architect & Tutor ---
 
 export async function runArchitect(blueprint: string) {
   try {
@@ -99,6 +100,22 @@ export async function runArchitect(blueprint: string) {
   } catch (error: any) {
     console.error("Architect Action Error:", error?.message || "Blueprint unreadable");
     return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
+  }
+}
+
+/**
+ * Generates a structured lesson plan via the Cabinet's Tutor.
+ * This runs on the server to bypass App Check constraints.
+ */
+export async function generateLessonPlan(subject: string) {
+  try {
+    const { text } = await ai.generate({
+      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use a professional, technical tone.`,
+    });
+    return { success: true, plan: text };
+  } catch (error: any) {
+    console.error("Tutor Generation Error:", error);
+    return { success: false, error: "SIGNAL_LOST: The Tutor could not generate the plan." };
   }
 }
 

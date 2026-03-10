@@ -5,11 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Loader2 } from "lucide-react";
-import { lessonModel } from "@/lib/firebase"; 
-// 1. Fixed: Import the migration function
-import { migrateLessonToDb } from "@/ai/discovery/migrate-lesson-to-db";
-// Change this import:
-import { integrateLessonAction } from "@/app/actions";
+import { integrateLessonAction, generateLessonPlan } from "@/app/actions";
 
 export default function LessonPlansPage() {
   const [subject, setSubject] = useState('');
@@ -17,28 +13,29 @@ export default function LessonPlansPage() {
   const [loading, setLoading] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
 
-  // 2. Fixed: Restored handleGenerate so the button works
   const handleGenerate = async () => {
     if (!subject) return;
     setLoading(true);
     try {
-      const result = await lessonModel.generateContent(`Create a detailed, structured lesson plan for: ${subject}`);
-      const response = await result.response;
-      setPlan(response.text());
+      const result = await generateLessonPlan(subject);
+      if (result.success) {
+        setPlan(result.plan || '');
+      } else {
+        setPlan(`Error: ${result.error}`);
+      }
     } catch (error) {
       console.error("AI Generation Error:", error);
-      setPlan("Error: Make sure your Firebase AI Logic is enabled.");
+      setPlan("Error: The Cabinet Tutor is currently unresponsive.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Update the function inside the component:
   const handleIntegrate = async () => {
     if (!plan || !subject) return;
     setIsMigrating(true);
     try {
-      const result = await integrateLessonAction({ // Use the Action instead of the direct script
+      const result = await integrateLessonAction({
         title: subject,
         subject: "AI Generated Lesson",
         complexityGain: 5 
@@ -82,7 +79,6 @@ export default function LessonPlansPage() {
             </Button>
           </div>
 
-          {/* 3. Fixed: Wrapped the plan and integration button in a fragment */}
           {plan && (
             <div className="space-y-4">
               <div className="mt-6 p-4 bg-slate-800 rounded-md text-left whitespace-pre-wrap text-sm border border-slate-700 text-slate-200">

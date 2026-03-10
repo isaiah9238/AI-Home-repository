@@ -9,5 +9,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
   ],
-  // ... rest of your config
+  secret: process.env.AUTH_SECRET,
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async session({ session, token }) {
+      return session;
+    },
+  },
 });

@@ -36,17 +36,15 @@ export function CodeAnalyzerClient() {
   const [state, formAction] = useActionState(performCodeAnalysis, initialState);
   const [copied, setCopied] = useState(false);
 
-  // Notice the 'async' keyword before the parameters
-  const copyFix = async (text: string) => { 
+  const copyFix = async (text: string) => {
     try {
-      // This 'await' now works because the function is 'async'
-      await navigator.clipboard.writeText(text); 
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Clipboard sync failed:", err);
-      }
-    };
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">

@@ -15,8 +15,8 @@ The interface follows a **Cybernetic HUD** aesthetic, utilizing deep blacks (#05
 
 ### A. The Discovery Domain (Identity & Construction)
 *   **Home Base**: Connects to Firestore to anchor the AI's memory.
-*   **The Architect**: A "3D printer for code." Generates production-ready folder structures and boilerplate files from conceptual blueprints.
-*   **The Tutor**: Ingests lesson plans, expanding the neural context density and mastery levels.
+*   **The Architect**: A "3D printer for code." Generates production-ready folder structures and complete boilerplate files from conceptual blueprints.
+*   **The Tutor**: Ingests lesson plans, expanding the neural context density and mastery levels via Server Actions.
 
 ### B. The Research Domain (Intelligence & Analysis)
 *   **Flux Echo (Scout)**: Fast web reconnaissance returning concise signals and summaries.

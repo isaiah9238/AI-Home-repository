@@ -1,7 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { AppShell } from '@/components/app-shell';
-import { Toaster } from '@/components/ui/toaster';
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
@@ -12,9 +11,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-black text-white">
+      <body className="bg-black text-white selection:bg-blue-500/30">
         <Providers>
-          {children}
+          <AppShell>
+            {children}
+          </AppShell>
         </Providers>
       </body>
     </html>

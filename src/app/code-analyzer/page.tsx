@@ -1,11 +1,10 @@
 'use client';
 
-// src/app/code-analyzer/page.tsx
-import { Cpu } from 'lucide-react'; // Assuming lucide-react for the icon
+import { useState } from 'react';
+import { Cpu } from 'lucide-react';
 import { CodeAnalyzerClient } from '@/app/code-analyzer/code-analyzer-client';
-import AuditSidebar from '@/components/AuditSidebar';
+import { AuditSidebar } from '@/components/AuditSidebar';
 
-// 1. Define the interface (or import it if you exported it from the sidebar)
 interface Audit {
   id: string;
   fileName: string;
@@ -14,21 +13,24 @@ interface Audit {
   data?: any; 
 }
 
-// 2. Update your state and the selection function
-const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
-// Change the function that handles the click:
-const handleSelect = (audit: Audit) => { // Adding the : Audit type here fixes error 7006
-  setSelectedAudit(audit);
-};
-
 export default function CodeAnalyzerPage() {
+  const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
+
+  const handleSelect = (audit: Audit) => {
+    setSelectedAudit(audit);
+    // Integration: Pass this to the client or log it
+    console.log('Recalling:', audit);
+  };
+
   return (
-    // changed to flex to allow sidebar and main content to sit side-by-side
     <div className="flex w-full min-h-screen bg-[#050505] text-white font-mono overflow-hidden">
       
       {/* 1. THE LIBRARIAN SIDEBAR */}
       <div className="hidden lg:block">
-        <AuditSidebar onSelectAudit={(audit) => console.log('Recalling:', audit)} />
+        <AuditSidebar 
+          history={[]} // Initialize with empty history to prevent errors
+          onSelectAudit={handleSelect} 
+        />
       </div>
 
       {/* 2. THE MAIN INSPECTOR PANEL */}

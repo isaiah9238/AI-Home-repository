@@ -113,8 +113,8 @@ export async function getHomeBaseAction() {
 
     return {
       ...data,
-      name: data.name || "Isaiah Smith", //
-      interests: data.interests || [], // Force an array to prevent .join() errors
+      name: data.name || "Isaiah Smith",
+      interests: data.interests || [],
       createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
@@ -123,7 +123,6 @@ export async function getHomeBaseAction() {
   }
 }
 
-// Do the same for getHomeBase() to keep the Mentorship page stable
 export async function getHomeBase() {
   try {
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
@@ -142,6 +141,21 @@ export async function getHomeBase() {
     return { success: false, error: "HOME_BASE_NOT_FOUND" };
   } catch (error) {
     return { success: false, error: "SYSTEM_READ_ERROR" };
+  }
+}
+
+export async function updateHomeBaseAction(updates: any) {
+  try {
+    const db = getAdminDb();
+    await db.collection('users').doc('primary_user').set({
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true });
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error("Librarian Write Error:", error);
+    return { success: false, error: "LIBRARIAN_WRITE_ERROR" };
   }
 }
 
@@ -206,9 +220,6 @@ export async function getCurriculumProgress() {
 export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
   try {
     const result = await migrateLessonToDb(data);
-    
-    // THE FIX: Explicitly return a plain object. 
-    // This prevents the "Unexpected Response" crash by avoiding complex class instances.
     return { 
       success: true, 
       planId: result || 'GENERATED_ID',
@@ -299,13 +310,6 @@ export async function getMilestones() {
 
 // --- 8. The Universal Librarian ---
 
-/**
- * Universal Write: Files any payload into a specific Cabinet drawer (collection).
- * Use this for internal_comms, safety_intercepts, or mentor_briefs.
- */
-/**
- * FILES A SECURITY PULSE (GEM) TO THE LIBRARIAN
- */
 export async function fileToCabinet(type: string, details: { reason: string, severity: 'low' | 'medium' | 'high' | 'critical', content: string }) {
   try {
     const docRef = await getAdminDb().collection('gems').add({
@@ -313,12 +317,12 @@ export async function fileToCabinet(type: string, details: { reason: string, sev
       reason: details.reason,
       severity: details.severity,
       content: details.content,
-      time: new Date().toISOString(), // Matches your GemsDrawer interface
+      time: new Date().toISOString(),
       resolution: 'pending',
       userId: 'primary_user'
     });
 
-    revalidatePath('/'); // Refresh the HUD to show the new pulse
+    revalidatePath('/');
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error("Librarian Logging Error:", error);
@@ -328,10 +332,6 @@ export async function fileToCabinet(type: string, details: { reason: string, sev
 
 // --- 9. Storage & Librarian Link ---
 
-/**
- * Links a file in Firebase Storage to the Firestore Cabinet.
- * Use this after you manually upload a file to the console.
- */
 export async function linkStorageFileToCabinet(fileData: { 
   fileName: string, 
   storagePath: string, 
@@ -339,8 +339,6 @@ export async function linkStorageFileToCabinet(fileData: {
 }) {
   try {
     const userId = 'primary_user';
-    
-    // Create a searchable reference in the 'plans' collection
     const docRef = await getAdminDb().collection('plans').add({
       title: fileData.fileName,
       type: fileData.category,
@@ -358,12 +356,8 @@ export async function linkStorageFileToCabinet(fileData: {
   }
 }
 
-/**
- * ONE-TIME SYNC: Links your manual Storage upload to the HUD.
- */
 export async function syncArchitectureLesson() {
   try {
-    // This connects the file path in your screenshot to the 'plans' collection
     const docRef = await getAdminDb().collection('plans').add({
       title: "First Lesson Plan on Architecture",
       type: "Lesson Plan",
@@ -381,13 +375,8 @@ export async function syncArchitectureLesson() {
 
 // --- 10. Development Domain: Code Analyzer ---
 
-/**
- * Inspects code and logs the event to the Librarian.
- */
 export async function runCodeAnalysis(code: string) {
   try {
-    // Here you would eventually call your analyzer AI flow
-    // For now, we log the intent and return a success signal.
     await getAdminDb().collection('internal_comms').add({
       agent: 'Code Analyzer',
       action: 'code_inspection',
@@ -408,8 +397,6 @@ export async function deleteAudit(docId: string) {
   try {
     const db = getAdminDb();
     await db.collection('internal_comms').doc(docId).delete();
-    
-    // Refresh the sidebar immediately
     revalidatePath('/code-analyzer');
     return { success: true };
   } catch (error) {

@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
-import { sendTerminalMessage } from '@/app/actions';
+import { sendTerminalMessage, updateHomeBaseAction, getHomeBaseAction } from '@/app/actions';
+import { Loader2, Terminal } from 'lucide-react';
+
+interface TerminalMessage {
+  role: 'user' | 'system';
+  content: string;
+}
 
 export function AIChat() {
   const [input, setInput] = useState('');
-  const [response, setResponse] = useState('');
+  const [messages, setMessages] = useState<TerminalMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   
-  // Profile state for terminal variables (Local simulation)
   const [profile, setProfile] = useState({
     name: 'ISAIAH_SMITH',
     age: '24',
@@ -18,6 +24,27 @@ export function AIChat() {
     expectations: 'HIGH',
     adaptive: 'ON'
   });
+
+  useEffect(() => {
+    async function syncProfile() {
+      const homeBase = await getHomeBaseAction();
+      if (homeBase) {
+        setProfile(p => ({
+          ...p,
+          name: homeBase.name.toUpperCase().replace(/\s/g, '_'),
+          interests: homeBase.interests.join('_').toUpperCase(),
+          role: homeBase.role?.toUpperCase() || 'PRIMARY_USER'
+        }));
+      }
+    }
+    syncProfile();
+  }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
 
   const handleKeyboardClick = (key: string) => {
     if (key === 'BACK') {
@@ -35,42 +62,54 @@ export function AIChat() {
     if (e) e.preventDefault();
     if (!input.trim()) return;
 
+    const userMessage = input.trim();
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setInput('');
     setLoading(true);
+
     try {
-      // Check for custom "SET" commands for local state
-      const upperInput = input.toUpperCase().trim();
+      const upperInput = userMessage.toUpperCase();
       if (upperInput.startsWith('SET ')) {
         const parts = upperInput.split(' ');
         const field = parts[1];
-        const value = parts.slice(2).join('_');
+        const value = parts.slice(2).join(' ').replace(/_/g, ' ');
 
-        if (field === 'NAME') setProfile(p => ({ ...p, name: value }));
-        else if (field === 'AGE') setProfile(p => ({ ...p, age: value }));
-        else if (field === 'EXP') setProfile(p => ({ ...p, experiences: value }));
-        else if (field === 'INT') setProfile(p => ({ ...p, interests: value }));
-        else if (field === 'EXPECT') setProfile(p => ({ ...p, expectations: value }));
-        else if (field === 'ADAPT') setProfile(p => ({ ...p, adaptive: value }));
+        let updateKey = '';
+        if (field === 'NAME') updateKey = 'name';
+        else if (field === 'INT') updateKey = 'interests';
+        else if (field === 'EXP') updateKey = 'experiences';
 
-        setResponse(`SYSTEM: Local field [${field}] updated successfully.`);
-        setInput('');
+        if (updateKey) {
+          const updates = updateKey === 'interests' 
+            ? { interests: value.split(' ') } 
+            : { [updateKey]: value };
+          
+          const syncResult = await updateHomeBaseAction(updates);
+          
+          if (syncResult.success) {
+            setProfile(p => ({ ...p, [field === 'NAME' ? 'name' : field === 'INT' ? 'interests' : 'experiences']: value.toUpperCase().replace(/\s/g, '_') }));
+            setMessages(prev => [...prev, { role: 'system', content: `LIBRARIAN: Field [${field}] persisted to Home Base.` }]);
+          } else {
+            setMessages(prev => [...prev, { role: 'system', content: `ERROR: Librarian write failed.` }]);
+          }
+        } else {
+          setMessages(prev => [...prev, { role: 'system', content: `SYSTEM: Local field [${field}] updated (Unmapped to Librarian).` }]);
+        }
+        
         setLoading(false);
         return;
       }
 
-      // CALL THE CABINET: Use the Server Action instead of the client-side model
-      // This bypasses App Check token issues and centralizes logic in the Cabinet.
-      const result = await sendTerminalMessage(input);
+      const result = await sendTerminalMessage(userMessage);
       
       if (result.success) {
-        setResponse(result.response || 'NO_SIGNAL_RETURNED');
+        setMessages(prev => [...prev, { role: 'system', content: result.response || 'NO_SIGNAL_RETURNED' }]);
       } else {
-        setResponse(`ERROR: ${result.error || "Failed to sync with the Cabinet."}`);
+        setMessages(prev => [...prev, { role: 'system', content: `ERROR: ${result.error || "Failed to sync with the Cabinet."}` }]);
       }
-      
-      setInput('');
     } catch (error: any) {
       console.error("Terminal Sync Error:", error);
-      setResponse(`CRITICAL_ERROR: ${error.message || "Failed to reach the Mentor."}`);
+      setMessages(prev => [...prev, { role: 'system', content: `CRITICAL_ERROR: ${error.message || "Failed to reach the Mentor."}` }]);
     } finally {
       setLoading(false);
     }
@@ -84,44 +123,68 @@ export function AIChat() {
   ];
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
       {/* Output Log */}
-      <div className="p-4 border border-green-900 bg-black rounded-md min-h-[120px] shadow-inner">
-        <p className="text-green-600 font-mono text-[10px] mb-2 opacity-50 uppercase tracking-tighter">/sys/logs/output.bin</p>
-        <div className="text-green-400 font-mono text-sm whitespace-pre-wrap">
-          {loading ? "> Processing neural logic..." : response || "> Awaiting instruction..."}
+      <div 
+        ref={scrollRef}
+        className="p-4 border border-green-900/30 bg-black/80 rounded-md h-[200px] overflow-y-auto custom-scrollbar shadow-inner relative"
+      >
+        <div className="sticky top-0 right-0 flex items-center justify-between bg-black/40 backdrop-blur-sm px-2 py-1 mb-2 border-b border-green-900/10">
+          <p className="text-green-600 font-mono text-[8px] uppercase tracking-widest flex items-center gap-2">
+            <Terminal className="w-2 h-2" /> /sys/logs/output.bin
+          </p>
+          <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+        </div>
+        
+        <div className="space-y-3">
+          {messages.length === 0 && !loading && (
+            <div className="text-green-900 font-mono text-xs italic">&gt; Awaiting instruction...</div>
+          )}
+          {messages.map((msg, i) => (
+            <div key={i} className={`font-mono text-sm leading-relaxed ${msg.role === 'user' ? 'text-blue-400/80' : 'text-green-400'}`}>
+              <span className="opacity-30 mr-2">{msg.role === 'user' ? '>' : '#'}</span>
+              {msg.content}
+            </div>
+          ))}
+          {loading && (
+            <div className="flex items-center gap-2 text-green-400 font-mono text-sm animate-pulse">
+              <span className="opacity-30 mr-2">#</span>
+              <Loader2 className="w-3 h-3 animate-spin" /> Processing neural logic...
+            </div>
+          )}
         </div>
       </div>
 
       {/* Input Field */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
-          className="flex-1 bg-black border border-green-500 p-3 text-green-400 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-green-400 transition-all placeholder:text-green-900"
+          className="flex-1 bg-black border border-green-500/40 p-3 text-green-400 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/20 transition-all placeholder:text-green-900/50 rounded-sm"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="TYPE COMMAND OR USE KEYBOARD..."
+          autoComplete="off"
         />
         <Button 
           type="submit" 
           disabled={loading}
-          className="bg-green-600 hover:bg-green-500 text-black font-bold px-8 rounded-none border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all"
+          className="bg-green-600 hover:bg-green-500 text-black font-bold px-8 rounded-sm border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all uppercase tracking-widest text-xs"
         >
           EXEC
         </Button>
       </form>
 
       {/* Virtual Keyboard */}
-      <div className="bg-gray-800/50 p-3 rounded border border-gray-700 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl">
+      <div className="bg-white/[0.02] p-3 rounded border border-white/5 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl backdrop-blur-sm">
         {keys.map((key) => (
           <button
             key={key}
             type="button"
             onClick={() => handleKeyboardClick(key)}
             className={`
-              p-2 font-mono text-xs rounded border transition-all active:scale-95
-              ${key === 'ENTER' ? 'col-span-2 bg-green-900 text-green-400 border-green-700 hover:bg-green-800' : 
+              p-2 font-mono text-[10px] rounded border transition-all active:scale-95 uppercase tracking-tighter
+              ${key === 'ENTER' ? 'col-span-2 bg-green-900/40 text-green-400 border-green-700/50 hover:bg-green-800/40' : 
                 key === 'BACK' ? 'bg-red-900/20 text-red-400 border-red-900/50 hover:bg-red-900/40' : 
-                'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 hover:text-white'}
+                'bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white/80'}
             `}
           >
             {key}
@@ -131,43 +194,35 @@ export function AIChat() {
 
       {/* SYSTEM_PROFILE_STATE */}
       <div className="mt-6">
-        <div className="bg-green-900/10 border border-green-900 p-4 rounded-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-1 bg-green-900 text-[8px] font-mono text-green-300 uppercase px-2">
-            Status: Active
+        <div className="bg-green-900/5 border border-green-900/20 p-4 rounded-lg relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-1 bg-green-900/20 text-[7px] font-mono text-green-400/60 uppercase px-3 tracking-[0.2em] border-bl border-green-900/20">
+            Node_Access: Stable
           </div>
-          <h3 className="text-green-600 font-mono text-xs mb-4 uppercase tracking-[0.2em] font-bold">System_Core_Profile</h3>
+          <h3 className="text-green-600/40 font-mono text-[10px] mb-4 uppercase tracking-[0.3em] font-bold border-b border-green-900/10 pb-2">Live_Neural_Registry</h3>
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 font-mono">
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">01.ID_NAME</span>
-              <span className="text-sm text-green-400 truncate">{profile.name}</span>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">02.ID_AGE</span>
-              <span className="text-sm text-green-400">{profile.age}</span>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">03.EXPERIENCES</span>
-              <span className="text-sm text-green-400 truncate">{profile.experiences}</span>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">04.INTERESTS</span>
-              <span className="text-sm text-green-400 truncate">{profile.interests}</span>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">05.EXPECTATIONS</span>
-              <span className="text-sm text-green-400">{profile.expectations}</span>
-            </div>
-            <div className="flex flex-col space-y-1">
-              <span className="text-[10px] text-green-800 uppercase">06.ADAPTIVE_MODE</span>
-              <span className={`text-sm ${profile.adaptive === 'ON' ? 'text-green-400' : 'text-red-500'}`}>
-                [{profile.adaptive}]
-              </span>
-            </div>
+            {[
+              { id: '01', label: 'ID_NAME', val: profile.name },
+              { id: '02', label: 'ID_AGE', val: profile.age },
+              { id: '03', label: 'EXPERIENCES', val: profile.experiences },
+              { id: '04', label: 'INTERESTS', val: profile.interests },
+              { id: '05', label: 'EXPECTATIONS', val: profile.expectations },
+              { id: '06', label: 'ADAPTIVE', val: profile.adaptive, status: true }
+            ].map((item) => (
+              <div key={item.id} className="flex flex-col space-y-1 group/item">
+                <span className="text-[8px] text-green-900 uppercase tracking-widest group-hover/item:text-green-700 transition-colors">{item.id}.{item.label}</span>
+                <span className={`text-xs truncate ${item.status ? (item.val === 'ON' ? 'text-green-400' : 'text-red-500') : 'text-green-400/70'}`}>
+                  {item.status ? `[${item.val}]` : item.val}
+                </span>
+              </div>
+            ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-green-900/30 flex justify-between items-center text-[10px] font-mono text-green-900 italic">
-            <span>* Use "SET [FIELD] [VALUE]" to update terminal metrics.</span>
-            <span className="animate-pulse">_LISTENING_</span>
+          <div className="mt-4 pt-4 border-t border-green-900/10 flex justify-between items-center text-[8px] font-mono text-green-900/40 italic uppercase tracking-wider">
+            <span>* Persist with &quot;SET [FIELD] [VALUE]&quot;</span>
+            <span className="flex items-center gap-2">
+              <div className="w-1 h-1 bg-green-500/20 rounded-full animate-ping" />
+              Monitoring_Stream
+            </span>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Cpu } from 'lucide-react';
 import { CodeAnalyzerClient } from '@/app/code-analyzer/code-analyzer-client';
 import { AuditSidebar } from '@/components/AuditSidebar';

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Network, Share2, Info, X, Zap, Database, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Node {
   id: string;
@@ -33,7 +34,7 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
   // Simple deterministic layout algorithm for the nodes
   const graphData = useMemo(() => {
     const nodes: Node[] = lessons.map((l, i) => {
-      const angle = (i / lessons.length) * 2 * Math.PI;
+      const angle = (i / (lessons.length || 1)) * 2 * Math.PI;
       const radius = 150 + (i % 2) * 50;
       return {
         id: l.id,

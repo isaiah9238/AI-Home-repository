@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Code2, BookOpen, BotMessageSquare, Flag, Cpu } from 'lucide-react';
+import { LayoutDashboard, Code2, BookOpen, BotMessageSquare, Flag, Cpu, Box } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarInset } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -54,11 +54,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       description: 'System_Core'
     },
     { 
+      href: '/architect', 
+      label: 'The Architect', 
+      icon: Box, 
+      color: 'text-purple-500',
+      description: 'Construction_Core'
+    },
+    { 
       href: '/code-analyzer', 
       label: 'Code Analyzer', 
       icon: Code2, 
       color: 'text-purple-400',
-      description: 'Architect_Domain'
+      description: 'Inspector_Domain'
     },
     { 
       href: '/flux-echo', 

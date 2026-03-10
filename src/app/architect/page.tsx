@@ -1,0 +1,168 @@
+'use client';
+
+import { useState } from 'react';
+import { Box, Sparkles, Loader2, Folder, FileCode, Copy, Check, X, Terminal } from 'lucide-react';
+import { runArchitect } from '@/app/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+
+export default function ArchitectPage() {
+  const [blueprint, setBlueprint] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<any[] | null>(null);
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleArchitect = async () => {
+    if (!blueprint) return;
+    setLoading(true);
+    setResults(null);
+    setSelectedFile(null);
+    
+    try {
+      const result = await runArchitect(blueprint);
+      if (result.success) {
+        setResults(result.data);
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      console.error("Construction Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-8 font-mono">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-purple-500 pl-6">
+        <div>
+          <h1 className="text-4xl font-light tracking-[0.2em] uppercase flex items-center gap-4 text-white">
+            <Box className="w-8 h-8 text-purple-500" /> The_Architect
+          </h1>
+          <p className="text-white/40 mt-2 uppercase tracking-widest text-xs">
+            High-fidelity system instantiation. Transforming blueprints into structure.
+          </p>
+        </div>
+        <div className="text-right">
+          <div className="text-[10px] text-purple-500/50 uppercase tracking-[0.3em]">Domain: DISCOVERY_CONSTRUCTION</div>
+          <div className="text-[10px] text-white/20 uppercase tracking-[0.3em]">Status: PRINTER_READY</div>
+        </div>
+      </div>
+
+      <Card className="bg-black/40 border-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        <CardHeader>
+          <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
+            <Terminal className="w-3 h-3" /> Input_Blueprint
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Input
+              placeholder="DESCRIBE_SYSTEM_REQUIREMENTS (e.g. NextJS App with Firebase Auth and Tailwind)..."
+              value={blueprint}
+              onChange={(e) => setBlueprint(e.target.value)}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-sm tracking-wider h-12"
+              onKeyDown={(e) => e.key === 'Enter' && handleArchitect()}
+            />
+            <Button 
+              onClick={handleArchitect} 
+              disabled={loading || !blueprint} 
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 h-12 rounded transition-all shadow-[0_0_20px_rgba(168,85,247,0.2)] uppercase tracking-widest text-xs"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> PRINTING...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> SUMMON_ARCHITECT
+                </span>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {results && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          
+          {/* File Explorer */}
+          <Card className="lg:col-span-4 bg-black/40 border-white/5 flex flex-col overflow-hidden">
+            <CardHeader className="bg-white/5 border-b border-white/5 py-3">
+              <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Structural_Nodes</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 p-2 overflow-y-auto custom-scrollbar">
+              <div className="space-y-1">
+                {results.map((file, i) => (
+                  <div 
+                    key={i} 
+                    onClick={() => file.type === 'file' && setSelectedFile(file)}
+                    className={`
+                      flex items-center gap-3 p-2 rounded cursor-pointer transition-all group
+                      ${file.type === 'file' ? 'hover:bg-purple-500/10' : 'cursor-default'}
+                      ${selectedFile?.path === file.path ? 'bg-purple-500/20 border-l-2 border-purple-500' : 'border-l-2 border-transparent'}
+                    `}
+                  >
+                    {file.type === 'directory' ? (
+                      <Folder className="w-3 h-3 text-purple-400/60" />
+                    ) : (
+                      <FileCode className="w-3 h-3 text-blue-400/60" />
+                    )}
+                    <span className={`text-[11px] truncate ${file.type === 'directory' ? 'text-purple-300/80 font-bold' : 'text-white/60'}`}>
+                      {file.path}
+                    </span>
+                    {file.content && (
+                      <Badge variant="outline" className="ml-auto text-[7px] border-blue-500/20 text-blue-400/40 uppercase">BP</Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Code Preview */}
+          <Card className="lg:col-span-8 bg-black/40 border-white/5 flex flex-col overflow-hidden">
+            <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold">
+                {selectedFile ? `Node_Preview: ${selectedFile.path.split('/').pop()}` : 'Select_Node_To_Preview'}
+              </CardTitle>
+              {selectedFile?.content && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 text-[10px] uppercase text-white/30 hover:text-white"
+                  onClick={() => copyToClipboard(selectedFile.content)}
+                >
+                  {copied ? <Check className="w-3 h-3 mr-2 text-green-500" /> : <Copy className="w-3 h-3 mr-2" />}
+                  {copied ? "COPIED" : "COPY_BOILERPLATE"}
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="flex-1 p-0 overflow-auto custom-scrollbar bg-black/20">
+              {selectedFile?.content ? (
+                <pre className="p-6 text-[11px] text-blue-100/70 whitespace-pre leading-relaxed font-mono">
+                  {selectedFile.content}
+                </pre>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center opacity-10">
+                  <Box className="w-16 h-16 mb-4" />
+                  <span className="text-[10px] uppercase tracking-[0.4em]">Awaiting_Selection</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}

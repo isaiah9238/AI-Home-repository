@@ -145,7 +145,7 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
-            ...props
+            {...props}
           >
             {children}
           </div>

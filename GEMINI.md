@@ -13,7 +13,7 @@
 - **src/app:** The Portal interface (Next.js App Router).
 
 ## 3. Technical Stack & Standards
-- **AI Engine:** Google Genkit + Gemini 2.0 Flash (Structured Output).
+- **AI Engine:** Google Genkit + Gemini gemini-2.5-pro (Structured Output).
 - **Database:** Firestore (The Librarian) for persistent context and logs.
 - **UI Components:** ShadCN UI + Custom Cybernetic HUD elements.
 - **Variable Strategy:** Use `The User` and `Variable Subjects` for the "Universal Template."

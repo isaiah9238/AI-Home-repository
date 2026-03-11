@@ -16,7 +16,7 @@
 ### 🔭 Research & Analysis
 - **Flux Echo**: High-speed scout for web reconnaissance.
 - **Epitomizer**: Deep-read content transformation for structured notes.
-- **Code Inspector**: Structured security and performance auditing (Gemini 2.0 Flash).
+- **Code Inspector**: Structured security and performance auditing (gemini-2.5-pro).
 
 ### 🛡️ Safety & Integrity
 - **Gatekeepers**: Bidirectional communications vetting (Input/Output).

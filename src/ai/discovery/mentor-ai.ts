@@ -51,7 +51,7 @@ export const mentorAiFlow = ai.defineFlow(
 
     // 4. Generate the response
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp',
+      model: 'googleai/gemini-2.5-pro',
       prompt: `
         ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor.
         CONTEXT: ${aiContext}

@@ -31,7 +31,7 @@ export const epitomizeFetchedContent = ai.defineFlow(
         .slice(0, 30000); // Allow more context for deep read
 
       const { output } = await ai.generate({
-        model: 'googleai/gemini-2.0-flash-exp',
+        model: 'googleai/gemini-2.5-pro',
         prompt: `
           You are the Librarian's expert Epitomizer. 
           Deep read the following content from ${input.url} and transform it into high-quality, epitomized notes.

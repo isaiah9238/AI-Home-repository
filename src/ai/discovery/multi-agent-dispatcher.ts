@@ -31,7 +31,7 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
   async (input) => {
     // 1. Classify the user's intent to choose an agent.
     const { agent } = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp', // Using the same model as other flows for consistency.
+      model: 'googleai/gemini-2.5-pro', // Using the same model as other flows for consistency.
       prompt: `
         You are a multi-agent dispatcher. Your role is to analyze a user's request and route it to the most appropriate specialized agent.
 

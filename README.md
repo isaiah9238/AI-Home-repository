@@ -12,7 +12,7 @@ An advanced, domain-driven AI assistant environment built with **Next.js 14**, *
 
 ## 🛠️ Tech Stack
 - **Framework**: Next.js (App Router)
-- **AI Engine**: Google Genkit + Gemini 1.5 Flash
+- **AI Engine**: Google Genkit + gemini-2.5-pro
 - **Database**: Firestore (Firebase Admin SDK)
 - **UI Components**: Tailwind CSS + Shadcn/UI + Lucide Icons
 

@@ -16,8 +16,8 @@ export function getVertexMentor(): GenerativeModel {
 
   const vertex = getVertexAI(firebaseApp);
 
-  // As per the skill documentation, use 'gemini-flash-latest'
-  const model = getGenerativeModel(vertex, { model: 'gemini-flash-latest' });
+  // As per the skill documentation, use 'gemini-2.5-pro'
+  const model = getGenerativeModel(vertex, { model: 'gemini-2.5-pro' });
 
   return model;
 }

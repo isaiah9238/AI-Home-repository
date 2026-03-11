@@ -22,7 +22,7 @@
       "domain": "Research & Analysis",
       "updates": [
         "Consolidated Flux Echo (Scout) and Epitomizer (Deep Reader).",
-        "Upgraded Code Inspector with structured Gemini 2.0 auditing.",
+        "Upgraded Code Inspector with structured gemini-2.5-pro auditing.",
         "Implemented unified runResearch server action."
       ]
     },

@@ -30,7 +30,7 @@ export const linkGenie = ai.defineFlow(
         .slice(0, 20000);
 
       const { output } = await ai.generate({
-        model: 'googleai/gemini-2.0-flash-exp',
+        model: 'googleai/gemini-2.5-pro',
         prompt: `
           You are Flux Echo, a high-speed research scout. 
           Analyze the following web page content from ${input.url}.

@@ -6,6 +6,7 @@
     pkgs.jdk21        # Required for Firebase Emulators
     pkgs.psmisc       # Gives you the 'fuser' command to kill ports
     pkgs.nano
+    pkgs.sudo
   ];
 
   env = {

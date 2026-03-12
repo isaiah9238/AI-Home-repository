@@ -1,27 +1,2 @@
-interface CSSModulesOptions {
-    getJSON: (
-      cssFileName: string,
-      json: Record<string, string>,
-      outputFileName: string,
-    ) => void
-    scopeBehaviour?: 'global' | 'local'
-    globalModulePaths?: RegExp[]
-    exportGlobals?: boolean
-    generateScopedName?:
-      | string
-      | ((name: string, filename: string, css: string) => string)
-    hashPrefix?: string
-    /**
-     * default: undefined
-     */
-    localsConvention?:
-      | 'camelCase'
-      | 'camelCaseOnly'
-      | 'dashes'
-      | 'dashesOnly'
-      | ((
-          originalClassName: string,
-          generatedClassName: string,
-          inputFile: string,
-        ) => string)
-  }
+// This file has been deprecated as the project utilizes Next.js, not Vite.
+// Neural logic and interfaces should be placed in properly typed .ts files.

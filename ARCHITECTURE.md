@@ -4,6 +4,13 @@
 **The Concept**
 The "Portal" is the high-fidelity gateway between your local environment and the "Cabinet" of AI Drawers. It represents the transition from a collection of scripts to a unified, autonomous command center.
 
+**Tech Stack**
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **AI Engine**: Google Genkit + Gemini 2.5 Pro
+- **Styling**: Tailwind CSS + ShadCN UI
+- **Database**: Firestore (Firebase Admin SDK)
+
 ## 2. The "Portal" Interface (UI/UX)
 The interface follows a **Cybernetic HUD** aesthetic, utilizing deep blacks (#050505), neon-blue/purple accents, and Glassmorphism (blur-2xl).
 

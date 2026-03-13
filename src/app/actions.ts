@@ -58,7 +58,7 @@ export async function getMorningBriefing(userContext?: any) {
 
 // --- 3. Research Domain: Flux Echo & Epitomizer ---
 
-export async function runResearch(input: { url: string, mode: 'scout' | 'deep' }) {
+export async function runResearchMode(input: { url: string, mode: 'scout' | 'deep' }) {
   try {
     let result;
     if (input.mode === 'scout') {

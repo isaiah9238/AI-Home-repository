@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2 } from 'lucide-react';
-import { runResearch, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, type ResearchMode } from '@/app/actions';
+import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,14 +24,14 @@ export function PortalInterface() {
   const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState('');
   const [blueprint, setBlueprint] = useState('');
-  const [researchMode, setResearchMode] = useState<ResearchMode>('scout');
+  type researchMode = 'scout' | 'deep'; const [researchMode, setResearchMode] = useState<researchMode>('scout');
   const [researchResult, setResearchResult] = useState<any>(null);
   const [architectResult, setArchitectResult] = useState<any[] | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [curriculumProgress, setCurriculumProgress] = useState<any>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
-  const [evolutionData, setEvolutionData] = useState<any>(null);
+  const [systemEvolution, setSystemEvolution] = useState<any>(null);
   const [gems, setGems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -40,20 +40,29 @@ export function PortalInterface() {
         if (res.success) setCurriculumProgress(res);
       });
     }
+  }, [activeTool]);
+
+  // 1. Birthday / Evolution Logic
+  useEffect(() => {
     if (activeTool === 'birthday') {
       Promise.all([
         getMilestones(),
         getSystemEvolution(),
         getCurriculumProgress()
       ]).then(([milestonesRes, evolutionRes, curriculumRes]) => {
-        if (milestonesRes.success) setMilestones(milestonesRes.data);
-        if (evolutionRes.success) setEvolutionData(evolutionRes);
+        // Use the 'Res' variables, not the state variables!
+        if (milestonesRes.success) setMilestones(milestonesRes.data ?? []);
+        if (evolutionRes.success) setSystemEvolution(evolutionRes);
         if (curriculumRes.success) setCurriculumProgress(curriculumRes);
       });
     }
-    if (activeTool === 'safety') {
+  }, [activeTool]);
+
+  // 2. Safety / Gems Logic (Fixed the Promise.all syntax)
+  useEffect(() => {
+    if (activeTool === 'safety' || activeTool === 'laboratory') {
       getGems().then(res => {
-        if (res.success) setGems(res.data);
+        if (res.success) setGems(res.data ?? []);
       });
     }
   }, [activeTool]);
@@ -62,18 +71,21 @@ export function PortalInterface() {
     if (!url) return;
     setLoading(true);
     setResearchResult(null);
-    const result = await runResearch({ url, mode: researchMode });
+    const result = await runResearchMode ({ url, mode: researchMode });
     if (result.success) setResearchResult(result);
     setLoading(false);
   };
 
+  // 3. Architect Handle (Actually show the results!)
   const handleArchitect = async () => {
     if (!blueprint) return;
     setLoading(true);
     setArchitectResult(null);
     setSelectedFile(null);
     const result = await runArchitect(blueprint);
-    if (result.success) setArchitectResult(result.data);
+    if (result.success) {
+      setArchitectResult(result.data ?? []); // Don't just set empty array!
+    }
     setLoading(false);
   };
 
@@ -119,7 +131,7 @@ export function PortalInterface() {
           <div className="flex flex-col md:flex-row gap-4">
             <Tabs 
               value={researchMode} 
-              onValueChange={(v) => setResearchMode(v as ResearchMode)}
+              onValueChange={(v) => setResearchMode(v as researchMode)}
               className="bg-white/5 p-1 rounded-lg border border-white/10"
             >
               <TabsList className="bg-transparent border-0 gap-2">
@@ -259,7 +271,7 @@ export function PortalInterface() {
   }
 
   if (activeTool === 'birthday') {
-    return <BirthdayDrawer onClose={() => setActiveTool(null)} establishedDate="2026-02-06" milestones={milestones} isAnniversary={evolutionData?.isAnniversary} neuralComplexity={curriculumProgress?.neuralComplexity} knowledgeIntegration={curriculumProgress?.knowledgeIntegration} />;
+    return <BirthdayDrawer onClose={() => setActiveTool(null)} establishedDate="2026-02-06" milestones={milestones} isAnniversary={systemEvolution?.isAnniversary} neuralComplexity={curriculumProgress?.neuralComplexity} knowledgeIntegration={curriculumProgress?.knowledgeIntegration} />;
   }
 
   if (activeTool === 'curriculum') {

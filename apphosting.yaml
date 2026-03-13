@@ -11,13 +11,21 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: studio-3863072923-d4373
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: FIREBASE_API_KEY_CLIENT
+  - variable: FIREBASE_API_KEY_SERVER
     secret: FIREBASE_API_KEY
+  - variable: FIREBASE_SERVICE_ACCOUNT_KEY
+    secret: FIREBASE_SERVICE_ACCOUNT_KEY
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: studio-3863072923-d4373.firebaseapp.com
   - variable: NEXT_PUBLIC_FIREBASE_DATABASE_URL
     value: https://studio-3863072923-d4373-default-rtdb.firebaseio.com
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: studio-3863072923-d4373.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 1032380781554
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:1032380781554:web:45a51ed906b91dd13dd16b
   - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
     secret: RECAPTCHA_SITE_KEY
   

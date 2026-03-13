@@ -1,6 +1,6 @@
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
-import { adminDb } from '@/lib/firebaseAdmin';
+import { getAdminDb } from '@/lib/firebaseAdmin';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
 
@@ -25,7 +25,7 @@ export const mentorAiFlow = ai.defineFlow(
     // 2. Fetch profile context (LANDMARK: Replace this section)
     let rawData = input.userProfile;
     if (!rawData) {
-      const userDoc = await adminDb.collection('users').doc('primary_user').get();
+      const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
       rawData = userDoc.data();
     }
     // --- NEW SANITIZATION LAYER ---

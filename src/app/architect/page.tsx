@@ -24,7 +24,8 @@ export default function ArchitectPage() {
     try {
       const result = await runArchitect(blueprint);
       if (result.success) {
-        setResults(result.data);
+        // FIX: Provide an empty array fallback if data is undefined
+        setResults(result.data ?? []);
       } else {
         alert(result.error);
       }

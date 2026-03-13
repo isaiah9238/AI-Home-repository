@@ -57,8 +57,11 @@ export async function getMorningBriefing(userContext?: any) {
 }
 
 // --- 3. Research Domain: Flux Echo & Epitomizer ---
+// Add this export so the frontend can recognize the type
+export type ResearchMode = 'scout' | 'deep';
 
-export async function runResearchMode(input: { url: string, mode: 'scout' | 'deep' }) {
+// 2. Use that type in the function
+export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
     let result;
     if (input.mode === 'scout') {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { runResearch, type ResearchMode } from '@/app/actions';
+// FIX: Change runResearch to runResearchMode
+import { runResearchMode, type ResearchMode } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,8 @@ export default function FluxEchoPage() {
     setError(null);
     setResult(null);
     
-    const res = await runResearch({ url, mode });
+    // FIX: Update the function name here as well
+    const res = await runResearchMode({ url, mode });
     if (res.success) {
       setResult(res);
     } else {

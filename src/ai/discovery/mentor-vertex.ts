@@ -1,3 +1,6 @@
+// STATUS: DORMANT
+// PROTOCOL: VERTEX_UPGRADE_ALPHA
+// REQUIREMENT: Firebase App Check & Auth initialization.
 // @ts-expect-error - Firebase and generative-ai SDKs might not have full type support in this environment yet.
 import { getApp } from 'firebase/app';
 import { getVertexAI, getGenerativeModel, GenerativeModel } from 'firebase/vertex-ai-preview';

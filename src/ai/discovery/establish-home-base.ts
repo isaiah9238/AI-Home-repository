@@ -1,6 +1,6 @@
 import { ai } from '../genkit';
 import { z } from 'genkit';
-import { adminDb } from '../../lib/firebaseAdmin';
+import { getAdminDb } from '../../lib/firebaseAdmin';
 
 /**
  * @fileOverview A flow to establish the user's home base and fetch profile context.
@@ -16,7 +16,7 @@ export const establishHomeBase = ai.defineFlow(
   },
   async (input) => {
     // Connect to Firestore: Fetch the Primary User's desk data
-    const userDoc = await adminDb.collection('users').doc(input.userId).get();
+    const userDoc = await getAdminDb().collection('users').doc(input.userId).get();
 
     if (!userDoc.exists) {
       console.warn(`⚠️ Librarian Alert: No profile for user [${input.userId}]. Using default template.`);

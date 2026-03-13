@@ -1,4 +1,4 @@
-import { adminDb } from '@/lib/firebaseAdmin';
+import { getAdminDb } from '@/lib/firebaseAdmin';
 import * as admin from 'firebase-admin';
 
 /**
@@ -11,10 +11,10 @@ export async function migrateLessonToDb(lessonData: {
   complexityGain: number;
 }) {
   const userId = 'primary_user'; // Matches your Home Base ID [cite: 59]
-  const userRef = adminDb.collection('users').doc(userId);
+  const userRef = getAdminDb().collection('users').doc(userId);
   
   try {
-    await adminDb.runTransaction(async (transaction) => {
+    await getAdminDb().runTransaction(async (transaction) => {
       const userDoc = await transaction.get(userRef);
       
       if (!userDoc.exists) {
@@ -33,7 +33,7 @@ export async function migrateLessonToDb(lessonData: {
       });
 
       // 2. Add to Historical Fragments [cite: 60, 86]
-      const fragmentRef = adminDb.collection('milestones').doc();
+      const fragmentRef = getAdminDb().collection('milestones').doc();
       transaction.set(fragmentRef, {
         userId,
         type: 'CURRICULUM_INTEGRATION',
@@ -43,7 +43,7 @@ export async function migrateLessonToDb(lessonData: {
       });
 
       // 3. Store the Detailed Lesson Reference [cite: 65, 97]
-      const lessonRef = adminDb.collection('curriculum').doc();
+      const lessonRef = getAdminDb().collection('curriculum').doc();
       transaction.set(lessonRef, {
         userId,
         title: lessonData.title,

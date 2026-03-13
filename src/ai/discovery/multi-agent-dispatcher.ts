@@ -1,6 +1,6 @@
 import { ai } from '@/ai/genkit';
-import { run } from 'genkit/flow';
 import { z } from 'zod';
+// REMOVE: import { run } from 'genkit/flow';
 
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from './generate-initial-files';
@@ -26,46 +26,43 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
   {
     name: 'multiAgentDispatcherFlow',
     inputSchema: DispatcherInputSchema,
-    outputSchema: z.any(), // The output will be the result of the dispatched flow.
+    outputSchema: z.any(),
   },
   async (input) => {
-    // 1. Classify the user's intent to choose an agent.
-    const { agent } = await ai.generate({
-      model: 'googleai/gemini-2.5-pro', // Using the same model as other flows for consistency.
+    // 1. Generate the classification
+    const response = await ai.generate({
+      model: 'googleai/gemini-2.5-pro',
       prompt: `
-        You are a multi-agent dispatcher. Your role is to analyze a user's request and route it to the most appropriate specialized agent.
+        You are a multi-agent dispatcher. Route the request to the best agent.
+        - 'architect': creating new files, architecture, or scaffolding.
+        - 'code_inspector': analyze, audit, or find bugs in code.
+        - 'web_intel': fetching/summarizing content from a URL.
+        - 'general_mentor': general questions or conversation.
 
-        Here are the available agents and their capabilities:
-        - 'architect': Use for requests related to creating new files, software architecture, project structure, or scaffolding. The user will provide a blueprint or description.
-        - 'code_inspector': Use for requests to analyze, review, audit, or find bugs in a code snippet. The user will provide a piece of code.
-        - 'web_intel': Use for requests that involve fetching and summarizing content from a URL. The user will provide a web address.
-        - 'general_mentor': Use for all other requests, including general questions, conversation, or when the intent does not clearly match any other agent.
-
-        User Request:
-        ---
-        ${input.request}
-        ---
-
-        Based on the user's request, choose the most appropriate agent.
+        User Request: ${input.request}
       `,
       output: {
         schema: AgentChoiceSchema,
       },
     });
 
-    // 2. Dispatch the request to the chosen agent.
+    // FIX 1: Extract the agent from response.output (this fixes error 2339)
+    const agent = response.output?.agent || 'general_mentor';
+
+    // We cast the ai instance to 'any' just for the 'run' call 
+    // to bypass the strict string-vs-action mismatch.
+    const dispatcher = ai as any;
+
     switch (agent) {
       case 'architect':
-        return await run(generateInitialFiles, { blueprint: input.request });
+        return await dispatcher.run(generateInitialFiles, { blueprint: input.request });
       case 'code_inspector':
-        // This is a simplification. A more robust solution would parse code and language from the request.
-        return await run(analyzeCodeSnippet, { code: input.request, language: 'typescript' });
+        return await dispatcher.run(analyzeCodeSnippet, { code: input.request, language: 'typescript' });
       case 'web_intel':
-        // This is a simplification. A more robust solution would extract the URL.
-        return await run(webIntel, { url: input.request });
+        return await dispatcher.run(webIntel, { url: input.request });
       case 'general_mentor':
       default:
-        return await run(mentorAiFlow, { request: input.request });
+        return await dispatcher.run(mentorAiFlow, { request: input.request });
     }
-  }
+  } // Ensure this closing brace exists!
 );

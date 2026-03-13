@@ -1,4 +1,4 @@
-import { adminDb } from '@/lib/firebaseAdmin';
+import { getAdminDb } from '@/lib/firebaseAdmin';
 import * as admin from 'firebase-admin';
 
 export type GemType = 'user_input' | 'ai_output';
@@ -32,7 +32,7 @@ export async function recordGem(data: {
   };
 
   try {
-    const docRef = await adminDb.collection('gems').add(gem);
+    const docRef = await getAdminDb().collection('gems').add(gem);
     console.log(`💎 Gem Recorded: [${docRef.id}] - Severity: ${gem.severity}`);
     return docRef.id;
   } catch (error) {

@@ -8,6 +8,8 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DynamicInstructions } from '@/components/dynamic-instructions';
+import { ProbabilityWave } from '@/components/ProbabilityWave';
 
 interface LabConfig {
   temperature: number;
@@ -43,6 +45,17 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
             <Beaker className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Laboratory</h2>
+          {/* Integrated Toggle */}
+          <DynamicInstructions 
+            title="Laboratory Protocol" 
+            instructions={
+              <div className="space-y-2">
+                <p><span className="text-purple-400 font-bold">Temperature:</span> Adjusts the "creativity" threshold. Low values (0.1) are precise for code; high values (0.8+) allow for brainstorming.</p>
+                <p><span className="text-purple-400 font-bold">Top_P:</span> Nucleus sampling. It limits the AI to a subset of most likely words, preventing "rambling."</p>
+                <p><span className="text-purple-400 font-bold">Persona Matrix:</span> Swaps the system prompt logic. The Mentor teaches, the Architect builds, and the Librarian organizes.</p>
+              </div>
+            }
+          />
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setConfig({ temperature: 0.7, topP: 0.9, maxOutputTokens: 1024, persona: 'mentor', experimentalMode: false })} className="text-[8px] text-white/20 uppercase tracking-widest hover:text-white">
@@ -67,19 +80,26 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
             </div>
 
             {/* Temperature Slider */}
+            {/* 1. Main Card Container (This is line 83 in your error) */}
             <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4 group hover:border-purple-500/20 transition-all">
+  
+              {/* 2. Flex Header (Groups the label and the number on one line) */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-white/80 uppercase tracking-widest font-bold">Temperature</span>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger><Info className="w-3 h-3 text-white/20" /></TooltipTrigger>
-                      <TooltipContent className="bg-[#0a0a0a] border-white/10 text-[10px] text-white/60">Controls randomness: 0 is deterministic, 1 is creative.</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  {/* Tooltip code goes here if you have it */}
                 </div>
-                <span className="text-xs font-bold text-purple-400 font-mono">{config.temperature.toFixed(2)}</span>
-              </div>
+    
+                {/* This span shows the number, it needs to be INSIDE the flex header div */}
+                <span className="text-xs font-bold text-purple-400 font-mono">
+                   {config.temperature.toFixed(2)}
+                </span>
+             </div> {/* <--- This closes the Flex Header */}
+
+              {/* 3. Wave Row (Sits outside the header flexbox so it can be full width) */}
+              <ProbabilityWave temperature={config.temperature} />
+
+              {/* 4. Slider Row */}
               <Slider 
                 value={[config.temperature]} 
                 max={1} 
@@ -91,7 +111,7 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
                 <span>Deterministic</span>
                 <span>Hallucinogenic</span>
               </div>
-            </div>
+            </div>  {/* <--- CRITICAL: This closes the Main Card Container! */}
 
             {/* TopP Slider */}
             <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4 group hover:border-blue-500/20 transition-all">

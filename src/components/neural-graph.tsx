@@ -5,6 +5,7 @@ import { Network, Share2, Info, X, Zap, Database, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DynamicInstructions } from '@/components/dynamic-instructions';
 
 interface Node {
   id: string;
@@ -83,6 +84,18 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
             <Share2 className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Context_Graph</h2>
+          {/* Integrated Toggle */}
+          <DynamicInstructions 
+            title="Neural Mapping Protocol" 
+            instructions={
+              <div className="space-y-2 text-[11px]">
+                <p><strong>System Core:</strong> The central node represents your AI Home's foundational logic. All information is anchored here.</p>
+                <p><strong>Context Fragments:</strong> The surrounding nodes are your lessons and data points. Their distance from the core indicates their complexity.</p>
+                <p><strong>Synaptic Links:</strong> Lines indicate semantic relationships. Topics in the same group (e.g., "React" and "TypeScript") create clusters.</p>
+                <p className="text-blue-400 italic">Click any node to inspect the raw data fragment in the Sidebar.</p>
+              </div>
+            }
+          />
         </div>
         <Badge variant="outline" className="border-blue-500/20 text-blue-400/60 bg-blue-500/5 text-[8px] tracking-[0.2em]">
           XAI_VISUALIZER_ACTIVE

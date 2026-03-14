@@ -11,7 +11,8 @@ studio/
 │   │   │   ├── generate-initial-files.ts (The Architect)
 │   │   │   ├── integrate-lesson-plans.ts (The Tutor)
 │   │   │   ├── mentor-ai.ts
-│   │   │   └── migrate-lesson-to-db.ts
+│   │   │   ├── migrate-lesson-to-db.ts
+│   │   │   └── web-intel.ts
 │   │   ├── domains/             # Specialized Toolsets
 │   │   │   ├── research/        # Scout & Analyst Domain
 │   │   │   │   ├── analyze-code-snippet.ts (Inspector)
@@ -29,10 +30,12 @@ studio/
 │   ├── app/                     # THE PORTAL (Next.js Routes)
 │   │   ├── (auth)/              # Authentication
 │   │   │   └── login/           # Access Terminal
-│   │   ├── code-analyzer/       # Code Inspector UI
-│   │   ├── flux-echo/           # Research Drawer UI
-│   │   ├── lesson-plans/        # Discovery Drawer UI
-│   │   ├── reports/             # Security Logs
+│   │   ├── architect/           # The Architect UI (Construction)
+│   │   ├── code-analyzer/       # Code Inspector UI (Audit)
+│   │   ├── flux-echo/           # Research Drawer UI (Recon)
+│   │   ├── lesson-plans/        # Discovery Drawer UI (Tutor)
+│   │   ├── mentorship/          # AI Mentor UI (Briefing)
+│   │   ├── reports/             # Security Logs (Gems)
 │   │   ├── actions.ts           # The "Cabinet" Switchboard (Server Actions)
 │   │   ├── layout.tsx           # HUD Frame
 │   │   └── page.tsx             # The Interior Dashboard
@@ -46,13 +49,14 @@ studio/
 │   │   ├── gems-drawer.tsx      # Safety Ledger Visualizer
 │   │   ├── laboratory-drawer.tsx# Parameter Tuner
 │   │   ├── neural-graph.tsx     # Context Map Visualizer
-│   │   ├── interior-dashboard.ts# Cybernetic HUD
+│   │   ├── interior-dashboard.tsx# Cybernetic HUD
 │   │   ├── portal-interface.tsx # The Engagable Core
 │   │   └── MainLogo.tsx         # Logo Switchboard
 │   │
 │   ├── lib/                     # SHARED LIBRARIES
 │   │   ├── firebase.ts          # Client SDK Init
-│   │   └── firebaseAdmin.ts     # Admin SDK Init
+│   │   ├── firebaseAdmin.ts     # Admin SDK Init
+│   │   └── utils.ts             # Tailwind merging
 │
 ├── docs/
 │   └── blueprint.md             # The Technical Roadmap
@@ -71,3 +75,4 @@ studio/
 - `src/components/gems-drawer.tsx`: The Safety Ledger (Black Box).
 - `src/components/laboratory-drawer.tsx`: Neural weight parameter tuner.
 - `src/components/neural-graph.tsx`: interactive XAI node-map.
+- `src/app/architect/page.tsx`: Full-screen instantiation terminal.

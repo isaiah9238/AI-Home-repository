@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Node {
   id: string;
@@ -25,29 +26,11 @@ interface NeuralGraphProps {
   lessons: any[];
 }
 
-/**
- * NeuralGraph: An interactive SVG node-map.
- * Visualizes the connections between learned topics.
- */
 export function NeuralGraph({ lessons }: NeuralGraphProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
-  // Simple deterministic layout algorithm for the nodes
   const graphData = useMemo(() => {
-    const nodes: Node[] = lessons.map((l, i) => {
-      const angle = (i / (lessons.length || 1)) * 2 * Math.PI;
-      const radius = 150 + (i % 2) * 50;
-      return {
-        id: l.id,
-        label: l.title,
-        group: l.subject,
-        complexity: l.complexityGain || 5,
-        x: 400 + radius * Math.cos(angle),
-        y: 300 + radius * Math.sin(angle),
-      };
-    });
-
-    // Add a central "Core" node
+    // 1. Core Node
     const centralNode: Node = {
       id: 'core',
       label: 'SYSTEM_CORE',
@@ -57,16 +40,30 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
       y: 300
     };
 
-    const allNodes = [centralNode, ...nodes];
+    // 2. Lesson Nodes
+    const lessonNodes: Node[] = lessons.map((lesson, i) => {
+      const angle = (i / lessons.length) * 2 * Math.PI;
+      const radius = 180;
+      return {
+        id: lesson.id || `lesson-${i}`,
+        label: lesson.title || 'Unknown Fragment',
+        group: 'Lesson',
+        complexity: 50,
+        x: 400 + Math.cos(angle) * radius,
+        y: 300 + Math.sin(angle) * radius,
+      };
+    });
 
-    // Create links: everything connects to core, plus shared subjects connect to each other
-    const links: Link[] = nodes.map(n => ({ source: 'core', target: n.id }));
+    const allNodes = [centralNode, ...lessonNodes];
+
+    // 3. Create Links (Connect everything to core)
+    const links: Link[] = lessonNodes.map(n => ({ source: 'core', target: n.id }));
     
     // Connect nodes of the same group
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if (nodes[i].group === nodes[j].group) {
-          links.push({ source: nodes[i].id, target: nodes[j].id });
+    for (let i = 0; i < lessonNodes.length; i++) {
+      for (let j = i + 1; j < lessonNodes.length; j++) {
+        if (lessonNodes[i].group === lessonNodes[j].group) {
+          links.push({ source: lessonNodes[i].id, target: lessonNodes[j].id });
         }
       }
     }
@@ -84,15 +81,13 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
             <Share2 className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Context_Graph</h2>
-          {/* Integrated Toggle */}
           <DynamicInstructions 
             title="Neural Mapping Protocol" 
             instructions={
               <div className="space-y-2 text-[11px]">
-                <p><strong>System Core:</strong> The central node represents your AI Home's foundational logic. All information is anchored here.</p>
-                <p><strong>Context Fragments:</strong> The surrounding nodes are your lessons and data points. Their distance from the core indicates their complexity.</p>
-                <p><strong>Synaptic Links:</strong> Lines indicate semantic relationships. Topics in the same group (e.g., "React" and "TypeScript") create clusters.</p>
-                <p className="text-blue-400 italic">Click any node to inspect the raw data fragment in the Sidebar.</p>
+                <p><strong>System Core:</strong> The central node represents foundation logic.</p>
+                <p><strong>Context Fragments:</strong> Surrounding nodes are lessons and data points.</p>
+                <p className="text-blue-400 italic">Click any node to inspect data.</p>
               </div>
             }
           />
@@ -103,11 +98,8 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 overflow-hidden">
-        
-        {/* Left: The Interactive Map */}
-        <div className="lg:col-span-8 relative bg-black/20 border border-white/5 rounded-2xl overflow-hidden cursor-move">
+        <div className="lg:col-span-8 relative bg-black/20 border border-white/5 rounded-2xl overflow-hidden">
           <svg viewBox="0 0 800 600" className="w-full h-full">
-            {/* Defs for gradients/glows */}
             <defs>
               <filter id="nodeGlow">
                 <feGaussianBlur stdDeviation="3" result="blur" />
@@ -115,7 +107,7 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               </filter>
             </defs>
 
-            {/* Links */}
+            {/* Render Links First */}
             {graphData.links.map((link, i) => {
               const s = findNode(link.source);
               const t = findNode(link.target);
@@ -123,7 +115,7 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               const isHighlighted = selectedNode && (selectedNode.id === s.id || selectedNode.id === t.id);
               return (
                 <line
-                  key={i}
+                  key={`link-${i}`}
                   x1={s.x} y1={s.y} x2={t.x} y2={t.y}
                   stroke={isHighlighted ? "#60a5fa" : "#ffffff"}
                   strokeWidth={isHighlighted ? 1 : 0.2}
@@ -133,97 +125,97 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               );
             })}
 
-            {/* Nodes */}
-            {graphData.nodes.map((node) => (
-              <g 
-                key={node.id} 
-                className="group cursor-pointer" 
-                onClick={() => setSelectedNode(node)}
-              >
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={node.id === 'core' ? 12 : 6}
-                  fill={selectedNode?.id === node.id ? "#60a5fa" : (node.id === 'core' ? "#3b82f6" : "#1e293b")}
-                  stroke={selectedNode?.id === node.id ? "#ffffff" : "#3b82f6"}
-                  strokeWidth={selectedNode?.id === node.id ? 2 : 1}
-                  filter={selectedNode?.id === node.id ? "url(#nodeGlow)" : ""}
-                  className="transition-all duration-300 group-hover:scale-125"
-                />
-                <text
-                  x={node.x}
-                  y={node.y + 20}
-                  textAnchor="middle"
-                  fill="white"
-                  fillOpacity={selectedNode?.id === node.id ? 1 : 0.3}
-                  fontSize="8"
-                  className="font-mono uppercase tracking-widest pointer-events-none select-none"
-                >
-                  {node.label}
-                </text>
-              </g>
-            ))}
-          </svg>
+            {/* Render Nodes (Glows first, then circles) */}
+            {graphData.nodes.map((node) => {
+              const isCore = node.id === 'core';
+              const isSelected = selectedNode?.id === node.id;
 
-          <div className="absolute bottom-4 left-4 p-3 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg text-[8px] text-white/40 uppercase tracking-widest leading-relaxed">
-            Interference: NULL <br />
-            Context_Density: {lessons.length} Fragments <br />
-            Protocol: Explainable_Neural_Mapping
-          </div>
+              return (
+                <g key={node.id} className="group cursor-pointer" onClick={() => setSelectedNode(node)}>
+                  {isCore && (
+                    <>
+                      <circle cx={node.x} cy={node.y} r={25} className="fill-cyan-500/10 animate-pulse" />
+                      <circle cx={node.x} cy={node.y} r={15} className="stroke-cyan-400/30 fill-none animate-ping" />
+                    </>
+                  )}
+                  
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={isCore ? 12 : 6}
+                    fill={isSelected ? "#60a5fa" : (isCore ? "#3b82f6" : "#1e293b")}
+                    stroke={isSelected ? "#ffffff" : "#3b82f6"}
+                    strokeWidth={isSelected ? 2 : 1}
+                    className="transition-all duration-300 group-hover:scale-125"
+                  />
+                  
+                  <text
+                    x={node.x}
+                    y={node.y + 20}
+                    textAnchor="middle"
+                    fill="white"
+                    fillOpacity={isSelected ? 1 : 0.3}
+                    fontSize="8"
+                    className="font-mono uppercase tracking-widest pointer-events-none"
+                  >
+                    {node.label}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
 
-        {/* Right: Context Inspector */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
-          <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 overflow-y-auto custom-scrollbar">
+        {/* Right Sidebar - Context Inspector */}
+        <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
+          <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 overflow-hidden flex flex-col">
             <CardHeader className="border-b border-white/5 py-3">
               <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest flex items-center gap-2">
                 <Brain className="w-3 h-3 text-blue-400" /> Context_Inspector
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+
+            {/* 2. Wrap the CardContent in ScrollArea */}
+            <ScrollArea className="h-[calc(100vh-300px)] flex-1">
+             <CardContent className="pt-6">
               {selectedNode ? (
-                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div>
-                    <h4 className="text-lg font-bold text-white uppercase tracking-tighter mb-1">{selectedNode.label}</h4>
-                    <Badge variant="outline" className="text-[8px] border-blue-500/20 text-blue-400/60 uppercase">{selectedNode.group}</Badge>
+               <div className="space-y-6">
+                 <div>
+                    <h4 className="text-lg font-bold text-white uppercase mb-1">{selectedNode.label}</h4>
+                   <Badge variant="outline" className="text-[8px] border-blue-500/20 text-blue-400">{selectedNode.group}</Badge>
                   </div>
-
                   <div className="space-y-4">
-                    <div className="space-y-1">
-                      <div className="text-[8px] text-white/20 uppercase tracking-widest">Architectural_Impact</div>
-                      <div className="text-xs text-blue-400 font-bold">+{selectedNode.complexity}% Neural Complexity</div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-[8px] text-white/20 uppercase tracking-widest">Association_Strings</div>
-                      <p className="text-[10px] text-white/60 leading-relaxed italic">
-                        Connected to {graphData.links.filter(l => l.source === selectedNode.id || l.target === selectedNode.id).length} other fragments via {selectedNode.group} pathways.
-                      </p>
-                    </div>
+                    <div className="text-[8px] text-white/20 uppercase">Impact: <span className="text-blue-400">+{selectedNode.complexity}%</span></div>
+                    <p className="text-[10px] text-white/60 leading-relaxed italic">
+                      Fragment linked to core system via {selectedNode.group} pathways.
+                    </p>
                   </div>
+          
+                  {/* A new section to test the scroll: Meta Log */}
+                  <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded font-mono text-[9px] text-white/40">
+                     <p className="text-blue-400 mb-1 font-bold">RAW_SIGNAL_DECODE:</p>
+                     <p className="leading-relaxed">
+                       NODE_ID: {selectedNode.id}<br />
+                       COORD_X: {selectedNode.x.toFixed(2)}<br />
+                       COORD_Y: {selectedNode.y.toFixed(2)}<br />
+                       STATUS: STABLE_FRAGMENT
+                     </p>
+                   </div>
 
-                  <Button className="w-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-widest hover:bg-blue-600/20">
+                  <Button className="w-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-widest">
                     <Database className="w-3 h-3 mr-2" /> Retrieve_Raw_Fragment
                   </Button>
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center py-12 space-y-4 opacity-20">
+                <div className="h-full flex flex-col items-center justify-center text-center py-12 opacity-20">
                   <Network className="w-12 h-12" />
-                  <p className="text-[10px] uppercase tracking-[0.3em]">Select_Node_To_Inspect_Logic</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] mt-4">Select_Node_To_Inspect</p>
                 </div>
-              )}
-            </CardContent>
+               )}
+             </CardContent>
+            </ScrollArea> {/* 3. Close ScrollArea */}
           </Card>
-
-          <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
-            <div className="flex items-center gap-2 text-[9px] text-blue-400 uppercase tracking-widest font-bold mb-2">
-              <Zap className="w-3 h-3" /> System_Insight
-            </div>
-            <p className="text-[8px] text-white/30 uppercase leading-relaxed font-mono">
-              The graph visualizes how new lesson plans anchor into the core system. Clicking nodes reveals the weight of each fragment.
-            </p>
-          </div>
         </div>
-
       </div>
     </div>
   );

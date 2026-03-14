@@ -1,32 +1,91 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * @fileOverview The entry point for the Cabinet's Cloud Functions.
+ * 
+ * This file initializes the Librarian's background processing unit using Genkit.
  */
 
-import {setGlobalOptions} from "firebase-functions";
-// import {onRequest} from "firebase-functions/https";
-// import * as logger from "firebase-functions/logger";
+import { initializeApp } from "firebase-admin/app";
+import { genkit, z } from "genkit";
+import { googleAI } from "@genkit-ai/google-genai";
+import { onCallGenkit } from "firebase-functions/https";
+import { defineSecret } from "firebase-functions/params";
+import { setGlobalOptions } from "firebase-functions/v2";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+// 1. Initialize Firebase Admin
+// This allows the functions to interact with Firestore, Auth, and Storage.
+initializeApp();
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({maxInstances: 10});
+// 2. Define Secrets
+// The API key is stored securely in Cloud Secret Manager.
+const apiKey = defineSecret("GOOGLE_GENAI_API_KEY");
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// 3. Global Configuration
+// Limit instances to maintain cost control and performance stability.
+setGlobalOptions({ maxInstances: 10 });
+
+// 4. Initialize Genkit
+const ai = genkit({
+  plugins: [
+    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })
+  ],
+  model: 'googleai/gemini-2.5-flash', // Flash is preferred for serverless latency
+});
+
+/**
+ * FLOW: Librarian Indexer
+ * 
+ * A background utility to process raw data into the Cabinet's structured format.
+ */
+const librarianIndexerFlow = ai.defineFlow(
+  {
+    name: "librarianIndexer",
+    inputSchema: z.object({
+      content: z.string().describe("Raw text content to be indexed"),
+      context: z.string().optional().describe("Optional metadata or context")
+    }),
+    outputSchema: z.object({
+      tags: z.array(z.string()).describe("List of identified keywords"),
+      summary: z.string().describe("A concise 1-sentence summary"),
+      sentiment: z.enum(["positive", "neutral", "negative", "critical"]).describe("The tone of the content")
+    }),
+  },
+  async (input) => {
+    const { output } = await ai.generate({
+      prompt: `
+        You are the Librarian's Background Indexer. 
+        Analyze the following data stream for the Cabinet.
+        
+        CONTENT: ${input.content}
+        CONTEXT: ${input.context || 'General Processing'}
+        
+        TASK:
+        1. Extract relevant technical or domain-specific tags.
+        2. Provide a high-fidelity summary.
+        3. Identify the neural sentiment.
+      `,
+      output: {
+        schema: z.object({
+          tags: z.array(z.string()),
+          summary: z.string(),
+          sentiment: z.enum(["positive", "neutral", "negative", "critical"])
+        })
+      }
+    });
+
+    return output!;
+  }
+);
+
+/**
+ * FUNCTION: librarianIndexer
+ * 
+ * Callable function for the Next.js frontend or other Cabinet agents.
+ */
+export const librarianIndexer = onCallGenkit(
+  {
+    secrets: [apiKey],
+    cors: true, // Allows cross-origin requests from the Portal
+    invoker: 'public', // Change to 'authenticated' once Auth is fully mapped
+  },
+  librarianIndexerFlow
+);

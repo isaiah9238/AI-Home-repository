@@ -133,30 +133,49 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               return (
                 <g key={node.id} className="group cursor-pointer" onClick={() => setSelectedNode(node)}>
                   {isCore && (
-                    <>
-                      <circle cx={node.x} cy={node.y} r={25} className="fill-cyan-500/10 animate-pulse" />
-                      <circle cx={node.x} cy={node.y} r={15} className="stroke-cyan-400/30 fill-none animate-ping" />
-                    </>
+                    <g>
+                      {/* Large Outer Breathing Aura */}
+                      <circle 
+                        cx={node.x} 
+                        cy={node.y} 
+                        r={45} 
+                      className="fill-cyan-500/10 animate-[pulse_3s_ease-in-out_infinite]" 
+                      />
+                      {/* Sharp High-Frequency "Ping" */}
+                      <circle 
+                        cx={node.x} 
+                        cy={node.y} 
+                        r={25} 
+                      className="stroke-cyan-400/40 fill-none animate-ping [animation-duration:2s]" 
+                      />
+                      {/* Inner Constant Glow */}
+                      <circle 
+                        cx={node.x} 
+                        cy={node.y} 
+                        r={20} 
+                      className="fill-cyan-400/20 blur-md" 
+                      />
+                    </g>
                   )}
-                  
+                  {/* 2. THE ACTUAL NODE (The "Solid" Center) */}
                   <circle
                     cx={node.x}
                     cy={node.y}
-                    r={isCore ? 12 : 6}
+                    r={isCore ? 16 : 6} // Increased core size from 12 to 16
                     fill={isSelected ? "#60a5fa" : (isCore ? "#3b82f6" : "#1e293b")}
-                    stroke={isSelected ? "#ffffff" : "#3b82f6"}
-                    strokeWidth={isSelected ? 2 : 1}
-                    className="transition-all duration-300 group-hover:scale-125"
+                    stroke={isCore ? "#60a5fa" : (isSelected ? "#ffffff" : "#3b82f6")}
+                    strokeWidth={isCore ? 3 : 1} // Thicker border for the core
+                    className="transition-all duration-300 group-hover:scale-110"
                   />
-                  
+      
+                  {/* 3. THE TEXT */}
                   <text
                     x={node.x}
-                    y={node.y + 20}
+                    y={node.y + (isCore ? 30 : 20)} // Move label lower for the bigger core
                     textAnchor="middle"
-                    fill="white"
-                    fillOpacity={isSelected ? 1 : 0.3}
-                    fontSize="8"
-                    className="font-mono uppercase tracking-widest pointer-events-none"
+                    fill={isCore ? "#60a5fa" : "white"}
+                    fillOpacity={isSelected || isCore ? 1 : 0.4}
+                    className="text-[9px] font-bold font-mono uppercase tracking-[0.2em] pointer-events-none"
                   >
                     {node.label}
                   </text>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Beaker, Zap, Sliders, ToggleLeft, ToggleRight, Info, Save, RotateCcw, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ProbabilityWave } from '@/components/ProbabilityWave';
+import { commitNeuralWeights, getNeuralWeights } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 interface LabConfig {
   temperature: number;
@@ -24,6 +26,7 @@ interface LabConfig {
  * Features neumorphic-style sliders and glowing toggles.
  */
 export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => void }) {
+  const { toast } = useToast();
   const [config, setConfig] = useState<LabConfig>({
     temperature: 0.7,
     topP: 0.9,
@@ -32,9 +35,45 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
     experimentalMode: false,
   });
 
-  const handleSave = () => {
-    if (onSave) onSave(config);
-    // Visual feedback for save
+  // 1. INITIAL LOAD: Pulls data from Firestore when drawer opens
+  useEffect(() => {
+    const loadConfig = async () => {
+      const result = await getNeuralWeights();
+      if (result.success && result.data) {
+        // Merge the saved data into our state
+        setConfig((prev) => ({ ...prev, ...result.data }));
+        
+        toast({
+          title: "NEURAL_SYNC_COMPLETE",
+          description: "Previous calibration weights loaded.",
+          className: "bg-black/80 border-blue-500/30 text-blue-400 font-mono text-[8px]",
+        });
+      }
+    };
+
+    loadConfig();
+  }, [toast]); // The bracket and parentheses close perfectly here.
+
+  // 2. SAVE LOGIC: Pushes data to Firestore when you click the button
+  const handleSave = async () => {
+    const result = await commitNeuralWeights(config);
+
+    if (result.success) {
+      toast({
+        title: "WEIGHTS_COMMITTED",
+        description: "Neural calibration synchronized with Home Base.",
+        className: "bg-black/90 border-purple-500/50 text-purple-400 font-mono border-2 backdrop-blur-xl",
+      });
+      // If the parent component needs to know about the save, call onSave
+      if (onSave) onSave(config);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "CALIBRATION_FAILED",
+        description: result.error || "System interference detected.",
+        className: "font-mono border-2",
+      });
+    }
   };
 
   return (

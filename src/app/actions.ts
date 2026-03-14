@@ -424,3 +424,45 @@ export async function deleteAudit(docId: string) {
     return { success: false, error: "Deletion failed" };
   }
 }
+
+// --- 11. Laboratory: Neural Calibration ---
+
+export async function commitNeuralWeights(config: any) {
+  try {
+    const db = getAdminDb();
+    // We store this in a specific 'config' sub-collection for the primary user
+    await db.collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
+      ...config,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true });
+
+    // This ensures any part of the app using these settings gets the fresh data
+    revalidatePath('/'); 
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("LAB_COMMIT_ERROR:", error?.message || "Weights rejected");
+    return { success: false, error: "COMMIT_REJECTED: Neural pathways unstable." };
+  }
+}
+
+/**
+ * Retrieves the stored configuration so the Laboratory doesn't reset on refresh.
+ */
+export async function getNeuralWeights() {
+  try {
+    const doc = await getAdminDb()
+      .collection('users')
+      .doc('primary_user')
+      .collection('config')
+      .doc('neural-laboratory')
+      .get();
+
+    if (doc.exists) {
+      return { success: true, data: doc.data() };
+    }
+    return { success: false, error: "NO_CONFIG_FOUND" };
+  } catch (error) {
+    return { success: false, error: "SYSTEM_READ_ERROR" };
+  }
+}

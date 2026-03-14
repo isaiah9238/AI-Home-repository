@@ -12,7 +12,6 @@ import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
 
 // 1. Initialize Firebase Admin
-// This allows the functions to interact with Firestore, Auth, and Storage.
 initializeApp();
 
 // 2. Define Secrets
@@ -26,7 +25,7 @@ setGlobalOptions({ maxInstances: 10 });
 // 4. Initialize Genkit
 const ai = genkit({
   plugins: [
-    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })
+    googleAI()
   ],
   model: 'googleai/gemini-2.5-flash', // Flash is preferred for serverless latency
 });
@@ -46,7 +45,8 @@ const librarianIndexerFlow = ai.defineFlow(
     outputSchema: z.object({
       tags: z.array(z.string()).describe("List of identified keywords"),
       summary: z.string().describe("A concise 1-sentence summary"),
-      sentiment: z.enum(["positive", "neutral", "negative", "critical"]).describe("The tone of the content")
+      sentiment: z.enum(["positive", "neutral", "negative", "critical"]).describe("The tone of the content"),
+      priority: z.number().min(1).max(5).describe("Architectural priority level")
     }),
   },
   async (input) => {
@@ -62,12 +62,14 @@ const librarianIndexerFlow = ai.defineFlow(
         1. Extract relevant technical or domain-specific tags.
         2. Provide a high-fidelity summary.
         3. Identify the neural sentiment.
+        4. Assign an architectural priority from 1 (Low) to 5 (System Critical).
       `,
       output: {
         schema: z.object({
           tags: z.array(z.string()),
           summary: z.string(),
-          sentiment: z.enum(["positive", "neutral", "negative", "critical"])
+          sentiment: z.enum(["positive", "neutral", "negative", "critical"]),
+          priority: z.number()
         })
       }
     });

@@ -57,10 +57,8 @@ export async function getMorningBriefing(userContext?: any) {
 }
 
 // --- 3. Research Domain: Flux Echo & Epitomizer ---
-// Add this export so the frontend can recognize the type
 export type ResearchMode = 'scout' | 'deep';
 
-// 2. Use that type in the function
 export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
     let result;
@@ -81,7 +79,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
 
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
-    // Log the failure too
     await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: input.mode,
@@ -106,10 +103,6 @@ export async function runArchitect(blueprint: string) {
   }
 }
 
-/**
- * Generates a structured lesson plan via the Cabinet's Tutor.
- * This runs on the server to bypass App Check constraints.
- */
 export async function generateLessonPlan(subject: string) {
   try {
     const { text } = await ai.generate({
@@ -132,9 +125,10 @@ export async function getHomeBaseAction() {
     const data = userDoc.data() || {};
 
     return {
-      ...data,
       name: data.name || "Isaiah Smith",
+      role: data.role || "Primary User",
       interests: data.interests || [],
+      establishedDate: data.establishedDate || "2026-02-06",
       createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
@@ -151,8 +145,10 @@ export async function getHomeBase() {
       return { 
         success: true, 
         data: {
-          ...data,
+          name: data.name || "Isaiah Smith",
+          role: data.role || "Primary User",
           interests: data.interests || [],
+          establishedDate: data.establishedDate || "2026-02-06",
           createdAt: data?.createdAt?.toDate?.()?.toISOString() || null,
           updatedAt: data?.updatedAt?.toDate?.()?.toISOString() || null,
         }
@@ -216,7 +212,9 @@ export async function getCurriculumProgress() {
       const l = doc.data();
       return {
         id: doc.id,
-        ...l,
+        title: l.title,
+        subject: l.subject,
+        status: l.status,
         completedAt: l.completedAt?.toDate?.()?.toISOString() || new Date().toISOString()
       };
     });
@@ -251,20 +249,6 @@ export async function integrateLessonAction(data: { title: string; subject: stri
   }
 }
 
-export async function savePlanToCabinet(planData: { title: string; type: string; content: any }) {
-  try {
-    const docRef = await getAdminDb().collection('plans').add({
-      ...planData,
-      userId: 'primary_user',
-      createdAt: new Date().toISOString(),
-    });
-    revalidatePath('/');
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    return { success: false, error: "PLAN_STORAGE_FAILED" };
-  }
-}
-
 // --- 7. Safety & Integrity ---
 
 export async function getSystemIntegrity() {
@@ -291,7 +275,11 @@ export async function getGems() {
       const data = doc.data();
       return {
         id: doc.id,
-        ...data,
+        type: data.type,
+        reason: data.reason,
+        severity: data.severity,
+        content: data.content,
+        resolution: data.resolution || 'pending',
         time: data.time?.toDate?.()?.toISOString() || new Date().toISOString()
       };
     });
@@ -318,8 +306,11 @@ export async function getMilestones() {
       const data = doc.data();
       return {
         id: doc.id,
-        ...data,
-        date: data.date?.toDate?.()?.toISOString().split('T')[0] || data.date
+        userId: data.userId,
+        type: data.type,
+        event: data.event,
+        date: data.date?.toDate?.()?.toISOString().split('T')[0] || data.date,
+        timestamp: data.timestamp?.toDate?.()?.toISOString() || null
       };
     });
     return { success: true, data: milestones };
@@ -328,72 +319,7 @@ export async function getMilestones() {
   }
 }
 
-// --- 8. The Universal Librarian ---
-
-export async function fileToCabinet(type: string, details: { reason: string, severity: 'low' | 'medium' | 'high' | 'critical', content: string }) {
-  try {
-    const docRef = await getAdminDb().collection('gems').add({
-      type,
-      reason: details.reason,
-      severity: details.severity,
-      content: details.content,
-      time: new Date().toISOString(),
-      resolution: 'pending',
-      userId: 'primary_user'
-    });
-
-    revalidatePath('/');
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("Librarian Logging Error:", error);
-    return { success: false, error: "LOG_FAILED" };
-  }
-}
-
-// --- 9. Storage & Librarian Link ---
-
-export async function linkStorageFileToCabinet(fileData: { 
-  fileName: string, 
-  storagePath: string, 
-  category: 'Lesson Plan' | 'Blueprint' 
-}) {
-  try {
-    const userId = 'primary_user';
-    const docRef = await getAdminDb().collection('plans').add({
-      title: fileData.fileName,
-      type: fileData.category,
-      storageUrl: `gs://studio-3863072923-d4373.firebasestorage.app/${fileData.storagePath}`,
-      userId,
-      createdAt: new Date().toISOString(),
-      status: 'archived'
-    });
-
-    revalidatePath('/dashboard');
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("Librarian Sync Error:", error);
-    return { success: false, error: "LINK_FAILED" };
-  }
-}
-
-export async function syncArchitectureLesson() {
-  try {
-    const docRef = await getAdminDb().collection('plans').add({
-      title: "First Lesson Plan on Architecture",
-      type: "Lesson Plan",
-      storagePath: "Vault/QlgcLKxywSXa.../First lesson Plan on Achitecture.txt",
-      userId: 'primary_user',
-      createdAt: new Date().toISOString(),
-      status: 'active'
-    });
-    
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    return { success: false, error: "SYNC_FAILED" };
-  }
-}
-
-// --- 10. Development Domain: Code Analyzer ---
+// --- 8. Development Domain: Code Analyzer ---
 
 export async function runCodeAnalysis(code: string) {
   try {
@@ -425,18 +351,16 @@ export async function deleteAudit(docId: string) {
   }
 }
 
-// --- 11. Laboratory: Neural Calibration ---
+// --- 9. Laboratory: Neural Calibration ---
 
 export async function commitNeuralWeights(config: any) {
   try {
     const db = getAdminDb();
-    // We store this in a specific 'config' sub-collection for the primary user
     await db.collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
       ...config,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
 
-    // This ensures any part of the app using these settings gets the fresh data
     revalidatePath('/'); 
     
     return { success: true };
@@ -446,9 +370,6 @@ export async function commitNeuralWeights(config: any) {
   }
 }
 
-/**
- * Retrieves the stored configuration so the Laboratory doesn't reset on refresh.
- */
 export async function getNeuralWeights() {
   try {
     const doc = await getAdminDb()
@@ -459,10 +380,34 @@ export async function getNeuralWeights() {
       .get();
 
     if (doc.exists) {
-      return { success: true, data: doc.data() };
+      const data = doc.data() || {};
+      return { 
+        success: true, 
+        data: {
+          ...data,
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt
+        } 
+      };
     }
     return { success: false, error: "NO_CONFIG_FOUND" };
   } catch (error) {
     return { success: false, error: "SYSTEM_READ_ERROR" };
+  }
+}
+
+export async function syncArchitectureLesson() {
+  try {
+    const docRef = await getAdminDb().collection('plans').add({
+      title: "First Lesson Plan on Architecture",
+      type: "Lesson Plan",
+      storagePath: "Vault/QlgcLKxywSXa.../First lesson Plan on Achitecture.txt",
+      userId: 'primary_user',
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    });
+    
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    return { success: false, error: "SYNC_FAILED" };
   }
 }

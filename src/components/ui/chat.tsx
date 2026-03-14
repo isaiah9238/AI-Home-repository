@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
 import { sendTerminalMessage, updateHomeBaseAction, getHomeBaseAction } from '@/app/actions';
-import { Loader2, Terminal } from 'lucide-react';
+import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown } from 'lucide-react';
 
 interface TerminalMessage {
   role: 'user' | 'system';
@@ -14,6 +14,7 @@ export function AIChat() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<TerminalMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showKeyboard, setShowKeyboard] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const [profile, setProfile] = useState({
@@ -53,6 +54,8 @@ export function AIChat() {
       setInput(prev => prev + ' ');
     } else if (key === 'ENTER') {
       handleSubmit();
+    } else if (key === 'HIDE') {
+      setShowKeyboard(false);
     } else {
       setInput(prev => prev + key);
     }
@@ -119,7 +122,7 @@ export function AIChat() {
     'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
     'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
     'Z', 'X', 'C', 'V', 'B', 'N', 'M', ' ', '.', '_',
-    'BACK', 'SPACE', 'ENTER'
+    'BACK', 'SPACE', 'ENTER', 'HIDE'
   ];
 
   return (
@@ -161,9 +164,16 @@ export function AIChat() {
           className="flex-1 bg-black border border-green-500/40 p-3 text-green-400 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/20 transition-all placeholder:text-green-900/50 rounded-sm"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="TYPE COMMAND OR USE KEYBOARD..."
+          placeholder="TYPE COMMAND..."
           autoComplete="off"
         />
+        <Button
+          type="button"
+          onClick={() => setShowKeyboard(!showKeyboard)}
+          className={`px-4 bg-black border border-green-500/20 text-green-500/60 hover:text-green-400 transition-all ${showKeyboard ? 'bg-green-500/10 border-green-500/40 text-green-400' : ''}`}
+        >
+          {showKeyboard ? <KeyboardOff className="w-4 h-4" /> : <Keyboard className="w-4 h-4" />}
+        </Button>
         <Button 
           type="submit" 
           disabled={loading}
@@ -173,24 +183,27 @@ export function AIChat() {
         </Button>
       </form>
 
-      {/* Virtual Keyboard */}
-      <div className="bg-white/[0.02] p-3 rounded border border-white/5 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl backdrop-blur-sm">
-        {keys.map((key) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => handleKeyboardClick(key)}
-            className={`
-              p-2 font-mono text-[10px] rounded border transition-all active:scale-95 uppercase tracking-tighter
-              ${key === 'ENTER' ? 'col-span-2 bg-green-900/40 text-green-400 border-green-700/50 hover:bg-green-800/40' : 
-                key === 'BACK' ? 'bg-red-900/20 text-red-400 border-red-900/50 hover:bg-red-900/40' : 
-                'bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white/80'}
-            `}
-          >
-            {key}
-          </button>
-        ))}
-      </div>
+      {/* Virtual Keyboard (Toggleable) */}
+      {showKeyboard && (
+        <div className="bg-white/[0.02] p-3 rounded border border-white/5 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl backdrop-blur-sm animate-in slide-in-from-bottom-4 duration-300">
+          {keys.map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleKeyboardClick(key)}
+              className={`
+                p-2 font-mono text-[10px] rounded border transition-all active:scale-95 uppercase tracking-tighter
+                ${key === 'ENTER' ? 'col-span-2 bg-green-900/40 text-green-400 border-green-700/50 hover:bg-green-800/40' : 
+                  key === 'BACK' ? 'bg-red-900/20 text-red-400 border-red-900/50 hover:bg-red-900/40' : 
+                  key === 'HIDE' ? 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20 flex items-center justify-center' :
+                  'bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white/80'}
+              `}
+            >
+              {key === 'HIDE' ? <ChevronDown className="w-3 h-3" /> : key}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* SYSTEM_PROFILE_STATE */}
       <div className="mt-6">

@@ -30,7 +30,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const graphData = useMemo(() => {
-    // 1. Core Node
     const centralNode: Node = {
       id: 'core',
       label: 'SYSTEM_CORE',
@@ -39,34 +38,24 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
       x: 400,
       y: 300
     };
+    
+    const activeLessons = lessons && lessons.length > 0 ? lessons : [];
 
-    // 2. Lesson Nodes
-    const lessonNodes: Node[] = lessons.map((lesson, i) => {
-      const angle = (i / lessons.length) * 2 * Math.PI;
-      const radius = 180;
+    const lessonNodes: Node[] = activeLessons.map((lesson, i) => {
+      const angle = (i / activeLessons.length) * 2 * Math.PI;
+      const radius = 160;
       return {
         id: lesson.id || `lesson-${i}`,
-        label: lesson.title || 'Unknown Fragment',
+        label: lesson.title || 'FRAGMENT_PENDING',
         group: 'Lesson',
         complexity: 50,
         x: 400 + Math.cos(angle) * radius,
         y: 300 + Math.sin(angle) * radius,
       };
     });
-
-    const allNodes = [centralNode, ...lessonNodes];
-
-    // 3. Create Links (Connect everything to core)
-    const links: Link[] = lessonNodes.map(n => ({ source: 'core', target: n.id }));
     
-    // Connect nodes of the same group
-    for (let i = 0; i < lessonNodes.length; i++) {
-      for (let j = i + 1; j < lessonNodes.length; j++) {
-        if (lessonNodes[i].group === lessonNodes[j].group) {
-          links.push({ source: lessonNodes[i].id, target: lessonNodes[j].id });
-        }
-      }
-    }
+    const allNodes = [centralNode, ...lessonNodes];
+    const links: Link[] = lessonNodes.map(n => ({ source: 'core', target: n.id }));
 
     return { nodes: allNodes, links };
   }, [lessons]);
@@ -75,6 +64,7 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
 
   return (
     <div className="p-8 w-full h-full flex flex-col bg-black/40 backdrop-blur-xl font-mono overflow-hidden">
+      {/* Header section remains unchanged */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3 text-blue-400">
           <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
@@ -102,80 +92,73 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
           <svg viewBox="0 0 800 600" className="w-full h-full">
             <defs>
               <filter id="nodeGlow">
-                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feGaussianBlur stdDeviation="2" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
 
-            {/* Render Links First */}
+            {/* 1. Links & Data Flow (Rendered first to be in back) */}
             {graphData.links.map((link, i) => {
               const s = findNode(link.source);
               const t = findNode(link.target);
               if (!s || !t) return null;
               const isHighlighted = selectedNode && (selectedNode.id === s.id || selectedNode.id === t.id);
+
               return (
-                <line
-                  key={`link-${i}`}
-                  x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                  stroke={isHighlighted ? "#60a5fa" : "#ffffff"}
-                  strokeWidth={isHighlighted ? 1 : 0.2}
-                  strokeOpacity={isHighlighted ? 0.6 : 0.1}
-                  className="transition-all duration-500"
-                />
+                <g key={`link-group-${i}`}>
+                  <line
+                    x1={s.x} y1={s.y} x2={t.x} y2={t.y}
+                    stroke={isHighlighted ? "#60a5fa" : "#ffffff"}
+                    strokeWidth={isHighlighted ? 1 : 0.2}
+                    strokeOpacity={isHighlighted ? 0.6 : 0.1}
+                  />
+                  {/* Data Packet */}
+                  <circle r="1.5" className="fill-cyan-400 shadow-lg">
+                    <animateMotion
+                      dur={`${2 + Math.random() * 3}s`} 
+                      repeatCount="indefinite"
+                      path={`M ${s.x} ${s.y} L ${t.x} ${t.y}`} 
+                    />
+                  </circle>
+                </g>
               );
             })}
 
-            {/* Render Nodes (Glows first, then circles) */}
+            {/* 2. Nodes & Core Pulse */}
             {graphData.nodes.map((node) => {
               const isCore = node.id === 'core';
               const isSelected = selectedNode?.id === node.id;
 
               return (
-                <g key={node.id} className="group cursor-pointer" onClick={() => setSelectedNode(node)}>
+                <g key={node.id} className="cursor-pointer" onClick={() => setSelectedNode(node)}>
                   {isCore && (
                     <g>
-                      {/* Large Outer Breathing Aura */}
-                      <circle 
-                        cx={node.x} 
-                        cy={node.y} 
-                        r={45} 
-                      className="fill-cyan-500/10 animate-[pulse_3s_ease-in-out_infinite]" 
-                      />
-                      {/* Sharp High-Frequency "Ping" */}
-                      <circle 
-                        cx={node.x} 
-                        cy={node.y} 
-                        r={25} 
-                      className="stroke-cyan-400/40 fill-none animate-ping [animation-duration:2s]" 
-                      />
-                      {/* Inner Constant Glow */}
-                      <circle 
-                        cx={node.x} 
-                        cy={node.y} 
-                        r={20} 
-                      className="fill-cyan-400/20 blur-md" 
-                      />
+                      {/* The Centered Heartbeat Glow */}
+                      <circle cx={node.x} cy={node.y} r={18} className="fill-cyan-500/20">
+                        <animate attributeName="r" values="18;55;18" dur="4s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.4;0;0.4" dur="4s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx={node.x} cy={node.y} r={25} className="stroke-cyan-500/10 fill-none animate-ping [animation-duration:3s]" />
                     </g>
                   )}
-                  {/* 2. THE ACTUAL NODE (The "Solid" Center) */}
+                  
+                  {/* Node Circle */}
                   <circle
-                    cx={node.x}
-                    cy={node.y}
-                    r={isCore ? 16 : 6} // Increased core size from 12 to 16
+                    cx={node.x} cy={node.y}
+                    r={isCore ? 14 : 6}
                     fill={isSelected ? "#60a5fa" : (isCore ? "#3b82f6" : "#1e293b")}
                     stroke={isCore ? "#60a5fa" : (isSelected ? "#ffffff" : "#3b82f6")}
-                    strokeWidth={isCore ? 3 : 1} // Thicker border for the core
-                    className="transition-all duration-300 group-hover:scale-110"
+                    strokeWidth={isCore ? 3 : 1}
+                    className="transition-all duration-300"
                   />
-      
-                  {/* 3. THE TEXT */}
+                  
+                  {/* Label */}
                   <text
-                    x={node.x}
-                    y={node.y + (isCore ? 30 : 20)} // Move label lower for the bigger core
+                    x={node.x} y={node.y + (isCore ? 32 : 20)}
                     textAnchor="middle"
                     fill={isCore ? "#60a5fa" : "white"}
-                    fillOpacity={isSelected || isCore ? 1 : 0.4}
-                    className="text-[9px] font-bold font-mono uppercase tracking-[0.2em] pointer-events-none"
+                    fillOpacity={isSelected || isCore ? 1 : 0.3}
+                    className="text-[9px] font-mono uppercase tracking-widest pointer-events-none"
                   >
                     {node.label}
                   </text>
@@ -185,7 +168,7 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
           </svg>
         </div>
 
-        {/* Right Sidebar - Context Inspector */}
+        {/* Right Sidebar - Context Inspector remains as is */}
         <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
           <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 overflow-hidden flex flex-col">
             <CardHeader className="border-b border-white/5 py-3">
@@ -194,45 +177,44 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               </CardTitle>
             </CardHeader>
 
-            {/* 2. Wrap the CardContent in ScrollArea */}
-            <ScrollArea className="h-[calc(100vh-300px)] flex-1">
-             <CardContent className="pt-6">
-              {selectedNode ? (
-               <div className="space-y-6">
-                 <div>
-                    <h4 className="text-lg font-bold text-white uppercase mb-1">{selectedNode.label}</h4>
-                   <Badge variant="outline" className="text-[8px] border-blue-500/20 text-blue-400">{selectedNode.group}</Badge>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="text-[8px] text-white/20 uppercase">Impact: <span className="text-blue-400">+{selectedNode.complexity}%</span></div>
-                    <p className="text-[10px] text-white/60 leading-relaxed italic">
-                      Fragment linked to core system via {selectedNode.group} pathways.
-                    </p>
-                  </div>
-          
-                  {/* A new section to test the scroll: Meta Log */}
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded font-mono text-[9px] text-white/40">
-                     <p className="text-blue-400 mb-1 font-bold">RAW_SIGNAL_DECODE:</p>
-                     <p className="leading-relaxed">
-                       NODE_ID: {selectedNode.id}<br />
-                       COORD_X: {selectedNode.x.toFixed(2)}<br />
-                       COORD_Y: {selectedNode.y.toFixed(2)}<br />
-                       STATUS: STABLE_FRAGMENT
-                     </p>
-                   </div>
+            <ScrollArea className="h-[calc(100vh-350px)] flex-1">
+              <CardContent className="pt-6">
+                {selectedNode ? (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-bold text-white uppercase mb-1">{selectedNode.label}</h4>
+                      <Badge variant="outline" className="text-[8px] border-blue-500/20 text-blue-400">{selectedNode.group}</Badge>
+                    </div>
+                    {/* Data Details Section */}
+                    <div className="space-y-4">
+                      <div className="text-[8px] text-white/20 uppercase">Impact: <span className="text-blue-400">+{selectedNode.complexity}%</span></div>
+                      <p className="text-[10px] text-white/60 leading-relaxed italic">
+                        Fragment linked to core system via {selectedNode.group} pathways.
+                      </p>
+                    </div>
+                    
+                    <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded font-mono text-[9px] text-white/40">
+                      <p className="text-blue-400 mb-1 font-bold">RAW_SIGNAL_DECODE:</p>
+                      <p className="leading-relaxed">
+                        NODE_ID: {selectedNode.id}<br />
+                        COORD_X: {selectedNode.x.toFixed(2)}<br />
+                        COORD_Y: {selectedNode.y.toFixed(2)}<br />
+                        STATUS: STABLE_FRAGMENT
+                      </p>
+                    </div>
 
-                  <Button className="w-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-widest">
-                    <Database className="w-3 h-3 mr-2" /> Retrieve_Raw_Fragment
-                  </Button>
-                </div>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center py-12 opacity-20">
-                  <Network className="w-12 h-12" />
-                  <p className="text-[10px] uppercase tracking-[0.3em] mt-4">Select_Node_To_Inspect</p>
-                </div>
-               )}
-             </CardContent>
-            </ScrollArea> {/* 3. Close ScrollArea */}
+                    <Button className="w-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-widest">
+                      <Database className="w-3 h-3 mr-2" /> Retrieve_Raw_Fragment
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center py-12 opacity-20">
+                    <Network className="w-12 h-12" />
+                    <p className="text-[10px] uppercase tracking-[0.3em] mt-4">Select_Node_To_Inspect</p>
+                  </div>
+                )}
+              </CardContent>
+            </ScrollArea>
           </Card>
         </div>
       </div>

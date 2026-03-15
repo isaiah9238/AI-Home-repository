@@ -61,13 +61,15 @@ studio/
 │   │   ├── firebase.ts          # Client SDK Init
 │   │   ├── firebaseAdmin.ts     # Admin SDK Init
 │   │   └── utils.ts             # Tailwind merging
+│   │
+│   ├── auth.ts                  # NextAuth v5 Configuration
+│   └── middleware.ts            # Auth Redirect Middleware
 │
 ├── docs/
 │   └── blueprint.md             # The Technical Roadmap
 ├── ARCHITECTURE.md              # The Vision Document
 ├── EXPLORER.md                  # This Map
 └── README.md                    # Project Overview
-```
 
 ### Domain Key:
 - **Discovery**: Where the AI learns who you are and constructs new architecture.

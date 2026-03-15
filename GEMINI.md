@@ -4,30 +4,33 @@
 - **Name:** AI Home (The Cabinet)
 - **Philosophy:** A "Portal" (UI) to a "Cabinet" (Backend) of specialized "Drawers" (Tools).
 - **Aesthetic:** High-Fidelity Cybernetic HUD / Glassmorphism. Dark Mode: #050505.
-- **Core Principle:** From "Hacking" to "Architecting"—A system they can't turn off.
+- **Core Principle:** From "Hacking" to "Architecting"—A system they can't turn off. An intelligence that grows with the user.
 
 ## 2. Structural Guardrails (The Cabinet Map)
 - **src/ai/discovery:** Memory, Identity, and Architecture (Home Base, Architect, Tutor).
 - **src/ai/domains/research:** Intelligence Scouts and Deep Readers (Flux Echo, Epitomizer, Code Inspector).
-- **src/ai/domains/safety:** Gatekeepers and the Safety Ledger (Input/Output filters, Gems Drawer).
-- **src/app:** The Portal interface (Next.js App Router).
+- **src/ai/domains/safety:** Gatekeepers and the Gamified Ledger (Input/Output filters, 24h Gems Drawer).
+- **src/ai/storage:** Dedicated AI file storage managed via Firestore.
+- **src/app/sandbox:** The in-app IDE and execution previewer.
 
 ## 3. Technical Stack & Standards
-- **AI Engine:** Google Genkit + Gemini gemini-2.5-pro (Structured Output).
-- **Database:** Firestore (The Librarian) for persistent context and logs.
+- **AI Engine:** Google Genkit + Gemini (Structured Output).
+- **Database:** Firestore (The Librarian) for persistent context, user files, and AI file structures.
 - **UI Components:** ShadCN UI + Custom Cybernetic HUD elements.
 - **Variable Strategy:** Use `The User` and `Variable Subjects` for the "Universal Template."
 
-## 4. Completed Phase 2.0 Drawers
-- [x] **Birthday Drawer**: Real-time evolution tracking and historical fragments.
-- [x] **Curriculum Drawer**: Dynamic mastery levels and integrated lesson milestones.
-- [x] **Research Drawer**: Unified Scout (Flux Echo) and Deep Reader (Epitomizer).
-- [x] **Code Inspector**: High-fidelity security and performance auditing.
-- [x] **Safety Ledger (Gems)**: Vertical timeline of integrity pulses and resolution.
-- [x] **The Laboratory**: Real-time parameter tuner for neural weights.
-- [x] **The Neural Graph**: Interactive SVG XAI node-map of knowledge context.
+## 4. Phase 1: Adaptation & Expansion (Current Focus)
+- [ ] **The Adaptive Architect:** Expand Architect to maintain file structures and connect directly to Firestore.
+- [ ] **AI Storage Area:** Implement a virtual file system in Firestore for AI-generated assets.
+- [ ] **Curriculum Delivery:** Shift from just planning lessons to actively *providing* them via DB retrieval.
+- [ ] **Flux Echo Enhancement:** Integrate broader, Google-Search-like experiences into the Research Drawer.
+- [ ] **Adaptive Brain:** Evolve `userBrain.ts` to dynamically adapt to new information over time.
+- [ ] **Gamified Ledger (Gems):** Convert the Safety Ledger into a clean 24-hour cycle where users collect gems/coins.
+- [ ] **Dynamic Instructions:** Add adaptive, clickable instruction overlays to the Laboratory and Neural Graph.
 
-## 5. Next Objectives (Phase 3)
-- **Multi-Agent Orchestrator**: Allow drawers to communicate and pass context.
-- **Autonomous Construction**: Empower "The Architect" to write files directly to disk.
-- **Neural Memory Expansion**: Implement vector search for deep context retrieval.
+## 5. Phase 2: The In-App IDE & Code Execution
+- **Autonomous Previewer:** Develop a sandbox environment where the AI can read user code, analyze intent, and render previews (e.g., rendering a generated image or a 3D CSS/WebGL cube).
+- **Multi-Code Testing Area:** Create a workspace where the user can test multiple sets of code simultaneously.
+- **Guided Development:** Integrate Mentor, Flux Echo, and Code Analyzer into the sandbox to provide real-time guidance, transforming the Home into a localized learning and development ecosystem.
+
+Currently working on the laboratory-drawer and the neural-graph. Done instructions, prbablility wave, flux echo stays the same. Still needs work: the core, nodes, growth, connectons (check lessons and curriculum), keyboard and binary Marque

@@ -2,14 +2,13 @@
 
 This file provides a visual representation of the system architecture, organized by Domain and Responsibility.
 
-```text
 studio/
 ├── src/
 │   ├── ai/                      # THE BRAIN (Genkit Flows & Prompts)
 │   │   ├── discovery/           # Memory & Identity Domain
 │   │   │   ├── establish-home-base.ts
-│   │   │   ├── generate-initial-files.ts (The Architect)
-│   │   │   ├── integrate-lesson-plans.ts (The Tutor)
+│   │   │   ├── generate-initial-files.ts (The Adaptive Architect)
+│   │   │   ├── provide-lessons.ts        (The Tutor - Expanded Delivery)
 │   │   │   ├── mentor-ai.ts
 │   │   │   ├── migrate-lesson-to-db.ts
 │   │   │   └── web-intel.ts
@@ -17,13 +16,15 @@ studio/
 │   │   │   ├── research/        # Scout & Analyst Domain
 │   │   │   │   ├── analyze-code-snippet.ts (Inspector)
 │   │   │   │   ├── epitomize-fetched-content.ts (Deep Reader)
-│   │   │   │   └── link-genie.ts (Flux Echo)
-│   │   │   └── safety/          # The Gatekeepers
+│   │   │   │   └── link-genie.ts (Flux Echo - Expanded Search)
+│   │   │   └── safety/          # The Gatekeepers & Gamification
 │   │   │       ├── filter-ai-output.ts
 │   │   │       ├── filter-user-input.ts
-│   │   │       └── gems-logger.ts (The Ledger)
+│   │   │       └── gems-logger.ts (The 24h Gamified Ledger)
+│   │   ├── storage/             # AI Persistent Memory
+│   │   │   └── virtual-file-system.ts    (Firestore AI File Manager)
 │   │   ├── flows/               # Core Orchestration
-│   │   │   └── userBrain.ts
+│   │   │   └── userBrain.ts     (Adaptive Node)
 │   │   ├── genkit.ts            # Genkit Configuration
 │   │   └── dev.ts               # Local Dev Entry
 │   │
@@ -32,10 +33,12 @@ studio/
 │   │   │   └── login/           # Access Terminal
 │   │   ├── architect/           # The Architect UI (Construction)
 │   │   ├── code-analyzer/       # Code Inspector UI (Audit)
-│   │   ├── flux-echo/           # Research Drawer UI (Recon)
-│   │   ├── lesson-plans/        # Discovery Drawer UI (Tutor)
+│   │   ├── flux-echo/           # Research Drawer UI (Recon & Google Search UX)
+│   │   ├── lesson-plans/        # Curriculum Drawer UI (DB Retrieval)
 │   │   ├── mentorship/          # AI Mentor UI (Briefing)
-│   │   ├── reports/             # Security Logs (Gems)
+│   │   ├── reports/             # 24h Gems & Coin Collection UI
+│   │   ├── sandbox/             # PHASE 2: In-App Development Environment
+│   │   │   └── page.tsx         # Multi-Code Testing Area & Previewer
 │   │   ├── actions.ts           # The "Cabinet" Switchboard (Server Actions)
 │   │   ├── layout.tsx           # HUD Frame
 │   │   └── page.tsx             # The Interior Dashboard
@@ -44,9 +47,10 @@ studio/
 │   │   ├── ui/                  # ShadCN & HUD Elements
 │   │   ├── logo/                # Branding (Vault & Portal)
 │   │   ├── app-shell.tsx        # Navigation & Sidebar
+│   │   ├── dynamic-instructions.tsx # Adaptive Help Docs for Drawers
 │   │   ├── birthday-drawer.tsx  # Evolution Tracker
-│   │   ├── curriculum-drawer.tsx# Progress Visualizer
-│   │   ├── gems-drawer.tsx      # Safety Ledger Visualizer
+│   │   ├── curriculum-drawer.tsx# DB Progress Visualizer
+│   │   ├── gems-drawer.tsx      # 24h Gamified Ledger Visualizer
 │   │   ├── laboratory-drawer.tsx# Parameter Tuner
 │   │   ├── neural-graph.tsx     # Context Map Visualizer
 │   │   ├── interior-dashboard.tsx# Cybernetic HUD

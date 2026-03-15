@@ -201,7 +201,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                   <button 
                     onClick={handleManualSync}
                     disabled={syncing}
-                    className="fixed bottom-4 right-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest z-50"
+                    className="w-full mt-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest"
                   >
                     {syncing ? "SYNCING..." : "EXEC: SYNC_STORAGE_FILES"}
                   </button>

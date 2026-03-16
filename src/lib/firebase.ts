@@ -64,3 +64,5 @@ export const lessonModel = getGenerativeModel(ai, {
   model: "gemini-2.5-pro",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });
+
+export const firebaseConfig;

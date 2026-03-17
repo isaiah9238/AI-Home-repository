@@ -50,9 +50,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       setUptime(`${h}:${m}:${s}`);
     }, 1000);
 
-    // Replace your Promise.all block with this:
     const loadData = async () => {
-    // 1. Fetch the other three (Curriculum, Evolution, Integrity)
       const [curriculumRes, evolutionRes, integrityRes] = await Promise.all([
         getCurriculumProgress(),
         getSystemEvolution(),
@@ -63,16 +61,14 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       if (evolutionRes.success) setEvolution(evolutionRes);
       if (integrityRes.success) setIntegrity(integrityRes);
 
-      // 2. Only fetch the profile if the server didn't give it to us
       if (!initialUserData) {
         const profileRes = await getHomeBase();
         if (profileRes.success) setProfile(profileRes.data);
       }
     };
 
-  loadData();
+    loadData();
 
-    // Welcome sequence
     const welcomeTimer = setTimeout(() => setIsWelcomeActive(false), 3000);
 
     return () => {
@@ -198,10 +194,11 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                       style={{ width: `${curriculum?.knowledgeIntegration || 82}%` }} 
                     />
                   </div>
+                  {/* RELOCATED BUTTON: Now below the Knowledge_Integration stream */}
                   <button 
                     onClick={handleManualSync}
                     disabled={syncing}
-                    className="w-full mt-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest"
+                    className="w-full mt-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest rounded-sm"
                   >
                     {syncing ? "SYNCING..." : "EXEC: SYNC_STORAGE_FILES"}
                   </button>

@@ -3,9 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
-    // Wildcard allowed origins to handle session ID changes in Cloud Workstations
-    // @ts-ignore: allowedDevOrigins is a valid but missing type in Next.js 15
-    allowedDevOrigins: ["*.cloudworkstations.dev", "*.firebase.google.com", "studio.firebase.google.com"]
+    // Removed allowedDevOrigins as it is causing unrecognized key warnings in this environment
   },
   typescript: {
     ignoreBuildErrors: true,

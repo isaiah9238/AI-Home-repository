@@ -1,4 +1,3 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -54,7 +53,7 @@ if (typeof window !== "undefined") {
 
 const ai = getAI(app, { backend: new GoogleAIBackend() });
 
-export { app, auth, db, rtdb, storage, functions };
+export { app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
   model: "gemini-2.5-pro" 
@@ -64,5 +63,3 @@ export const lessonModel = getGenerativeModel(ai, {
   model: "gemini-2.5-pro",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });
-
-export const firebaseConfig;

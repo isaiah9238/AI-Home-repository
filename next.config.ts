@@ -2,9 +2,6 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    // Removed allowedDevOrigins as it is causing unrecognized key warnings in this environment
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

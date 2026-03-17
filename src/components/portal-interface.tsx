@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database } from 'lucide-react';
-import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, getSavedBlueprints } from '@/app/actions';
+import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, getSavedBlueprints, getHomeBase } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,6 @@ import { CurriculumDrawer } from './curriculum-drawer';
 import { GemsDrawer } from './gems-drawer';
 import { LaboratoryDrawer } from './laboratory-drawer';
 import { NeuralGraph } from './neural-graph';
-import { establishHomeBase } from '@/discovery/establish-home-base.ts';
-
 
 /**
  * The Portal Interface: A gateway to the Cabinet.
@@ -306,137 +304,7 @@ export function PortalInterface() {
         <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
           <X className="w-6 h-6" />
         </Button>
-        <GemsDrawer gems={gems} />
-      </div>
-    );
-  }
-
-  if (activeTool === 'laboratory') {
-    return (
-      <div className="relative w-full h-full">
-        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
-          <X className="w-6 h-6" />
-        </Button>
-        <LaboratoryDrawer />
-      </div>
-    );
-  }
-
-  if (activeTool === 'graph') {
-    return (
-      <div className="relative w-full h-full">
-        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
-          <X className="w-6 h-6" />
-        </Button>
-        <NeuralGraph lessons={curriculumProgress?.lessons || []} />
-      </div>
-    );
-  }
-
-  if (activeTool === 'birthday') {
-    return <BirthdayDrawer onClose={() => setActiveTool(null)} establishedDate="2026-02-06" milestones={milestones} isAnniversary={systemEvolution?.isAnniversary} neuralComplexity={curriculumProgress?.neuralComplexity} knowledgeIntegration={curriculumProgress?.knowledgeIntegration} />;
-  }
-
-  if (activeTool === 'curriculum') {
-    return (
-      <div className="relative w-full h-full">
-        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
-          <X className="w-6 h-6" />
-        </Button>
-        <CurriculumDrawer progress={curriculumProgress} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500 p-8 overflow-y-auto custom-scrollbar">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-        {/* Research Drawer */}
-        <button onClick={() => setActiveTool('research')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-blue-500/5 mb-6 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500 border border-white/5 group-hover:border-blue-500/30">
-            <Search className="w-10 h-10 text-blue-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">RESEARCH</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">FLUX_ECHO_SCOUTING</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-blue-500/30 text-blue-400/60 uppercase">ENGAGE_RESEARCH</Badge></div>
-        </button>
-
-        {/* Discovery Drawer */}
-        <button onClick={() => setActiveTool('curriculum')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-green-500/5 mb-6 group-hover:scale-110 group-hover:bg-green-500/10 transition-all duration-500 border border-white/5 group-hover:border-green-500/30">
-            <BookOpen className="w-10 h-10 text-green-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">DISCOVERY</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">LESSON_PLAN_SYNTHESIS</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400/60 uppercase">INITIALIZE_TUTOR</Badge></div>
-        </button>
-
-        {/* Development Drawer */}
-        <button onClick={() => setActiveTool('architect')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
-            <MessageSquareCode className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">DEVELOPMENT</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">CODE_INSPECTION_CORE</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">RUN_ARCHITECT</Badge></div>
-        </button>
-
-        {/* Neural Graph Drawer */}
-        <button onClick={() => setActiveTool('graph')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-blue-500/5 mb-6 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500 border border-white/5 group-hover:border-blue-500/30">
-            <Share2 className="w-10 h-10 text-blue-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">CONTEXT</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">NEURAL_GRAPH_MAP</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-blue-500/30 text-blue-400/60 uppercase">VIEW_NODES</Badge></div>
-        </button>
-
-        {/* Laboratory Drawer */}
-        <button onClick={() => setActiveTool('laboratory')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
-            <Beaker className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">LABORATORY</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">PARAMETER_TUNING_HUB</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">TWEAK_LOGIC</Badge></div>
-        </button>
-
-        {/* Safety Drawer */}
-        <button onClick={() => setActiveTool('safety')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-red-500/5 hover:border-red-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-red-500/5 mb-6 group-hover:scale-110 group-hover:bg-red-500/10 transition-all duration-500 border border-white/5 group-hover:border-red-500/30">
-            <ShieldCheck className="w-10 h-10 text-red-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">INTEGRITY</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">SAFETY_LEDGER_SYNC</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-red-500/30 text-red-400/60 uppercase">VIEW_PULSES</Badge></div>
-        </button>
-
-        {/* Evolution Drawer */}
-        <button onClick={() => setActiveTool('birthday')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-yellow-500/5 hover:border-yellow-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-yellow-500/5 mb-6 group-hover:scale-110 group-hover:bg-yellow-500/10 transition-all duration-500 border border-white/5 group-hover:border-yellow-500/30">
-            <Cake className="w-10 h-10 text-yellow-400 opacity-60 group-hover:opacity-100" />
-          </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">EVOLUTION</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">SYSTEM_GROWTH_LOGS</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-400/60 uppercase">VIEW_MILESTONES</Badge></div>
-        </button>
-      </div>
-
-      <button onClick={() => setIsOpen(false)} className="mt-16 text-white/10 hover:text-white transition-all flex items-center gap-3 group font-mono text-[10px] uppercase tracking-[0.6em]">
-        <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
-        DEACTIVATE_CORE
-      </button>
-    </div>
-  );
-}
-
-  if (activeTool === 'safety') {
-    return (
-      <div className="relative w-full h-full">
-        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
-          <X className="w-6 h-6" />
-        </Button>
-        <GemsDrawer gems={gems} />
+        <GemsDrawer gems={gems} balance={gemsBalance} />
       </div>
     );
   }

@@ -19,18 +19,33 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
 // --- UTILS ---
 
 /**
- * Sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
+ * Robustly sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
+ * Handles class instances, plain objects, and null values.
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
-  // If it's a Firestore Timestamp class instance
-  if (typeof val.toDate === 'function') return val.toDate().toISOString();
-  // If it's a plain object representation of a Timestamp ({ _seconds, _nanoseconds })
-  if (val._seconds !== undefined) return new Date(val._seconds * 1000).toISOString();
-  // If it's already a Date object
-  if (val instanceof Date) return val.toISOString();
-  // Fallback
-  return String(val);
+  
+  // 1. Check for Firestore Timestamp class method
+  if (typeof val.toDate === 'function') {
+    return val.toDate().toISOString();
+  }
+  
+  // 2. Check for plain object representation { _seconds, _nanoseconds }
+  if (typeof val._seconds === 'number') {
+    return new Date(val._seconds * 1000).toISOString();
+  }
+  
+  // 3. Handle standard Date objects
+  if (val instanceof Date) {
+    return val.toISOString();
+  }
+  
+  // 4. Handle strings that are already ISO format or similar
+  if (typeof val === 'string') {
+    return val;
+  }
+
+  return null;
 };
 
 // Helper to verify authorization

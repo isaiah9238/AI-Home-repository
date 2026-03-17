@@ -6,7 +6,7 @@ export const initAdmin = () => {
 
   // 2. Variables (Restored): These are essential for the "Librarian" to find your data
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
-  const serviceAccountKey = process.env.SERVICE_ACCOUNT_KEY;
+  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.SERVICE_ACCOUNT_KEY;
 
   // 3. The Purge (Updated): Catch all scenarios that aren't local dev
   if (process.env.NODE_ENV === 'production' || 

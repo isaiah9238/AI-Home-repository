@@ -15,22 +15,32 @@ export const establishHomeBase = ai.defineFlow(
     outputSchema: z.object({ status: z.string(), userContext: z.any() }),
   },
   async (input) => {
-    // Connect to Firestore: Fetch the Primary User's desk data
-    const userDoc = await getAdminDb().collection('users').doc(input.userId).get();
+    const db = getAdminDb();
+    const userId = input.userId;
+
+    // Fetch primary user data, curriculum, and integrity in parallel
+    const [userDoc, lessonsSnapshot, gemsSnapshot] = await Promise.all([
+      db.collection('users').doc(userId).get(),
+      db.collection('curriculum').where('userId', '==', userId).get(),
+      db.collection('gems').where('resolution', '==', 'pending').get()
+    ]);
 
     if (!userDoc.exists) {
-      console.warn(`⚠️ Librarian Alert: No profile for user [${input.userId}]. Using default template.`);
       return {
         status: 'Home Base: Template Initialized',
         userContext: {
           name: 'Primary User',
           role: 'Architect',
-          established: '2026-02-06'
+          established: '2026-02-06',
+          curriculumCount: 0,
+          pendingIssues: 0
         }
       };
     }
 
     const userData = userDoc.data();
+    const curriculumCount = lessonsSnapshot.size;
+    const pendingIssues = gemsSnapshot.size;
 
     return {
       status: 'Home Base Established: Librarian Operational',
@@ -38,7 +48,12 @@ export const establishHomeBase = ai.defineFlow(
         name: userData?.name || 'Isaiah Smith',
         role: userData?.role || 'Primary User',
         established: userData?.establishedDate || '2026-02-06',
-        interests: userData?.interests || []
+        interests: userData?.interests || [],
+        gemsBalance: userData?.gemsBalance || 0,
+        curriculumCount,
+        pendingIssues,
+        isSystemClean: pendingIssues === 0,
+        neuralComplexity: userData?.neuralComplexity || 64
       }
     };
   }

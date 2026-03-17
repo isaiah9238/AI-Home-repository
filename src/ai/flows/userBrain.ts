@@ -10,27 +10,31 @@ export const userBrain = ai.defineFlow(
   },
   async (input) => {
     // 1. Establish context (The Librarian)
-    // Using the flow directly since we are on Genkit 1.x
     const context = await ai.run('establish-context', async () => {
        return await establishHomeBase({ userId: 'primary_user' });
     });
 
-    // 2. Process query with unified context
-    // FIX: Only one declaration of 'response' or 'text'
+    const { userContext } = context;
+
+    // 2. Process query with dynamic context
     const response = await ai.generate({
       prompt: `
-        Identity: Speaking to ${context.userContext?.name || 'Architect'}.
-        System Status: ${context.userContext?.daysOld || 'Unknown'} days since core activation.
-        Current Focus: The Algorithmic Architect (Generative Design & BIM).
+        SYSTEM_IDENTITY: You are the "Adaptive Brain" of the Cabinet.
+        USER: ${userContext.name} (${userContext.role})
+        PROGRESS: ${userContext.curriculumCount} lessons integrated.
+        NEURAL_COMPLEXITY: ${userContext.neuralComplexity}%
+        INTEGRITY: ${userContext.isSystemClean ? 'CLEAN' : userContext.pendingIssues + ' issues pending'}
+        GEMS: ${userContext.gemsBalance} collected.
         
-        Capabilities: The system understands its own 'Cabinet' as an interplay 
-        of physical form and generative code.
+        BEHAVIOR:
+        - If neural complexity is high (>80%), be more abstract and theoretical.
+        - If many issues are pending, be more urgent and focused on security.
+        - Always acknowledge the user's progress implicitly in your tone.
         
-        User Query: ${input.query}
+        USER_QUERY: ${input.query}
       `,
     });
 
-    // 3. Return the synthesis
     return response.text;
   }
 );

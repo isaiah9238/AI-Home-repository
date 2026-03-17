@@ -8,27 +8,39 @@ import { getAdminDb } from '@/lib/firebaseAdmin';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
 import { ai } from '@/ai/genkit';
+import { auth } from '@/auth';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
  * These functions bridge the UI to the AI flows and Database.
  */
 
+// Helper to verify authorization
+async function verifyAuth() {
+  const session = await auth();
+  if (!session) {
+    throw new Error("UNAUTHORIZED_ACCESS: Please log in to the terminal.");
+  }
+  return session;
+}
+
 // --- 1. Terminal / Chat Logic ---
 
 export async function sendTerminalMessage(message: string) {
   try {
+    await verifyAuth();
     const result = await mentorAiFlow({ request: message });
     return { success: true, response: result.response };
   } catch (error: any) {
     console.error("Terminal Action Error:", error?.message || "Unknown");
-    return { success: false, error: "SIGNAL_INTERRUPTED: The Cabinet could not process the request." };
+    return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
   }
 }
 
 // --- 2. Mentor AI: Get Morning Briefing ---
 export async function getMorningBriefing(userContext?: any) {
   try {
+    await verifyAuth();
     const [curriculum, integrity] = await Promise.all([
       getCurriculumProgress(),
       getSystemIntegrity()
@@ -59,26 +71,42 @@ export async function getMorningBriefing(userContext?: any) {
 // --- 3. Research Domain: Flux Echo & Epitomizer ---
 export type ResearchMode = 'scout' | 'deep';
 
+import { searchGenie } from '@/ai/domains/research/search-genie';
+
+// ... (existing code)
+
 export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
+    await verifyAuth();
     let result;
+    
+    // HEURISTIC: If it doesn't start with http, treat it as a query for SearchGenie
+    const isUrl = input.url.startsWith('http');
+
     if (input.mode === 'scout') {
-      result = await linkGenie({ url: input.url });
+      if (isUrl) {
+        result = await linkGenie({ url: input.url });
+      } else {
+        result = await searchGenie({ query: input.url });
+      }
     } else {
+      // Deep Read still requires a URL for now
+      if (!isUrl) throw new Error("DEEP_READ requires a specific URL coordinate.");
       result = await epitomizeFetchedContent({ url: input.url });
     }
 
     // INTERNAL HANDSHAKE: Log the research mission to the database
     await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
-      action: input.mode,
-      target_url: input.url,
+      action: isUrl ? input.mode : 'general_scout',
+      target: input.url,
       timestamp: new Date().toISOString(),
       status: 'SUCCESS'
     });
 
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
+    // ... (existing error handling)
     await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: input.mode,
@@ -95,7 +123,21 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
 
 export async function runArchitect(blueprint: string) {
   try {
+    await verifyAuth();
     const result = await generateInitialFiles({ blueprint });
+    
+    // PERSISTENCE_LAYER: Save the blueprint and its generated structure to Firestore
+    if (result && result.length > 0) {
+      await getAdminDb().collection('blueprints').add({
+        userId: 'primary_user',
+        name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
+        prompt: blueprint,
+        structure: result,
+        timestamp: new Date().toISOString(),
+        status: 'CONSTRUCTED'
+      });
+    }
+
     return { success: true, data: result };
   } catch (error: any) {
     console.error("Architect Action Error:", error?.message || "Blueprint unreadable");
@@ -103,15 +145,80 @@ export async function runArchitect(blueprint: string) {
   }
 }
 
+export async function getSavedBlueprints() {
+  try {
+    await verifyAuth();
+    const snapshot = await getAdminDb()
+      .collection('blueprints')
+      .where('userId', '==', 'primary_user')
+      .orderBy('timestamp', 'desc')
+      .get();
+
+    const blueprints = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return { success: true, data: blueprints };
+  } catch (error) {
+    console.error("LIBRARIAN_READ_ERROR: Blueprints inaccessible", error);
+    return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
+  }
+}
+
 export async function generateLessonPlan(subject: string) {
   try {
+    await verifyAuth();
     const { text } = await ai.generate({
-      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use a professional, technical tone.`,
+      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use a professional, technical tone. Use Markdown formatting.`,
     });
-    return { success: true, plan: text };
+
+    // Save the generated plan as a "pending" draft
+    const planRef = await getAdminDb().collection('lesson_plans').add({
+      userId: 'primary_user',
+      title: `Lesson: ${subject}`,
+      subject: subject,
+      content: text,
+      status: 'PENDING',
+      timestamp: new Date().toISOString()
+    });
+
+    return { success: true, plan: text, id: planRef.id };
   } catch (error: any) {
     console.error("Tutor Generation Error:", error);
     return { success: false, error: "SIGNAL_LOST: The Tutor could not generate the plan." };
+  }
+}
+
+export async function getPendingLessonPlans() {
+  try {
+    await verifyAuth();
+    const snapshot = await getAdminDb()
+      .collection('lesson_plans')
+      .where('userId', '==', 'primary_user')
+      .where('status', '==', 'PENDING')
+      .orderBy('timestamp', 'desc')
+      .get();
+
+    const plans = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return { success: true, data: plans };
+  } catch (error) {
+    console.error("LIBRARIAN_READ_ERROR: Plans inaccessible", error);
+    return { success: false, error: "SIGNAL_LOST: Lesson plans inaccessible." };
+  }
+}
+
+export async function deleteLessonPlan(id: string) {
+  try {
+    await verifyAuth();
+    await getAdminDb().collection('lesson_plans').doc(id).delete();
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }
 
@@ -119,6 +226,7 @@ export async function generateLessonPlan(subject: string) {
 
 export async function getHomeBaseAction() {
   try {
+    await verifyAuth();
     const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
     if (!userDoc.exists) return null;
 
@@ -129,6 +237,7 @@ export async function getHomeBaseAction() {
       role: data.role || "Primary User",
       interests: data.interests || [],
       establishedDate: data.establishedDate || "2026-02-06",
+      gemsBalance: data.gemsBalance || 0,
       createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
     };
@@ -139,6 +248,7 @@ export async function getHomeBaseAction() {
 
 export async function getHomeBase() {
   try {
+    await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
     if (doc.exists) {
       const data = doc.data() || {};
@@ -149,6 +259,7 @@ export async function getHomeBase() {
           role: data.role || "Primary User",
           interests: data.interests || [],
           establishedDate: data.establishedDate || "2026-02-06",
+          gemsBalance: data.gemsBalance || 0,
           createdAt: data?.createdAt?.toDate?.()?.toISOString() || null,
           updatedAt: data?.updatedAt?.toDate?.()?.toISOString() || null,
         }
@@ -162,6 +273,7 @@ export async function getHomeBase() {
 
 export async function updateHomeBaseAction(updates: any) {
   try {
+    await verifyAuth();
     const db = getAdminDb();
     await db.collection('users').doc('primary_user').set({
       ...updates,
@@ -179,6 +291,7 @@ export async function updateHomeBaseAction(updates: any) {
 
 export async function getSystemEvolution() {
   try {
+    await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
     const data = doc.data();
     const establishedDate = data?.establishedDate || '2026-02-06';
@@ -199,6 +312,7 @@ export async function getSystemEvolution() {
 
 export async function getCurriculumProgress() {
   try {
+    await verifyAuth();
     const userId = 'primary_user';
     const userDoc = await getAdminDb().collection('users').doc(userId).get();
     const data = userDoc.data();
@@ -237,6 +351,7 @@ export async function getCurriculumProgress() {
 
 export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
   try {
+    await verifyAuth();
     const result = await migrateLessonToDb(data);
     return { 
       success: true, 
@@ -253,6 +368,7 @@ export async function integrateLessonAction(data: { title: string; subject: stri
 
 export async function getSystemIntegrity() {
   try {
+    await verifyAuth();
     const criticalGems = await getAdminDb().collection('gems')
       .where('resolution', '==', 'pending')
       .where('severity', 'in', ['high', 'critical'])
@@ -270,6 +386,7 @@ export async function getSystemIntegrity() {
 
 export async function getGems() {
   try {
+    await verifyAuth();
     const snapshot = await getAdminDb().collection('gems').orderBy('time', 'desc').get();
     const gems = snapshot.docs.map(doc => {
       const data = doc.data();
@@ -291,16 +408,46 @@ export async function getGems() {
 
 export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed') {
   try {
-    await getAdminDb().collection('gems').doc(id).update({ resolution });
+    await verifyAuth();
+    const db = getAdminDb();
+    const gemRef = db.collection('gems').doc(id);
+    const gemDoc = await gemRef.get();
+    
+    if (!gemDoc.exists) return { success: false, error: "GEM_NOT_FOUND" };
+    
+    const gemData = gemDoc.data();
+    if (gemData?.resolution !== 'pending') return { success: true }; // Already resolved
+
+    await gemRef.update({ resolution });
+
+    // REWARD_LOGIC: Award gems based on severity
+    if (resolution === 'resolved') {
+      const severity = gemData?.severity || 'low';
+      let reward = 10;
+      if (severity === 'medium') reward = 25;
+      if (severity === 'high') reward = 50;
+      if (severity === 'critical') reward = 100;
+
+      const userRef = db.collection('users').doc('primary_user');
+      await db.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const currentBalance = userDoc.data()?.gemsBalance || 0;
+        transaction.update(userRef, { gemsBalance: currentBalance + reward });
+      });
+    }
+
     revalidatePath('/reports');
+    revalidatePath('/');
     return { success: true };
   } catch (error) {
+    console.error("RESOLVE_GEM_ERROR:", error);
     return { success: false };
   }
 }
 
 export async function getMilestones() {
   try {
+    await verifyAuth();
     const snapshot = await getAdminDb().collection('milestones').orderBy('date', 'desc').get();
     const milestones = snapshot.docs.map(doc => {
       const data = doc.data();
@@ -323,6 +470,7 @@ export async function getMilestones() {
 
 export async function runCodeAnalysis(code: string) {
   try {
+    await verifyAuth();
     await getAdminDb().collection('internal_comms').add({
       agent: 'Code Analyzer',
       action: 'code_inspection',
@@ -341,6 +489,7 @@ export async function runCodeAnalysis(code: string) {
 
 export async function deleteAudit(docId: string) {
   try {
+    await verifyAuth();
     const db = getAdminDb();
     await db.collection('internal_comms').doc(docId).delete();
     revalidatePath('/code-analyzer');
@@ -355,6 +504,7 @@ export async function deleteAudit(docId: string) {
 
 export async function commitNeuralWeights(config: any) {
   try {
+    await verifyAuth();
     const db = getAdminDb();
     await db.collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
       ...config,
@@ -372,6 +522,7 @@ export async function commitNeuralWeights(config: any) {
 
 export async function getNeuralWeights() {
   try {
+    await verifyAuth();
     const doc = await getAdminDb()
       .collection('users')
       .doc('primary_user')
@@ -397,6 +548,7 @@ export async function getNeuralWeights() {
 
 export async function syncArchitectureLesson() {
   try {
+    await verifyAuth();
     const docRef = await getAdminDb().collection('plans').add({
       title: "First Lesson Plan on Architecture",
       type: "Lesson Plan",

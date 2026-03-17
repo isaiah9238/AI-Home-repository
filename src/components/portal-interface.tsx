@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2 } from 'lucide-react';
-import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, } from '@/app/actions';
+import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database } from 'lucide-react';
+import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, getSavedBlueprints } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { BirthdayDrawer } from './birthday-drawer';
 import { CurriculumDrawer } from './curriculum-drawer';
@@ -27,12 +27,15 @@ export function PortalInterface() {
   type researchMode = 'scout' | 'deep'; const [researchMode, setResearchMode] = useState<researchMode>('scout');
   const [researchResult, setResearchResult] = useState<any>(null);
   const [architectResult, setArchitectResult] = useState<any[] | null>(null);
+  const [savedBlueprints, setSavedBlueprints] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [curriculumProgress, setCurriculumProgress] = useState<any>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [systemEvolution, setSystemEvolution] = useState<any>(null);
   const [gems, setGems] = useState<any[]>([]);
+  const [gemsBalance, setGemsBalance] = useState(0);
+  const [architectTab, setArchitectTab] = useState('new');
 
   useEffect(() => {
     if (activeTool === 'curriculum' || activeTool === 'graph') {
@@ -44,25 +47,35 @@ export function PortalInterface() {
 
   // 1. Birthday / Evolution Logic
   useEffect(() => {
-    if (activeTool === 'birthday') {
+    if (activeTool === 'birthday' || activeTool === 'safety') {
       Promise.all([
         getMilestones(),
         getSystemEvolution(),
-        getCurriculumProgress()
-      ]).then(([milestonesRes, evolutionRes, curriculumRes]) => {
-        // Use the 'Res' variables, not the state variables!
+        getCurriculumProgress(),
+        getHomeBase()
+      ]).then(([milestonesRes, evolutionRes, curriculumRes, homeBaseRes]) => {
         if (milestonesRes.success) setMilestones(milestonesRes.data ?? []);
         if (evolutionRes.success) setSystemEvolution(evolutionRes);
         if (curriculumRes.success) setCurriculumProgress(curriculumRes);
+        if (homeBaseRes.success) setGemsBalance(homeBaseRes.data.gemsBalance ?? 0);
       });
     }
   }, [activeTool]);
 
-  // 2. Safety / Gems Logic (Fixed the Promise.all syntax)
+  // 2. Safety / Gems Logic
   useEffect(() => {
     if (activeTool === 'safety' || activeTool === 'laboratory') {
       getGems().then(res => {
         if (res.success) setGems(res.data ?? []);
+      });
+    }
+  }, [activeTool]);
+
+  // 4. Load Saved Blueprints
+  useEffect(() => {
+    if (activeTool === 'architect') {
+      getSavedBlueprints().then(res => {
+        if (res.success) setSavedBlueprints(res.data ?? []);
       });
     }
   }, [activeTool]);
@@ -84,9 +97,19 @@ export function PortalInterface() {
     setSelectedFile(null);
     const result = await runArchitect(blueprint);
     if (result.success) {
-      setArchitectResult(result.data ?? []); // Don't just set empty array!
+      setArchitectResult(result.data ?? []);
+      // Refresh saved blueprints list
+      getSavedBlueprints().then(res => {
+        if (res.success) setSavedBlueprints(res.data ?? []);
+      });
     }
     setLoading(false);
+  };
+
+  const loadBlueprint = (bp: any) => {
+    setArchitectResult(bp.structure);
+    setArchitectTab('new');
+    setSelectedFile(null);
   };
 
   const copyToClipboard = (text: string) => {
@@ -191,51 +214,219 @@ export function PortalInterface() {
           </Button>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex flex-col gap-4">
-            <Input
-              placeholder="DESCRIBE_SYSTEM_BLUEPRINT..."
-              value={blueprint}
-              onChange={(e) => setBlueprint(e.target.value)}
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-xs tracking-wider h-11"
-            />
-            <Button onClick={handleArchitect} disabled={loading} className="bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:bg-purple-500/30 transition-all h-11 w-full uppercase font-mono tracking-widest text-xs">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-              {loading ? "Printing_Structure..." : "Summon_Architect"}
-            </Button>
-          </div>
+        <Tabs value={architectTab} onValueChange={setArchitectTab} className="w-full">
+          <TabsList className="bg-white/5 border border-white/10 mb-6 p-1 h-auto gap-2">
+            <TabsTrigger value="new" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400 font-mono text-[10px] uppercase tracking-widest py-2 px-4">
+              <Zap className="w-3 h-3 mr-2" /> New_Blueprint
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 font-mono text-[10px] uppercase tracking-widest py-2 px-4">
+              <History className="w-3 h-3 mr-2" /> Retrieval_Logs
+            </TabsTrigger>
+          </TabsList>
 
-          {architectResult && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full max-h-[600px]">
-              <Card className="bg-black/40 border-purple-500/30 backdrop-blur-md overflow-y-auto custom-scrollbar">
-                <CardHeader className="bg-white/5 border-b border-white/5 py-3 sticky top-0 z-10">
-                  <CardTitle className="text-[10px] font-mono text-white/50 uppercase tracking-[0.3em]">GENERATED_STRUCTURE</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6 font-mono text-[11px] text-white/70 space-y-1">
-                  {architectResult.map((file, i) => (
-                    <div key={i} onClick={() => file.type === 'file' && setSelectedFile(file)} className={`flex items-center gap-3 py-2 hover:bg-white/5 rounded px-2 transition-colors cursor-pointer group ${selectedFile?.path === file.path ? 'bg-white/10' : ''}`}>
-                      {file.type === 'directory' ? <Folder className="w-3 h-3 text-purple-400/60 group-hover:text-purple-400" /> : <FileCode className="w-3 h-3 text-blue-400/60 group-hover:text-blue-400" />}
-                      <span className={file.type === 'directory' ? 'text-purple-300/80 font-bold' : 'text-white/60'}>{file.path}</span>
-                      {file.content && file.type === 'file' && <Badge variant="outline" className="ml-auto text-[7px] border-blue-500/20 text-blue-400/40 uppercase">Boilerplate</Badge>}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-              <Card className="bg-black/40 border-white/10 backdrop-blur-md overflow-hidden flex flex-col">
-                <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-[10px] font-mono text-white/50 uppercase tracking-[0.3em]">{selectedFile ? `PREVIEW: ${selectedFile.path.split('/').pop()}` : 'SELECT_FILE_FOR_PREVIEW'}</CardTitle>
-                  {selectedFile?.content && <Button variant="ghost" size="icon" className="h-6 w-6 text-white/30 hover:text-white" onClick={() => copyToClipboard(selectedFile.content)}>{copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}</Button>}
-                </CardHeader>
-                <CardContent className="flex-1 p-0 overflow-auto custom-scrollbar">
-                  {selectedFile?.content ? <pre className="p-6 text-[10px] font-mono text-white/70 whitespace-pre leading-relaxed">{selectedFile.content}</pre> : <div className="h-full flex items-center justify-center text-white/10 font-mono text-[10px] uppercase tracking-widest p-12 text-center">{selectedFile ? 'No_Boilerplate_Available_For_This_File' : 'Awaiting_File_Selection...'}</div>}
-                </CardContent>
-              </Card>
+          <TabsContent value="new" className="space-y-6 mt-0">
+            <div className="flex flex-col gap-4">
+              <Input
+                placeholder="DESCRIBE_SYSTEM_BLUEPRINT..."
+                value={blueprint}
+                onChange={(e) => setBlueprint(e.target.value)}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-xs tracking-wider h-11"
+              />
+              <Button onClick={handleArchitect} disabled={loading} className="bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:bg-purple-500/30 transition-all h-11 w-full uppercase font-mono tracking-widest text-xs">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                {loading ? "Printing_Structure..." : "Summon_Architect"}
+              </Button>
             </div>
-          )}
-        </div>
+
+            {architectResult && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full max-h-[600px]">
+                <Card className="bg-black/40 border-purple-500/30 backdrop-blur-md overflow-y-auto custom-scrollbar">
+                  <CardHeader className="bg-white/5 border-b border-white/5 py-3 sticky top-0 z-10">
+                    <CardTitle className="text-[10px] font-mono text-white/50 uppercase tracking-[0.3em]">GENERATED_STRUCTURE</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 font-mono text-[11px] text-white/70 space-y-1">
+                    {architectResult.map((file, i) => (
+                      <div key={i} onClick={() => file.type === 'file' && setSelectedFile(file)} className={`flex items-center gap-3 py-2 hover:bg-white/5 rounded px-2 transition-colors cursor-pointer group ${selectedFile?.path === file.path ? 'bg-white/10' : ''}`}>
+                        {file.type === 'directory' ? <Folder className="w-3 h-3 text-purple-400/60 group-hover:text-purple-400" /> : <FileCode className="w-3 h-3 text-blue-400/60 group-hover:text-blue-400" />}
+                        <span className={file.type === 'directory' ? 'text-purple-300/80 font-bold' : 'text-white/60'}>{file.path}</span>
+                        {file.content && file.type === 'file' && <Badge variant="outline" className="ml-auto text-[7px] border-blue-500/20 text-blue-400/40 uppercase">Boilerplate</Badge>}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+                <Card className="bg-black/40 border-white/10 backdrop-blur-md overflow-hidden flex flex-col">
+                  <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
+                    <CardTitle className="text-[10px] font-mono text-white/50 uppercase tracking-[0.3em]">{selectedFile ? `PREVIEW: ${selectedFile.path.split('/').pop()}` : 'SELECT_FILE_FOR_PREVIEW'}</CardTitle>
+                    {selectedFile?.content && <Button variant="ghost" size="icon" className="h-6 w-6 text-white/30 hover:text-white" onClick={() => copyToClipboard(selectedFile.content)}>{copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}</Button>}
+                  </CardHeader>
+                  <CardContent className="flex-1 p-0 overflow-auto custom-scrollbar">
+                    {selectedFile?.content ? <pre className="p-6 text-[10px] font-mono text-white/70 whitespace-pre leading-relaxed">{selectedFile.content}</pre> : <div className="h-full flex items-center justify-center text-white/10 font-mono text-[10px] uppercase tracking-widest p-12 text-center">{selectedFile ? 'No_Boilerplate_Available_For_This_File' : 'Awaiting_File_Selection...'}</div>}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-0 space-y-4">
+            {savedBlueprints.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-20 text-white/20 border border-dashed border-white/10 rounded-2xl">
+                <Database className="w-12 h-12 mb-4 opacity-10" />
+                <p className="font-mono text-[10px] uppercase tracking-widest">No_Saved_Architectures_Found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {savedBlueprints.map((bp) => (
+                  <Card key={bp.id} className="bg-black/40 border-white/5 hover:border-purple-500/30 transition-all group cursor-pointer" onClick={() => loadBlueprint(bp)}>
+                    <CardHeader className="p-4 border-b border-white/5 flex flex-row items-center justify-between">
+                      <CardTitle className="text-[10px] font-mono text-white/60 uppercase truncate mr-4">{bp.name}</CardTitle>
+                      <Badge variant="outline" className="text-[8px] border-purple-500/20 text-purple-400/60 uppercase shrink-0">Blueprint</Badge>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <p className="text-[9px] text-white/30 font-mono line-clamp-2 mb-4 italic">"{bp.prompt}"</p>
+                      <div className="flex items-center justify-between text-[8px] font-mono uppercase tracking-widest text-white/20">
+                        <span>{new Date(bp.timestamp).toLocaleDateString()}</span>
+                        <span className="group-hover:text-purple-400 transition-colors flex items-center gap-2">Load_Core <ArrowRight className="w-3 h-3" /></span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     );
   }
+
+  if (activeTool === 'safety') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <GemsDrawer gems={gems} />
+      </div>
+    );
+  }
+
+  if (activeTool === 'laboratory') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <LaboratoryDrawer />
+      </div>
+    );
+  }
+
+  if (activeTool === 'graph') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <NeuralGraph lessons={curriculumProgress?.lessons || []} />
+      </div>
+    );
+  }
+
+  if (activeTool === 'birthday') {
+    return <BirthdayDrawer onClose={() => setActiveTool(null)} establishedDate="2026-02-06" milestones={milestones} isAnniversary={systemEvolution?.isAnniversary} neuralComplexity={curriculumProgress?.neuralComplexity} knowledgeIntegration={curriculumProgress?.knowledgeIntegration} />;
+  }
+
+  if (activeTool === 'curriculum') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <CurriculumDrawer progress={curriculumProgress} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500 p-8 overflow-y-auto custom-scrollbar">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+        {/* Research Drawer */}
+        <button onClick={() => setActiveTool('research')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-blue-500/5 mb-6 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500 border border-white/5 group-hover:border-blue-500/30">
+            <Search className="w-10 h-10 text-blue-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">RESEARCH</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">FLUX_ECHO_SCOUTING</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-blue-500/30 text-blue-400/60 uppercase">ENGAGE_RESEARCH</Badge></div>
+        </button>
+
+        {/* Discovery Drawer */}
+        <button onClick={() => setActiveTool('curriculum')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-green-500/5 mb-6 group-hover:scale-110 group-hover:bg-green-500/10 transition-all duration-500 border border-white/5 group-hover:border-green-500/30">
+            <BookOpen className="w-10 h-10 text-green-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">DISCOVERY</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">LESSON_PLAN_SYNTHESIS</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400/60 uppercase">INITIALIZE_TUTOR</Badge></div>
+        </button>
+
+        {/* Development Drawer */}
+        <button onClick={() => setActiveTool('architect')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
+            <MessageSquareCode className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">DEVELOPMENT</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">CODE_INSPECTION_CORE</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">RUN_ARCHITECT</Badge></div>
+        </button>
+
+        {/* Neural Graph Drawer */}
+        <button onClick={() => setActiveTool('graph')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-blue-500/5 mb-6 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500 border border-white/5 group-hover:border-blue-500/30">
+            <Share2 className="w-10 h-10 text-blue-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">CONTEXT</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">NEURAL_GRAPH_MAP</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-blue-500/30 text-blue-400/60 uppercase">VIEW_NODES</Badge></div>
+        </button>
+
+        {/* Laboratory Drawer */}
+        <button onClick={() => setActiveTool('laboratory')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
+            <Beaker className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">LABORATORY</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">PARAMETER_TUNING_HUB</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">TWEAK_LOGIC</Badge></div>
+        </button>
+
+        {/* Safety Drawer */}
+        <button onClick={() => setActiveTool('safety')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-red-500/5 hover:border-red-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-red-500/5 mb-6 group-hover:scale-110 group-hover:bg-red-500/10 transition-all duration-500 border border-white/5 group-hover:border-red-500/30">
+            <ShieldCheck className="w-10 h-10 text-red-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">INTEGRITY</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">SAFETY_LEDGER_SYNC</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-red-500/30 text-red-400/60 uppercase">VIEW_PULSES</Badge></div>
+        </button>
+
+        {/* Evolution Drawer */}
+        <button onClick={() => setActiveTool('birthday')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-yellow-500/5 hover:border-yellow-500/20 transition-all duration-300 transform hover:-translate-y-2">
+          <div className="p-6 rounded-lg bg-yellow-500/5 mb-6 group-hover:scale-110 group-hover:bg-yellow-500/10 transition-all duration-500 border border-white/5 group-hover:border-yellow-500/30">
+            <Cake className="w-10 h-10 text-yellow-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">EVOLUTION</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">SYSTEM_GROWTH_LOGS</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-400/60 uppercase">VIEW_MILESTONES</Badge></div>
+        </button>
+      </div>
+
+      <button onClick={() => setIsOpen(false)} className="mt-16 text-white/10 hover:text-white transition-all flex items-center gap-3 group font-mono text-[10px] uppercase tracking-[0.6em]">
+        <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
+        DEACTIVATE_CORE
+      </button>
+    </div>
+  );
+}
 
   if (activeTool === 'safety') {
     return (

@@ -29,6 +29,14 @@ env:
   - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
     secret: RECAPTCHA_SITE_KEY
   
+  # NextAuth Config
+  - variable: AUTH_SECRET
+    secret: AUTH_SECRET
+  - variable: AUTH_GOOGLE_ID
+    secret: AUTH_GOOGLE_ID
+  - variable: AUTH_GOOGLE_SECRET
+    secret: AUTH_GOOGLE_SECRET
+  
   # API Keys as Secrets
   - variable: GOOGLE_GENAI_API_KEY
     secret: GOOGLE_GENAI_API_KEY

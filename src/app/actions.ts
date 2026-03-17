@@ -9,11 +9,29 @@ import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
 import { ai } from '@/ai/genkit';
 import { auth } from '@/auth';
+import { searchGenie } from '@/ai/domains/research/search-genie';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
  * These functions bridge the UI to the AI flows and Database.
  */
+
+// --- UTILS ---
+
+/**
+ * Sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
+ */
+const sanitizeDate = (val: any): string | null => {
+  if (!val) return null;
+  // If it's a Firestore Timestamp class instance
+  if (typeof val.toDate === 'function') return val.toDate().toISOString();
+  // If it's a plain object representation of a Timestamp ({ _seconds, _nanoseconds })
+  if (val._seconds !== undefined) return new Date(val._seconds * 1000).toISOString();
+  // If it's already a Date object
+  if (val instanceof Date) return val.toISOString();
+  // Fallback
+  return String(val);
+};
 
 // Helper to verify authorization
 async function verifyAuth() {
@@ -71,16 +89,11 @@ export async function getMorningBriefing(userContext?: any) {
 // --- 3. Research Domain: Flux Echo & Epitomizer ---
 export type ResearchMode = 'scout' | 'deep';
 
-import { searchGenie } from '@/ai/domains/research/search-genie';
-
-// ... (existing code)
-
 export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
     await verifyAuth();
     let result;
     
-    // HEURISTIC: If it doesn't start with http, treat it as a query for SearchGenie
     const isUrl = input.url.startsWith('http');
 
     if (input.mode === 'scout') {
@@ -90,12 +103,10 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
         result = await searchGenie({ query: input.url });
       }
     } else {
-      // Deep Read still requires a URL for now
       if (!isUrl) throw new Error("DEEP_READ requires a specific URL coordinate.");
       result = await epitomizeFetchedContent({ url: input.url });
     }
 
-    // INTERNAL HANDSHAKE: Log the research mission to the database
     await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: isUrl ? input.mode : 'general_scout',
@@ -106,7 +117,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
 
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
-    // ... (existing error handling)
     await getAdminDb().collection('internal_comms').add({
       agent: 'Flux Echo',
       action: input.mode,
@@ -126,7 +136,6 @@ export async function runArchitect(blueprint: string) {
     await verifyAuth();
     const result = await generateInitialFiles({ blueprint });
     
-    // PERSISTENCE_LAYER: Save the blueprint and its generated structure to Firestore
     if (result && result.length > 0) {
       await getAdminDb().collection('blueprints').add({
         userId: 'primary_user',
@@ -173,7 +182,6 @@ export async function generateLessonPlan(subject: string) {
       prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use a professional, technical tone. Use Markdown formatting.`,
     });
 
-    // Save the generated plan as a "pending" draft
     const planRef = await getAdminDb().collection('lesson_plans').add({
       userId: 'primary_user',
       title: `Lesson: ${subject}`,
@@ -238,8 +246,8 @@ export async function getHomeBaseAction() {
       interests: data.interests || [],
       establishedDate: data.establishedDate || "2026-02-06",
       gemsBalance: data.gemsBalance || 0,
-      createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
-      updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+      createdAt: sanitizeDate(data.createdAt),
+      updatedAt: sanitizeDate(data.updatedAt),
     };
   } catch (error) {
     return null;
@@ -260,8 +268,8 @@ export async function getHomeBase() {
           interests: data.interests || [],
           establishedDate: data.establishedDate || "2026-02-06",
           gemsBalance: data.gemsBalance || 0,
-          createdAt: data?.createdAt?.toDate?.()?.toISOString() || null,
-          updatedAt: data?.updatedAt?.toDate?.()?.toISOString() || null,
+          createdAt: sanitizeDate(data.createdAt),
+          updatedAt: sanitizeDate(data.updatedAt),
         }
       };
     }
@@ -329,7 +337,7 @@ export async function getCurriculumProgress() {
         title: l.title,
         subject: l.subject,
         status: l.status,
-        completedAt: l.completedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        completedAt: sanitizeDate(l.completedAt) || new Date().toISOString()
       };
     });
 
@@ -397,7 +405,7 @@ export async function getGems() {
         severity: data.severity,
         content: data.content,
         resolution: data.resolution || 'pending',
-        time: data.time?.toDate?.()?.toISOString() || new Date().toISOString()
+        time: sanitizeDate(data.time) || new Date().toISOString()
       };
     });
     return { success: true, data: gems };
@@ -416,11 +424,10 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     if (!gemDoc.exists) return { success: false, error: "GEM_NOT_FOUND" };
     
     const gemData = gemDoc.data();
-    if (gemData?.resolution !== 'pending') return { success: true }; // Already resolved
+    if (gemData?.resolution !== 'pending') return { success: true }; 
 
     await gemRef.update({ resolution });
 
-    // REWARD_LOGIC: Award gems based on severity
     if (resolution === 'resolved') {
       const severity = gemData?.severity || 'low';
       let reward = 10;
@@ -456,8 +463,8 @@ export async function getMilestones() {
         userId: data.userId,
         type: data.type,
         event: data.event,
-        date: data.date?.toDate?.()?.toISOString().split('T')[0] || data.date,
-        timestamp: data.timestamp?.toDate?.()?.toISOString() || null
+        date: data.date,
+        timestamp: sanitizeDate(data.timestamp)
       };
     });
     return { success: true, data: milestones };
@@ -536,7 +543,7 @@ export async function getNeuralWeights() {
         success: true, 
         data: {
           ...data,
-          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt
+          updatedAt: sanitizeDate(data.updatedAt)
         } 
       };
     }

@@ -14,6 +14,8 @@ import { CurriculumDrawer } from './curriculum-drawer';
 import { GemsDrawer } from './gems-drawer';
 import { LaboratoryDrawer } from './laboratory-drawer';
 import { NeuralGraph } from './neural-graph';
+import { establishHomeBase } from '@/discovery/establish-home-base.ts';
+
 
 /**
  * The Portal Interface: A gateway to the Cabinet.
@@ -27,8 +29,8 @@ export function PortalInterface() {
   type researchMode = 'scout' | 'deep'; const [researchMode, setResearchMode] = useState<researchMode>('scout');
   const [researchResult, setResearchResult] = useState<any>(null);
   const [architectResult, setArchitectResult] = useState<any[] | null>(null);
-  const [savedBlueprints, setSavedBlueprints] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [savedBlueprints, setSavedBlueprints] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
   const [curriculumProgress, setCurriculumProgress] = useState<any>(null);
   const [milestones, setMilestones] = useState<any[]>([]);

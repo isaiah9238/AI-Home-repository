@@ -92,7 +92,6 @@ export const librarianIndexer = onCallGenkit(
     secrets: [apiKey],
     cors: true,
     invoker: "public",
-    serviceAccount: "firebase-app-hosting-compute@studio-3863072923-d4373.iam.gserviceaccount.com",
   },
   librarianIndexerFlow,
 );

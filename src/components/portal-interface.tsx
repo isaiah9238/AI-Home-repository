@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import Link from 'next/link';
 import { BirthdayDrawer } from './birthday-drawer';
 import { CurriculumDrawer } from './curriculum-drawer';
 import { GemsDrawer } from './gems-drawer';
@@ -17,6 +16,7 @@ import { NeuralGraph } from './neural-graph';
 
 /**
  * The Portal Interface: A gateway to the Cabinet.
+ * Manages specialized tools (Drawers) via a central state-driven visualizer.
  */
 export function PortalInterface() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +24,8 @@ export function PortalInterface() {
   const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState('');
   const [blueprint, setBlueprint] = useState('');
-  type researchMode = 'scout' | 'deep'; const [researchMode, setResearchMode] = useState<researchMode>('scout');
+  type researchMode = 'scout' | 'deep'; 
+  const [researchMode, setResearchMode] = useState<researchMode>('scout');
   const [researchResult, setResearchResult] = useState<any>(null);
   const [architectResult, setArchitectResult] = useState<any[] | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -37,59 +38,52 @@ export function PortalInterface() {
   const [gemsBalance, setGemsBalance] = useState(0);
   const [architectTab, setArchitectTab] = useState('new');
 
+  // Load contextual data based on active tool
   useEffect(() => {
-    if (activeTool === 'curriculum' || activeTool === 'graph') {
-      getCurriculumProgress().then(res => {
-        if (res.success) setCurriculumProgress(res);
-      });
-    }
-  }, [activeTool]);
+    if (!activeTool) return;
 
-  // 1. Birthday / Evolution Logic
-  useEffect(() => {
-    if (activeTool === 'birthday' || activeTool === 'safety') {
-      Promise.all([
-        getMilestones(),
-        getSystemEvolution(),
-        getCurriculumProgress(),
-        getHomeBase()
-      ]).then(([milestonesRes, evolutionRes, curriculumRes, homeBaseRes]) => {
+    const loadToolData = async () => {
+      if (activeTool === 'curriculum' || activeTool === 'graph') {
+        const res = await getCurriculumProgress();
+        if (res.success) setCurriculumProgress(res);
+      }
+
+      if (activeTool === 'birthday' || activeTool === 'safety') {
+        const [milestonesRes, evolutionRes, curriculumRes, homeBaseRes] = await Promise.all([
+          getMilestones(),
+          getSystemEvolution(),
+          getCurriculumProgress(),
+          getHomeBase()
+        ]);
         if (milestonesRes.success) setMilestones(milestonesRes.data ?? []);
         if (evolutionRes.success) setSystemEvolution(evolutionRes);
         if (curriculumRes.success) setCurriculumProgress(curriculumRes);
         if (homeBaseRes.success) setGemsBalance(homeBaseRes.data.gemsBalance ?? 0);
-      });
-    }
-  }, [activeTool]);
+      }
 
-  // 2. Safety / Gems Logic
-  useEffect(() => {
-    if (activeTool === 'safety' || activeTool === 'laboratory') {
-      getGems().then(res => {
+      if (activeTool === 'safety' || activeTool === 'laboratory') {
+        const res = await getGems();
         if (res.success) setGems(res.data ?? []);
-      });
-    }
-  }, [activeTool]);
+      }
 
-  // 4. Load Saved Blueprints
-  useEffect(() => {
-    if (activeTool === 'architect') {
-      getSavedBlueprints().then(res => {
+      if (activeTool === 'architect') {
+        const res = await getSavedBlueprints();
         if (res.success) setSavedBlueprints(res.data ?? []);
-      });
-    }
+      }
+    };
+
+    loadToolData();
   }, [activeTool]);
 
   const handleResearch = async () => {
     if (!url) return;
     setLoading(true);
     setResearchResult(null);
-    const result = await runResearchMode ({ url, mode: researchMode });
+    const result = await runResearchMode({ url, mode: researchMode });
     if (result.success) setResearchResult(result);
     setLoading(false);
   };
 
-  // 3. Architect Handle (Actually show the results!)
   const handleArchitect = async () => {
     if (!blueprint) return;
     setLoading(true);
@@ -98,10 +92,8 @@ export function PortalInterface() {
     const result = await runArchitect(blueprint);
     if (result.success) {
       setArchitectResult(result.data ?? []);
-      // Refresh saved blueprints list
-      getSavedBlueprints().then(res => {
-        if (res.success) setSavedBlueprints(res.data ?? []);
-      });
+      const history = await getSavedBlueprints();
+      if (history.success) setSavedBlueprints(history.data ?? []);
     }
     setLoading(false);
   };
@@ -304,7 +296,12 @@ export function PortalInterface() {
         <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
           <X className="w-6 h-6" />
         </Button>
-        <GemsDrawer gems={gems} balance={gemsBalance} />
+        <GemsDrawer gems={gems} balance={gemsBalance} onResolve={async () => {
+          const res = await getGems();
+          if (res.success) setGems(res.data ?? []);
+          const hb = await getHomeBase();
+          if (hb.success) setGemsBalance(hb.data.gemsBalance ?? 0);
+        }} />
       </div>
     );
   }
@@ -371,7 +368,7 @@ export function PortalInterface() {
 
         {/* Development Drawer */}
         <button onClick={() => setActiveTool('architect')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2">
-          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
+          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-blue-500/30">
             <MessageSquareCode className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
           </div>
           <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">DEVELOPMENT</h3>

@@ -52,6 +52,7 @@
     "firebase": "^12.10.0",
     "firebase-admin": "^13.7.0",
     "genkit": "^1.28.0",
+    "jose": "^5.10.0",
     "lucide-react": "^0.475.0",
     "next": "^15.5.12",
     "next-auth": "^5.0.0-beta.25",

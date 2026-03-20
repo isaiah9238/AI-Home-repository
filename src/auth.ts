@@ -15,13 +15,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   // Use a fallback for local dev to prevent the hang
   secret: process.env.AUTH_SECRET || "development-secret-only-not-for-prod",
-  trustHost: true, // Crucial for IDX and App Hosting proxies
+  trustHost: true, // Crucial for IDX and App Hosting proxies to avoid fetch errors
   pages: {
     signIn: "/login",
   },
   callbacks: {
     async session({ session, token }) {
-      // You can attach the user ID to the session here later
       return session;
     },
   },

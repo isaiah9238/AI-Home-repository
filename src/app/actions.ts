@@ -20,6 +20,7 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
 
 /**
  * Robustly sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
+ * Handles both class instances and raw object representations.
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;

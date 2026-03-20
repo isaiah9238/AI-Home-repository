@@ -15,7 +15,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   // Use a fallback for local dev to prevent the hang
   secret: process.env.AUTH_SECRET || "development-secret-only-not-for-prod",
-  trustHost: true, // Crucial for IDX and App Hosting proxies to avoid fetch errors
+  trustHost: true, // Crucial for workspace proxies to avoid "Failed to fetch" errors
   pages: {
     signIn: "/login",
   },

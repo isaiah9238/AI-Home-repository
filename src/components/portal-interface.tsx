@@ -24,8 +24,7 @@ export function PortalInterface() {
   const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState('');
   const [blueprint, setBlueprint] = useState('');
-  type researchMode = 'scout' | 'deep'; 
-  const [researchMode, setResearchMode] = useState<researchMode>('scout');
+  const [researchMode, setResearchMode] = useState<'scout' | 'deep'>('scout');
   const [researchResult, setResearchResult] = useState<any>(null);
   const [architectResult, setArchitectResult] = useState<any[] | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -146,7 +145,7 @@ export function PortalInterface() {
           <div className="flex flex-col md:flex-row gap-4">
             <Tabs 
               value={researchMode} 
-              onValueChange={(v) => setResearchMode(v as researchMode)}
+              onValueChange={(v) => setResearchMode(v as any)}
               className="bg-white/5 p-1 rounded-lg border border-white/10"
             >
               <TabsList className="bg-transparent border-0 gap-2">

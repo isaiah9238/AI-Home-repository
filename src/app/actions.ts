@@ -20,27 +20,22 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
 
 /**
  * Robustly sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
- * Handles class instances, plain objects, and null values.
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
   
-  // 1. Check for Firestore Timestamp class method
   if (typeof val.toDate === 'function') {
     return val.toDate().toISOString();
   }
   
-  // 2. Check for plain object representation { _seconds, _nanoseconds }
   if (typeof val._seconds === 'number') {
     return new Date(val._seconds * 1000).toISOString();
   }
   
-  // 3. Handle standard Date objects
   if (val instanceof Date) {
     return val.toISOString();
   }
   
-  // 4. Handle strings that are already ISO format or similar
   if (typeof val === 'string') {
     return val;
   }
@@ -48,7 +43,6 @@ const sanitizeDate = (val: any): string | null => {
   return null;
 };
 
-// Helper to verify authorization
 async function verifyAuth() {
   const session = await auth();
   if (!session) {
@@ -180,7 +174,8 @@ export async function getSavedBlueprints() {
 
     const blueprints = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      timestamp: sanitizeDate(doc.data().timestamp)
     }));
 
     return { success: true, data: blueprints };
@@ -225,7 +220,8 @@ export async function getPendingLessonPlans() {
 
     const plans = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      timestamp: sanitizeDate(doc.data().timestamp)
     }));
 
     return { success: true, data: plans };

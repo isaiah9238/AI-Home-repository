@@ -53,6 +53,7 @@ studio/
 │   │   ├── gems-drawer.tsx      # 24h Gamified Ledger Visualizer
 │   │   ├── laboratory-drawer.tsx# Parameter Tuner
 │   │   ├── neural-graph.tsx     # Context Map Visualizer
+│   │   ├── vault-backup-drawer.tsx # NEW: Librarian Export Utility
 │   │   ├── interior-dashboard.tsx# Cybernetic HUD
 │   │   ├── portal-interface.tsx # The Engagable Core
 │   │   └── MainLogo.tsx         # Logo Switchboard
@@ -81,4 +82,5 @@ studio/
 - `src/components/gems-drawer.tsx`: The Safety Ledger (Black Box).
 - `src/components/laboratory-drawer.tsx`: Neural weight parameter tuner.
 - `src/components/neural-graph.tsx`: interactive XAI node-map.
+- `src/components/vault-backup-drawer.tsx`: Librarian's export/backup utility.
 - `src/app/architect/page.tsx`: Full-screen instantiation terminal.

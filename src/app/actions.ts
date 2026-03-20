@@ -586,3 +586,39 @@ export async function syncArchitectureLesson() {
     return { success: false, error: "SYNC_FAILED" };
   }
 }
+
+/**
+ * Librarian Export: Bundles all AI data into a unified structure for portability.
+ */
+export async function exportVaultData() {
+  try {
+    await verifyAuth();
+    const db = getAdminDb();
+    const userId = 'primary_user';
+
+    const [blueprints, curriculum, gems, milestones, user] = await Promise.all([
+      db.collection('blueprints').where('userId', '==', userId).get(),
+      db.collection('curriculum').where('userId', '==', userId).get(),
+      db.collection('gems').get(),
+      db.collection('milestones').where('userId', '==', userId).get(),
+      db.collection('users').doc(userId).get()
+    ]);
+
+    const bundle = {
+      version: '4.2.0',
+      exportedAt: new Date().toISOString(),
+      identity: user.data(),
+      archives: {
+        blueprints: blueprints.docs.map(d => ({ id: d.id, ...d.data() })),
+        curriculum: curriculum.docs.map(d => ({ id: d.id, ...d.data() })),
+        security_logs: gems.docs.map(d => ({ id: d.id, ...d.data() })),
+        historical_milestones: milestones.docs.map(d => ({ id: d.id, ...d.data() }))
+      }
+    };
+
+    return { success: true, bundle };
+  } catch (error: any) {
+    console.error("LIBRARIAN_EXPORT_ERROR:", error);
+    return { success: false, error: error.message };
+  }
+}

@@ -194,11 +194,11 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                       style={{ width: `${curriculum?.knowledgeIntegration || 82}%` }} 
                     />
                   </div>
-                  {/* RELOCATED BUTTON: Now below the Knowledge_Integration stream */}
+                  {/* Button sits below the knowledge integration stream */}
                   <button 
                     onClick={handleManualSync}
                     disabled={syncing}
-                    className="w-full mt-4 bg-orange-600/20 border border-orange-500/50 p-2 text-[10px] font-mono text-orange-400 hover:bg-orange-600/40 transition-all uppercase tracking-widest rounded-sm"
+                    className="w-full mt-4 bg-blue-600/20 border border-blue-500/50 p-2 text-[10px] font-mono text-blue-400 hover:bg-blue-600/40 transition-all uppercase tracking-widest rounded-sm"
                   >
                     {syncing ? "SYNCING..." : "EXEC: SYNC_STORAGE_FILES"}
                   </button>

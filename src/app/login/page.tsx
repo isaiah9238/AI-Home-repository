@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { signIn } from "next-auth/react"; // Use the client-side signIn
+import { signIn } from "next-auth/react";
 import { VaultLogo } from '@/app/logo';
 import { Shield, Lock, Activity, ChevronRight, Cpu, Loader2 } from 'lucide-react';
 

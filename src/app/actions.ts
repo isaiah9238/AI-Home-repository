@@ -23,10 +23,27 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
-  if (typeof val.toDate === 'function') return val.toDate().toISOString();
-  if (typeof val._seconds === 'number') return new Date(val._seconds * 1000).toISOString();
-  if (val instanceof Date) return val.toISOString();
-  if (typeof val === 'string') return val;
+  
+  // Handle Firestore Timestamp class
+  if (typeof val.toDate === 'function') {
+    return val.toDate().toISOString();
+  }
+  
+  // Handle plain object representation from JSON serialization
+  if (typeof val._seconds === 'number') {
+    return new Date(val._seconds * 1000).toISOString();
+  }
+  
+  // Handle standard Date instances
+  if (val instanceof Date) {
+    return val.toISOString();
+  }
+  
+  // Handle already serialized strings
+  if (typeof val === 'string') {
+    return val;
+  }
+
   return null;
 };
 

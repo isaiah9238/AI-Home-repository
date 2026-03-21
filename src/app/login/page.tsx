@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { signIn } from "next-auth/react";
 import { VaultLogo } from '@/app/logo';
-import { Shield, Lock, Activity, ChevronRight, Cpu, Loader2 } from 'lucide-react';
+import { Lock, ChevronRight, Cpu, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-black/60 border border-white/5 backdrop-blur-2xl p-10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10">
         <div className="flex items-center justify-between mb-10">
           <div className="flex flex-col">
-            <h1 className="text-white text-xl font-bold tracking-[0.4em] uppercase flex items-center gap-3">
+            <h1 className="text-white text-xl font-bold tracking-[0.2em] uppercase flex items-center gap-3">
               <Cpu className="w-5 h-5 text-blue-500" /> AUTH_NODE
             </h1>
             <span className="text-[9px] text-blue-500/40 uppercase tracking-widest mt-2">OAuth2_Sync_Ready</span>

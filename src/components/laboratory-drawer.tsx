@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Beaker, Zap, Sliders, ToggleLeft, ToggleRight, Info, Save, RotateCcw, X, Keyboard, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ProbabilityWave } from '@/components/ProbabilityWave';

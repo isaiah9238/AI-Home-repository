@@ -7,7 +7,6 @@
   env = { };
   idx = {
     extensions = [
-      "vscodevim.vim"
     ];
     previews = {
       enable = true;

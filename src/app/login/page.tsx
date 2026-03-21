@@ -19,7 +19,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackto: "/" });
     } catch (error) {
       console.error("Login initialization failed:", error);
       setLoading(false);

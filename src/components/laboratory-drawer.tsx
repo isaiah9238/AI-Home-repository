@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ProbabilityWave } from '@/components/ProbabilityWave';
 import { commitNeuralWeights, getNeuralWeights } from '@/app/actions';

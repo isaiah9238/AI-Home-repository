@@ -18,7 +18,12 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    await signIn("google", { callbackUrl: "/" });
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch (error) {
+      console.error("Login initialization failed:", error);
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,7 +59,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-5 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600 hover:text-white text-blue-400 font-bold tracking-[0.5em] uppercase transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden rounded-lg"
+          className="w-full py-5 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600 hover:text-white text-blue-400 font-bold tracking-[0.15em] uppercase transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden rounded-lg"
         >
           {loading ? (
             <span className="flex items-center gap-3">
@@ -62,7 +67,7 @@ export default function LoginPage() {
             </span>
           ) : (
             <>
-              SIGN_IN_WITH_GOOGLE <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              SIGN IN WITH GOOGLE <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </>
           )}
         </button>

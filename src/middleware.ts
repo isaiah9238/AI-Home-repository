@@ -1,10 +1,6 @@
 import { auth } from "@/auth";
 
 export default auth((req) => {
-  // BYPASS: Temporarily disabling mandatory login redirects for prototyping
-  return;
-  
-  /*
   const isLoggedIn = !!req.auth;
   const isLoginPage = req.nextUrl.pathname === "/login";
 
@@ -17,7 +13,6 @@ export default auth((req) => {
   if (isLoggedIn && isLoginPage) {
     return Response.redirect(new URL("/", req.nextUrl));
   }
-  */
 });
 
 export const config = {

@@ -20,45 +20,20 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
 
 /**
  * Robustly sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
- * Handles class instances, plain objects, strings, and standard Date objects.
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
-  
-  // Handle Firestore Timestamp class
-  if (typeof val.toDate === 'function') {
-    return val.toDate().toISOString();
-  }
-  
-  // Handle plain object representation from JSON serialization
-  if (typeof val._seconds === 'number') {
-    return new Date(val._seconds * 1000).toISOString();
-  }
-  
-  // Handle standard Date instances
-  if (val instanceof Date) {
-    return val.toISOString();
-  }
-  
-  // Handle already serialized strings
-  if (typeof val === 'string') {
-    return val;
-  }
-
+  if (typeof val.toDate === 'function') return val.toDate().toISOString();
+  if (typeof val._seconds === 'number') return new Date(val._seconds * 1000).toISOString();
+  if (val instanceof Date) return val.toISOString();
+  if (typeof val === 'string') return val;
   return null;
 };
 
 async function verifyAuth() {
   const session = await auth();
   if (!session) {
-    // BYPASS: Returning a mock session for prototyping when login is disabled
-    return {
-      user: {
-        name: "Isaiah Smith",
-        email: "isaiah@example.com",
-        role: "Architect"
-      }
-    };
+    throw new Error("UNAUTHORIZED_ACCESS: Authentication required.");
   }
   return session;
 }

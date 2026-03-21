@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
-// Librarian Note: Ensure environment variables are loaded
+// Librarian Note: Auth.js v5 uses AUTH_SECRET for encryption and trust.
 if (!process.env.AUTH_SECRET) {
-  console.warn("⚠️ AUTH_SECRET is missing! Middleware will hang.");
+  console.warn("⚠️ AUTH_SECRET is missing! Authentication layers may fail.");
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -13,9 +13,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
   ],
-  // Use a fallback for local dev to prevent the hang
-  secret: process.env.AUTH_SECRET || "development-secret-only-not-for-prod",
-  trustHost: true, // Crucial for workspace proxies to avoid "Failed to fetch" errors
+  secret: process.env.AUTH_SECRET,
+  trustHost: true, // Essential for port-forwarding proxies in development
   pages: {
     signIn: "/login",
   },

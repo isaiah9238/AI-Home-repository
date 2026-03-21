@@ -19,7 +19,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await signIn("google", { callbackto: "/" });
+      await signIn("google", { callbackUrl: "/" });
     } catch (error) {
       console.error("Login initialization failed:", error);
       setLoading(false);
@@ -35,7 +35,7 @@ export default function LoginPage() {
       </div>
 
       {/* Security Scanline */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/20 shadow-[0_0_15px_rgba(0,168,232,0.5)] animate-[scan_4s_linear_infinite] z-50 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/20 shadow-[0_0_15px_rgba(0, 168, 232, 0.5)] animate-[scan_4s_linear_infinite] z-50 pointer-events-none" />
 
       {/* Main Branding */}
       <div className="mb-12 relative group animate-in fade-in zoom-in duration-1000">

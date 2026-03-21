@@ -51,7 +51,14 @@ const sanitizeDate = (val: any): string | null => {
 async function verifyAuth() {
   const session = await auth();
   if (!session) {
-    throw new Error("UNAUTHORIZED_ACCESS: Please log in to the terminal.");
+    // BYPASS: Returning a mock session for prototyping when login is disabled
+    return {
+      user: {
+        name: "Isaiah Smith",
+        email: "isaiah@example.com",
+        role: "Architect"
+      }
+    };
   }
   return session;
 }

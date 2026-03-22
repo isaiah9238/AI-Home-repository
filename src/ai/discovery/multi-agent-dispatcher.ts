@@ -1,25 +1,25 @@
-import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-// REMOVE: import { run } from 'genkit/flow';
 
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from './generate-initial-files';
 import { mentorAiFlow } from './mentor-ai';
 import { webIntel } from './web-intel';
 
-// Define the schema for the user's request.
+/**
+ * @fileOverview The Multi-Agent Dispatcher
+ * 
+ * Classifies user intent and routes the request to the specialized domain agent.
+ */
+
 const DispatcherInputSchema = z.object({
   request: z.string(),
-  // We might need more context later, like the full user profile.
 });
 
-// Define the schema for the classification output.
 const AgentChoiceSchema = z.object({
   agent: z
     .enum(['architect', 'code_inspector', 'web_intel', 'general_mentor'])
     .describe('The specialized agent to route the request to.'),
-  // In a more advanced system, we'd extract parameters for each agent here.
-  // For example: `code` and `language` for the code_inspector.
 });
 
 export const multiAgentDispatcherFlow = ai.defineFlow(
@@ -33,11 +33,12 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
     const response = await ai.generate({
       model: 'googleai/gemini-2.5-pro',
       prompt: `
-        You are a multi-agent dispatcher. Route the request to the best agent.
-        - 'architect': creating new files, architecture, or scaffolding.
-        - 'code_inspector': analyze, audit, or find bugs in code.
-        - 'web_intel': fetching/summarizing content from a URL.
-        - 'general_mentor': general questions or conversation.
+        You are a multi-agent dispatcher for the AI Home Cabinet. 
+        Analyze the request and route it to the best agent:
+        - 'architect': used for creating new files, app architecture, or project scaffolding.
+        - 'code_inspector': used to analyze, audit, find bugs, or review code snippets.
+        - 'web_intel': used for fetching and summarizing content from a URL coordinate.
+        - 'general_mentor': used for general questions, profile updates, or conversation.
 
         User Request: ${input.request}
       `,
@@ -46,23 +47,19 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
       },
     });
 
-    // FIX 1: Extract the agent from response.output (this fixes error 2339)
     const agent = response.output?.agent || 'general_mentor';
 
-    // We cast the ai instance to 'any' just for the 'run' call 
-    // to bypass the strict string-vs-action mismatch.
-    const dispatcher = ai as any;
-
+    // 2. Direct routing to the selected flow
     switch (agent) {
       case 'architect':
-        return await dispatcher.run(generateInitialFiles, { blueprint: input.request });
+        return await generateInitialFiles({ blueprint: input.request });
       case 'code_inspector':
-        return await dispatcher.run(analyzeCodeSnippet, { code: input.request, language: 'typescript' });
+        return await analyzeCodeSnippet({ code: input.request, language: 'typescript' });
       case 'web_intel':
-        return await dispatcher.run(webIntel, { url: input.request });
+        return await webIntel({ url: input.request });
       case 'general_mentor':
       default:
-        return await dispatcher.run(mentorAiFlow, { request: input.request });
+        return await mentorAiFlow({ request: input.request });
     }
-  } // Ensure this closing brace exists!
+  }
 );

@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
 import { sendTerminalMessage, updateHomeBaseAction, getHomeBaseAction } from '@/app/actions';
-import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown, Activity } from 'lucide-react';
+import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown } from 'lucide-react';
 
 interface TerminalMessage {
   role: 'user' | 'system';
@@ -76,8 +76,8 @@ export function AIChat() {
 
         let updateKey = '';
         if (field === 'NAME') updateKey = 'name';
-        else if (field === 'INT') updateKey = 'interests';
-        else if (field === 'EXP') updateKey = 'experiences';
+        else if (field === 'INT' || field === 'INTERESTS') updateKey = 'interests';
+        else if (field === 'EXP' || field === 'EXPERIENCES') updateKey = 'experiences';
         else if (field === 'ROLE') updateKey = 'role';
 
         if (updateKey) {
@@ -132,7 +132,13 @@ export function AIChat() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <input className="flex-1 bg-black border border-green-500/40 p-3 text-green-400 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/20 transition-all placeholder:text-green-900/50 rounded-sm" value={input} onChange={(e) => setInput(e.target.value)} placeholder="TYPE COMMAND..." autoComplete="off" />
+        <input 
+          className="flex-1 bg-black border border-green-500/40 p-3 text-green-400 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/20 transition-all placeholder:text-green-900/50 rounded-sm" 
+          value={input} 
+          onChange={(e) => setInput(e.target.value)} 
+          placeholder="TYPE COMMAND..." 
+          autoComplete="off" 
+        />
         <Button type="button" onClick={() => setShowKeyboard(!showKeyboard)} className={`px-4 bg-black border border-green-500/20 text-green-500/60 hover:text-green-400 transition-all ${showKeyboard ? 'bg-green-500/10 border-green-500/40 text-green-400' : ''}`}>
           {showKeyboard ? <KeyboardOff className="w-4 h-4" /> : <Keyboard className="w-4 h-4" />}
         </Button>

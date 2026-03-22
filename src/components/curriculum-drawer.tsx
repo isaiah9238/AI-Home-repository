@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, GraduationCap, CheckCircle2, Clock, Zap, Sparkles, Loader2, Brain, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { BookOpen, GraduationCap, CheckCircle2, Clock, Zap, Sparkles, Loader2, Brain, Plus, Trash2, ArrowRight, Info } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';

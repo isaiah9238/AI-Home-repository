@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity } from 'lucide-react';
+import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

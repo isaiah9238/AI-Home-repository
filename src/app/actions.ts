@@ -59,7 +59,13 @@ async function verifyAuth() {
 
 export async function pingServer() {
   try {
-    return { success: true, timestamp: new Date().toISOString(), status: 'ONLINE' };
+    return { 
+      success: true, 
+      timestamp: new Date().toISOString(), 
+      status: 'ONLINE',
+      node: process.env.NODE_ENV || 'development',
+      port: process.env.PORT || 6000
+    };
   } catch (error) {
     return { success: false, status: 'OFFLINE' };
   }

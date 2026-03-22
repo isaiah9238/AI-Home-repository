@@ -59,7 +59,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-5 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600 hover:text-white text-blue-400 font-bold tracking-widest uppercase transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden rounded-lg"
+          className="w-full py-5 bg-blue-600/10 border border-blue-500/30 hover:bg-blue-600 hover:text-white text-blue-400 font-bold tracking-tight uppercase transition-all duration-500 flex items-center justify-center gap-3 group relative overflow-hidden rounded-lg px-4"
         >
           {loading ? (
             <span className="flex items-center gap-3">
@@ -67,7 +67,8 @@ export default function LoginPage() {
             </span>
           ) : (
             <>
-              SIGN IN WITH GOOGLE <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span className="truncate">SIGN IN WITH GOOGLE</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
             </>
           )}
         </button>

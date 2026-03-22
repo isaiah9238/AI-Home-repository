@@ -1,5 +1,3 @@
-devUPDATE: (3/6/26)
-
 # 🏢 AI Home: The Digital Cabinet
 
 An advanced, domain-driven AI assistant environment built with **Next.js 14**, **Firebase Admin**, and **Google Genkit**.

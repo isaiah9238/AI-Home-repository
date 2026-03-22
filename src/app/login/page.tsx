@@ -19,6 +19,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      // trustHost in auth.ts ensures this fetch succeeds behind the workspace proxy
       await signIn("google", { callbackUrl: "/" });
     } catch (error) {
       console.error("Login initialization failed:", error);
@@ -55,7 +56,7 @@ export default function LoginPage() {
           <Lock className="w-4 h-4 text-blue-500/60" />
         </div>
 
-        {/* The Actual Login Action */}
+        {/* Adjusted tracking and text formatting to ensure text fits within the button */}
         <button
           onClick={handleGoogleLogin}
           disabled={loading}

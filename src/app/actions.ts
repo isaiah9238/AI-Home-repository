@@ -1,7 +1,7 @@
-
 'use server';
 
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
+import { userBrain } from '@/ai/flows/userBrain';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
@@ -52,19 +52,15 @@ async function verifyAuth() {
   try {
     const session = await auth();
     if (!session) {
-      // TEMPORARY BYPASS: Return mock session for development accessibility
+      // BYPASS: Provide mock session for development
       return { user: { name: "Isaiah Smith", email: "isaiah@example.com" } };
     }
     return session;
   } catch (error) {
-    // Fallback for environment sync issues
     return { user: { name: "Isaiah Smith", email: "isaiah@example.com" } };
   }
 }
 
-/**
- * Provides a default mock user context if the database is empty.
- */
 const MOCK_USER_CONTEXT = {
   name: "Isaiah Smith",
   role: "Architect",
@@ -85,7 +81,6 @@ export async function pingServer() {
       success: true, 
       timestamp: new Date().toISOString(), 
       status: 'ONLINE',
-      node: process.env.NODE_ENV || 'development',
       port: 3000
     };
   } catch (error) {
@@ -98,8 +93,9 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    const result = await mentorAiFlow({ request: message });
-    return { success: true, response: result.response };
+    // UPGRADE: Using the Adaptive Brain instead of the basic Mentor flow
+    const response = await userBrain({ query: message });
+    return { success: true, response };
   } catch (error: any) {
     console.error("Terminal Action Error:", error?.message || "Unknown");
     return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
@@ -168,14 +164,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
 
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
-    await getAdminDb().collection('internal_comms').add({
-      agent: 'Flux Echo',
-      action: input.mode,
-      error: error?.message || "Unknown",
-      timestamp: new Date().toISOString(),
-      status: 'FAILED'
-    });
-    
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
   }
 }
@@ -200,7 +188,6 @@ export async function runArchitect(blueprint: string) {
 
     return { success: true, data: result };
   } catch (error: any) {
-    console.error("Architect Action Error:", error?.message || "Blueprint unreadable");
     return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
   }
 }
@@ -222,7 +209,6 @@ export async function getSavedBlueprints() {
 
     return { success: true, data: blueprints };
   } catch (error) {
-    console.error("LIBRARIAN_READ_ERROR: Blueprints inaccessible", error);
     return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
   }
 }
@@ -245,7 +231,6 @@ export async function generateLessonPlan(subject: string) {
 
     return { success: true, plan: text, id: planRef.id };
   } catch (error: any) {
-    console.error("Tutor Generation Error:", error);
     return { success: false, error: "SIGNAL_LOST: The Tutor could not generate the plan." };
   }
 }
@@ -268,7 +253,6 @@ export async function getPendingLessonPlans() {
 
     return { success: true, data: plans };
   } catch (error) {
-    console.error("LIBRARIAN_READ_ERROR: Plans inaccessible", error);
     return { success: false, error: "SIGNAL_LOST: Lesson plans inaccessible." };
   }
 }
@@ -297,6 +281,7 @@ export async function getHomeBaseAction() {
       name: data.name || MOCK_USER_CONTEXT.name,
       role: data.role || MOCK_USER_CONTEXT.role,
       interests: data.interests || MOCK_USER_CONTEXT.interests,
+      experiences: data.experiences || MOCK_USER_CONTEXT.experiences,
       establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
       gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
       createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
@@ -319,6 +304,7 @@ export async function getHomeBase() {
           name: data.name || MOCK_USER_CONTEXT.name,
           role: data.role || MOCK_USER_CONTEXT.role,
           interests: data.interests || MOCK_USER_CONTEXT.interests,
+          experiences: data.experiences || MOCK_USER_CONTEXT.experiences,
           establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
           gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
           createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
@@ -343,7 +329,6 @@ export async function updateHomeBaseAction(updates: any) {
     revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error("Librarian Write Error:", error);
     return { success: false, error: "LIBRARIAN_WRITE_ERROR" };
   }
 }
@@ -420,7 +405,6 @@ export async function integrateLessonAction(data: { title: string; subject: stri
       timestamp: new Date().toISOString() 
     };
   } catch (error: any) {
-    console.error("Librarian Sync Failure:", error.message);
     return { success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." };
   }
 }
@@ -500,7 +484,6 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error("RESOLVE_GEM_ERROR:", error);
     return { success: false };
   }
 }
@@ -555,7 +538,6 @@ export async function deleteAudit(docId: string) {
     revalidatePath('/code-analyzer');
     return { success: true };
   } catch (error) {
-    console.error("LIBRARIAN_ERROR: Delete failed", error);
     return { success: false, error: "Deletion failed" };
   }
 }
@@ -575,7 +557,6 @@ export async function commitNeuralWeights(config: any) {
     
     return { success: true };
   } catch (error: any) {
-    console.error("LAB_COMMIT_ERROR:", error?.message || "Weights rejected");
     return { success: false, error: "COMMIT_REJECTED: Neural pathways unstable." };
   }
 }
@@ -655,7 +636,6 @@ export async function exportVaultData() {
 
     return { success: true, bundle };
   } catch (error: any) {
-    console.error("LIBRARIAN_EXPORT_ERROR:", error);
     return { success: false, error: error.message };
   }
 }

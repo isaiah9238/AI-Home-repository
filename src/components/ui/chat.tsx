@@ -19,7 +19,7 @@ export function AIChat() {
   
   const [profile, setProfile] = useState({
     name: 'ISAIAH_SMITH',
-    age: '24',
+    role: 'PRIMARY_USER',
     experiences: 'WEB_DEV',
     interests: 'NEXTJS_AI',
     expectations: 'HIGH',
@@ -30,12 +30,14 @@ export function AIChat() {
     async function syncProfile() {
       const homeBase = await getHomeBaseAction();
       if (homeBase) {
-        setProfile(p => ({
-          ...p,
+        setProfile({
           name: homeBase.name.toUpperCase().replace(/\s/g, '_'),
-          interests: homeBase.interests.join('_').toUpperCase(),
-          role: homeBase.role?.toUpperCase() || 'PRIMARY_USER'
-        }));
+          role: homeBase.role?.toUpperCase() || 'PRIMARY_USER',
+          interests: Array.isArray(homeBase.interests) ? homeBase.interests.join('_').toUpperCase() : String(homeBase.interests || '').toUpperCase(),
+          experiences: String(homeBase.experiences || 'UNSPECIFIED').toUpperCase(),
+          expectations: 'HIGH',
+          adaptive: 'ON'
+        });
       }
     }
     syncProfile();
@@ -72,47 +74,61 @@ export function AIChat() {
 
     try {
       const upperInput = userMessage.toUpperCase();
+      
+      // PERSISTENCE COMMAND: SET [FIELD] [VALUE]
       if (upperInput.startsWith('SET ')) {
-        const parts = upperInput.split(' ');
-        const field = parts[1];
-        const value = parts.slice(2).join(' ').replace(/_/g, ' ');
+        const parts = userMessage.split(' ');
+        if (parts.length < 3) {
+          setMessages(prev => [...prev, { role: 'system', content: 'SYSTEM: Invalid syntax. Use SET [FIELD] [VALUE].' }]);
+          setLoading(false);
+          return;
+        }
+
+        const field = parts[1].toUpperCase();
+        const value = parts.slice(2).join(' ');
 
         let updateKey = '';
-        if (field === 'NAME') updateKey = 'name';
-        else if (field === 'INT') updateKey = 'interests';
-        else if (field === 'EXP') updateKey = 'experiences';
+        let displayField = '';
+
+        if (field === 'NAME') { updateKey = 'name'; displayField = 'name'; }
+        else if (field === 'INT') { updateKey = 'interests'; displayField = 'interests'; }
+        else if (field === 'EXP') { updateKey = 'experiences'; displayField = 'experiences'; }
+        else if (field === 'ROLE') { updateKey = 'role'; displayField = 'role'; }
 
         if (updateKey) {
           const updates = updateKey === 'interests' 
-            ? { interests: value.split(' ') } 
+            ? { interests: value.split(',').map(i => i.trim()) } 
             : { [updateKey]: value };
           
           const syncResult = await updateHomeBaseAction(updates);
           
           if (syncResult.success) {
-            setProfile(p => ({ ...p, [field === 'NAME' ? 'name' : field === 'INT' ? 'interests' : 'experiences']: value.toUpperCase().replace(/\s/g, '_') }));
+            setProfile(p => ({ 
+              ...p, 
+              [displayField]: value.toUpperCase().replace(/\s/g, '_') 
+            }));
             setMessages(prev => [...prev, { role: 'system', content: `LIBRARIAN: Field [${field}] persisted to Home Base.` }]);
           } else {
             setMessages(prev => [...prev, { role: 'system', content: `ERROR: Librarian write failed.` }]);
           }
         } else {
-          setMessages(prev => [...prev, { role: 'system', content: `SYSTEM: Local field [${field}] updated (Unmapped to Librarian).` }]);
+          setMessages(prev => [...prev, { role: 'system', content: `SYSTEM: Field [${field}] is unmapped to Librarian.` }]);
         }
         
         setLoading(false);
         return;
       }
 
+      // STANDARD COMMUNICATION
       const result = await sendTerminalMessage(userMessage);
       
       if (result.success) {
         setMessages(prev => [...prev, { role: 'system', content: result.response || 'NO_SIGNAL_RETURNED' }]);
       } else {
-        setMessages(prev => [...prev, { role: 'system', content: `ERROR: ${result.error || "Failed to sync with the Cabinet."}` }]);
+        setMessages(prev => [...prev, { role: 'system', content: `ERROR: ${result.error || "Failed to reach the Cabinet."}` }]);
       }
     } catch (error: any) {
-      console.error("Terminal Sync Error:", error);
-      setMessages(prev => [...prev, { role: 'system', content: `CRITICAL_ERROR: ${error.message || "Failed to reach the Mentor."}` }]);
+      setMessages(prev => [...prev, { role: 'system', content: `CRITICAL_ERROR: ${error.message || "Signal lost."}` }]);
     } finally {
       setLoading(false);
     }
@@ -183,7 +199,7 @@ export function AIChat() {
         </Button>
       </form>
 
-      {/* Virtual Keyboard (Toggleable) */}
+      {/* Virtual Keyboard */}
       {showKeyboard && (
         <div className="bg-white/[0.02] p-3 rounded border border-white/5 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl backdrop-blur-sm animate-in slide-in-from-bottom-4 duration-300">
           {keys.map((key) => (
@@ -216,7 +232,7 @@ export function AIChat() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 font-mono">
             {[
               { id: '01', label: 'ID_NAME', val: profile.name },
-              { id: '02', label: 'ID_AGE', val: profile.age },
+              { id: '02', label: 'ID_ROLE', val: profile.role },
               { id: '03', label: 'EXPERIENCES', val: profile.experiences },
               { id: '04', label: 'INTERESTS', val: profile.interests },
               { id: '05', label: 'EXPECTATIONS', val: profile.expectations },
@@ -231,7 +247,7 @@ export function AIChat() {
             ))}
           </div>
           <div className="mt-4 pt-4 border-t border-green-900/10 flex justify-between items-center text-[8px] font-mono text-green-900/40 italic uppercase tracking-wider">
-            <span>* Persist with &quot;SET [FIELD] [VALUE]&quot;</span>
+            <span>* Persist with "SET [FIELD] [VALUE]"</span>
             <span className="flex items-center gap-2">
               <div className="w-1 h-1 bg-green-500/20 rounded-full animate-ping" />
               Monitoring_Stream

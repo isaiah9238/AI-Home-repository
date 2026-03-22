@@ -64,7 +64,7 @@ export async function pingServer() {
       timestamp: new Date().toISOString(), 
       status: 'ONLINE',
       node: process.env.NODE_ENV || 'development',
-      port: process.env.PORT || 6000
+      port: process.env.PORT || 3000
     };
   } catch (error) {
     return { success: false, status: 'OFFLINE' };

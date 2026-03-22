@@ -56,7 +56,6 @@ export default function LoginPage() {
           <Lock className="w-4 h-4 text-blue-500/60" />
         </div>
 
-        {/* Removed underscores and reduced tracking to widest (0.1em) to ensure text fit */}
         <button
           onClick={handleGoogleLogin}
           disabled={loading}

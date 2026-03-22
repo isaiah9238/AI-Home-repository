@@ -10,13 +10,15 @@ import {
   Terminal as TerminalIcon,
   Zap,
   Globe,
-  Lock
+  Lock,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIChat } from '@/components/ui/chat';
 import { PortalInterface } from '@/components/portal-interface';
 import { Badge } from '@/components/ui/badge';
-import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, syncArchitectureLesson } from '@/app/actions';
+import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, syncArchitectureLesson, pingServer } from '@/app/actions';
 
 interface InteriorDashboardProps {
   initialUserData?: any;
@@ -35,6 +37,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
   const [integrity, setIntegrity] = useState<any>(null);
   const [isWelcomeActive, setIsWelcomeActive] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [serverStatus, setServerStatus] = useState<'ONLINE' | 'OFFLINE' | 'SYNCING'>('ONLINE');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,7 +53,14 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
       setUptime(`${h}:${m}:${s}`);
     }, 1000);
 
+    // Connectivity Heartbeat
+    const pingInterval = setInterval(async () => {
+      const res = await pingServer();
+      setServerStatus(res.success ? 'ONLINE' : 'OFFLINE');
+    }, 30000);
+
     const loadData = async () => {
+      setServerStatus('SYNCING');
       const [curriculumRes, evolutionRes, integrityRes] = await Promise.all([
         getCurriculumProgress(),
         getSystemEvolution(),
@@ -65,6 +75,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
         const profileRes = await getHomeBase();
         if (profileRes.success) setProfile(profileRes.data);
       }
+      setServerStatus('ONLINE');
     };
 
     loadData();
@@ -74,6 +85,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
     return () => {
       clearInterval(timer);
       clearInterval(uptimeTimer);
+      clearInterval(pingInterval);
       clearTimeout(welcomeTimer);
     };
   }, [initialUserData]);
@@ -118,10 +130,13 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
             <span className="text-sm font-mono text-blue-400 tabular-nums tracking-wider">{uptime}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[9px] text-white/20 uppercase tracking-[0.3em] font-mono mb-1">System_Status</span>
+            <span className="text-[9px] text-white/20 uppercase tracking-[0.3em] font-mono mb-1">Sync_Signal</span>
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]" />
-              <span className="text-xs font-mono text-white/60 tracking-widest uppercase">Stable_Core</span>
+              <div className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)] ${serverStatus === 'ONLINE' ? 'bg-green-500' : serverStatus === 'SYNCING' ? 'bg-yellow-500' : 'bg-red-500'}`} />
+              <span className={`text-xs font-mono tracking-widest uppercase ${serverStatus === 'ONLINE' ? 'text-white/60' : 'text-red-400'}`}>
+                {serverStatus === 'ONLINE' ? 'Stable_Core' : serverStatus === 'SYNCING' ? 'SYNCING_NODES' : 'SIGNAL_LOST'}
+              </span>
+              {serverStatus === 'ONLINE' ? <Wifi className="w-3 h-3 text-green-500/40" /> : <WifiOff className="w-3 h-3 text-red-500/40" />}
             </div>
           </div>
         </div>
@@ -194,7 +209,6 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                       style={{ width: `${curriculum?.knowledgeIntegration || 82}%` }} 
                     />
                   </div>
-                  {/* Button sits below the knowledge integration stream */}
                   <button 
                     onClick={handleManualSync}
                     disabled={syncing}

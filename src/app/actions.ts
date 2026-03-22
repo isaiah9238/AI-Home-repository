@@ -55,6 +55,16 @@ async function verifyAuth() {
   return session;
 }
 
+// --- 0. System Diagnostics ---
+
+export async function pingServer() {
+  try {
+    return { success: true, timestamp: new Date().toISOString(), status: 'ONLINE' };
+  } catch (error) {
+    return { success: false, status: 'OFFLINE' };
+  }
+}
+
 // --- 1. Terminal / Chat Logic ---
 
 export async function sendTerminalMessage(message: string) {

@@ -14,7 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   secret: process.env.AUTH_SECRET,
-  trustHost: true, // Essential for port-forwarding proxies in development
+  trustHost: true, // Critical for port-forwarding proxies in development environments
   pages: {
     signIn: "/login",
   },

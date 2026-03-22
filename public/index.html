@@ -1,1 +1,100 @@
-<h1>MD65 Architect Sandbox - Coming Soon</h1>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI_HOME | Portal_Initialization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            color: #00A8E8;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+        .hud-frame {
+            border: 1px solid rgba(0, 168, 232, 0.2);
+            padding: 40px;
+            background: rgba(0, 168, 232, 0.02);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+        }
+        .hud-frame::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid #00A8E8;
+            border-left: 2px solid #00A8E8;
+        }
+        .status {
+            font-size: 10px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .btn {
+            background: transparent;
+            border: 1px solid #00A8E8;
+            color: #00A8E8;
+            padding: 15px 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .btn:hover {
+            background: #00A8E8;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(0, 168, 232, 0.4);
+        }
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 168, 232, 0.1);
+            animation: scan 4s linear infinite;
+            z-index: 100;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    <div class="hud-frame">
+        <div class="status">System_Status: Standby // Node: Cabinet_V4</div>
+        <div class="title">AI_HOME_PORTAL</div>
+        <a href="/" class="btn">INITIALIZE_CABINET</a>
+    </div>
+    <script>
+        // Automatic bypass after 2 seconds for high-fidelity transition
+        setTimeout(() => {
+            // Uncomment if you want automatic entry
+            // window.location.href = '/';
+        }, 2000);
+    </script>
+</body>
+</html>

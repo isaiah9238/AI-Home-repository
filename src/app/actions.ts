@@ -205,9 +205,13 @@ export async function getSavedBlueprints() {
 export async function generateLessonPlan(subject: string) {
   try {
     await verifyAuth();
+    // Explicitly targeting the high-fidelity model for curriculum synthesis
     const { text } = await ai.generate({
-      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting.`,
+      model: 'googleai/gemini-2.5-pro',
+      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting. Ensure the content is production-grade.`,
     });
+
+    if (!text) throw new Error("EMPTY_SIGNAL: The model returned no content.");
 
     const planRef = await getAdminDb().collection('lesson_plans').add({
       userId: 'primary_user',
@@ -220,7 +224,8 @@ export async function generateLessonPlan(subject: string) {
 
     return { success: true, plan: text, id: planRef.id };
   } catch (error: any) {
-    return { success: false, error: "SIGNAL_LOST: The Tutor could not generate the plan." };
+    console.error("TUTOR_GEN_ERROR:", error.message);
+    return { success: false, error: `SIGNAL_LOST: The Tutor could not generate the plan. [${error.message}]` };
   }
 }
 
@@ -439,6 +444,17 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     return { success: true };
   } catch (error) {
     return { success: false };
+  }
+}
+
+export async function deleteAudit(id: string) {
+  try {
+    await verifyAuth();
+    await getAdminDb().collection('internal_comms').doc(id).delete();
+    revalidatePath('/code-analyzer');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "LIBRARIAN_DELETE_ERROR" };
   }
 }
 

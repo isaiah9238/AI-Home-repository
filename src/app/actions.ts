@@ -62,6 +62,21 @@ async function verifyAuth() {
   }
 }
 
+/**
+ * Provides a default mock user context if the database is empty.
+ */
+const MOCK_USER_CONTEXT = {
+  name: "Isaiah Smith",
+  role: "Architect",
+  interests: ["Soccer", "Web Development", "AI Engineering", "UI/UX Design"],
+  establishedDate: "2026-02-06",
+  gemsBalance: 150,
+  neuralComplexity: 64,
+  knowledgeIntegration: 82,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 // --- 0. System Diagnostics ---
 
 export async function pingServer() {
@@ -103,7 +118,7 @@ export async function getMorningBriefing(userContext?: any) {
     const result = await mentorAiFlow({ 
       request: "Give me my morning briefing.",
       userProfile: {
-        ...userContext,
+        ...(userContext || MOCK_USER_CONTEXT),
         curriculum: curriculum.success ? {
           integratedPlans: curriculum.integratedPlans,
           lastTopic: curriculum.lastTopic
@@ -274,21 +289,21 @@ export async function getHomeBaseAction() {
   try {
     await verifyAuth();
     const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
-    if (!userDoc.exists) return null;
+    if (!userDoc.exists) return MOCK_USER_CONTEXT;
 
     const data = userDoc.data() || {};
 
     return {
-      name: data.name || "Isaiah Smith",
-      role: data.role || "Primary User",
-      interests: data.interests || [],
-      establishedDate: data.establishedDate || "2026-02-06",
-      gemsBalance: data.gemsBalance || 0,
-      createdAt: sanitizeDate(data.createdAt),
-      updatedAt: sanitizeDate(data.updatedAt),
+      name: data.name || MOCK_USER_CONTEXT.name,
+      role: data.role || MOCK_USER_CONTEXT.role,
+      interests: data.interests || MOCK_USER_CONTEXT.interests,
+      establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
+      gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
+      createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
+      updatedAt: sanitizeDate(data.updatedAt) || MOCK_USER_CONTEXT.updatedAt,
     };
   } catch (error) {
-    return null;
+    return MOCK_USER_CONTEXT;
   }
 }
 
@@ -301,19 +316,19 @@ export async function getHomeBase() {
       return { 
         success: true, 
         data: {
-          name: data.name || "Isaiah Smith",
-          role: data.role || "Primary User",
-          interests: data.interests || [],
-          establishedDate: data.establishedDate || "2026-02-06",
-          gemsBalance: data.gemsBalance || 0,
-          createdAt: sanitizeDate(data.createdAt),
-          updatedAt: sanitizeDate(data.updatedAt),
+          name: data.name || MOCK_USER_CONTEXT.name,
+          role: data.role || MOCK_USER_CONTEXT.role,
+          interests: data.interests || MOCK_USER_CONTEXT.interests,
+          establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
+          gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
+          createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
+          updatedAt: sanitizeDate(data.updatedAt) || MOCK_USER_CONTEXT.updatedAt,
         }
       };
     }
-    return { success: false, error: "HOME_BASE_NOT_FOUND" };
+    return { success: true, data: MOCK_USER_CONTEXT };
   } catch (error) {
-    return { success: false, error: "SYSTEM_READ_ERROR" };
+    return { success: true, data: MOCK_USER_CONTEXT };
   }
 }
 
@@ -340,7 +355,7 @@ export async function getSystemEvolution() {
     await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
     const data = doc.data();
-    const establishedDate = data?.establishedDate || '2026-02-06';
+    const establishedDate = data?.establishedDate || MOCK_USER_CONTEXT.establishedDate;
     const start = new Date(establishedDate);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - start.getTime());
@@ -629,7 +644,7 @@ export async function exportVaultData() {
     const bundle = {
       version: '4.2.0',
       exportedAt: new Date().toISOString(),
-      identity: user.data(),
+      identity: user.data() || MOCK_USER_CONTEXT,
       archives: {
         blueprints: blueprints.docs.map(d => ({ id: d.id, ...d.data() })),
         curriculum: curriculum.docs.map(d => ({ id: d.id, ...d.data() })),

@@ -1,7 +1,8 @@
+
 'use server';
 
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
-import { userBrain } from '@/ai/flows/userBrain';
+import { multiAgentDispatcherFlow } from '@/ai/discovery/multi-agent-dispatcher';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
@@ -24,27 +25,10 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
  */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
-  
-  // Handle Firestore Timestamp class
-  if (typeof val.toDate === 'function') {
-    return val.toDate().toISOString();
-  }
-  
-  // Handle plain object representation from JSON serialization
-  if (typeof val._seconds === 'number') {
-    return new Date(val._seconds * 1000).toISOString();
-  }
-  
-  // Handle standard Date instances
-  if (val instanceof Date) {
-    return val.toISOString();
-  }
-  
-  // Handle already serialized strings
-  if (typeof val === 'string') {
-    return val;
-  }
-
+  if (typeof val.toDate === 'function') return val.toDate().toISOString();
+  if (typeof val._seconds === 'number') return new Date(val._seconds * 1000).toISOString();
+  if (val instanceof Date) return val.toISOString();
+  if (typeof val === 'string') return val;
   return null;
 };
 
@@ -93,9 +77,19 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    // UPGRADE: Using the Adaptive Brain instead of the basic Mentor flow
-    const response = await userBrain({ query: message });
-    return { success: true, response };
+    // YOLO UPGRADE: Using Multi-Agent Dispatcher for agentic routing
+    const result = await multiAgentDispatcherFlow({ request: message });
+    
+    // Result handling based on agent response types
+    let responseText = "SIGNAL_RECEIVED: Processed.";
+    if (typeof result === 'string') responseText = result;
+    else if (result && typeof result === 'object') {
+      if ('response' in result) responseText = result.response;
+      else if ('content' in result) responseText = result.content;
+      else responseText = JSON.stringify(result, null, 2);
+    }
+
+    return { success: true, response: responseText };
   } catch (error: any) {
     console.error("Terminal Action Error:", error?.message || "Unknown");
     return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
@@ -140,15 +134,10 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
   try {
     await verifyAuth();
     let result;
-    
     const isUrl = input.url.startsWith('http');
 
     if (input.mode === 'scout') {
-      if (isUrl) {
-        result = await linkGenie({ url: input.url });
-      } else {
-        result = await searchGenie({ query: input.url });
-      }
+      result = isUrl ? await linkGenie({ url: input.url }) : await searchGenie({ query: input.url });
     } else {
       if (!isUrl) throw new Error("DEEP_READ requires a specific URL coordinate.");
       result = await epitomizeFetchedContent({ url: input.url });
@@ -217,7 +206,7 @@ export async function generateLessonPlan(subject: string) {
   try {
     await verifyAuth();
     const { text } = await ai.generate({
-      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use a professional, technical tone. Use Markdown formatting.`,
+      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting.`,
     });
 
     const planRef = await getAdminDb().collection('lesson_plans').add({
@@ -269,29 +258,6 @@ export async function deleteLessonPlan(id: string) {
 
 // --- 5. Database: Home Base Logic ---
 
-export async function getHomeBaseAction() {
-  try {
-    await verifyAuth();
-    const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
-    if (!userDoc.exists) return MOCK_USER_CONTEXT;
-
-    const data = userDoc.data() || {};
-
-    return {
-      name: data.name || MOCK_USER_CONTEXT.name,
-      role: data.role || MOCK_USER_CONTEXT.role,
-      interests: data.interests || MOCK_USER_CONTEXT.interests,
-      experiences: data.experiences || MOCK_USER_CONTEXT.experiences,
-      establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
-      gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
-      createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
-      updatedAt: sanitizeDate(data.updatedAt) || MOCK_USER_CONTEXT.updatedAt,
-    };
-  } catch (error) {
-    return MOCK_USER_CONTEXT;
-  }
-}
-
 export async function getHomeBase() {
   try {
     await verifyAuth();
@@ -316,6 +282,11 @@ export async function getHomeBase() {
   } catch (error) {
     return { success: true, data: MOCK_USER_CONTEXT };
   }
+}
+
+export async function getHomeBaseAction() {
+  const res = await getHomeBase();
+  return res.data;
 }
 
 export async function updateHomeBaseAction(updates: any) {
@@ -379,14 +350,11 @@ export async function getCurriculumProgress() {
       };
     });
 
-    const milestonesSnapshot = await getAdminDb().collection('milestones').get();
-    const milestoneCount = milestonesSnapshot.size;
-
     return {
       success: true,
       integratedPlans: lessons.length,
       neuralComplexity: Math.min(lessons.length * 5 + 64, 100),
-      knowledgeIntegration: Math.min(milestoneCount * 2 + 82, 100),
+      knowledgeIntegration: Math.min(lessons.length * 2 + 82, 100),
       lastTopic: data?.lastLesson || "System Initialization",
       lessons: lessons
     };
@@ -399,11 +367,7 @@ export async function integrateLessonAction(data: { title: string; subject: stri
   try {
     await verifyAuth();
     const result = await migrateLessonToDb(data);
-    return { 
-      success: true, 
-      planId: result || 'GENERATED_ID',
-      timestamp: new Date().toISOString() 
-    };
+    return { success: true, planId: result?.success ? 'GENERATED_ID' : null };
   } catch (error: any) {
     return { success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." };
   }
@@ -457,21 +421,12 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     const db = getAdminDb();
     const gemRef = db.collection('gems').doc(id);
     const gemDoc = await gemRef.get();
-    
     if (!gemDoc.exists) return { success: false, error: "GEM_NOT_FOUND" };
     
-    const gemData = gemDoc.data();
-    if (gemData?.resolution !== 'pending') return { success: true }; 
-
     await gemRef.update({ resolution });
 
     if (resolution === 'resolved') {
-      const severity = gemData?.severity || 'low';
-      let reward = 10;
-      if (severity === 'medium') reward = 25;
-      if (severity === 'high') reward = 50;
-      if (severity === 'critical') reward = 100;
-
+      const reward = 25; // Standard reward
       const userRef = db.collection('users').doc('primary_user');
       await db.runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userRef);
@@ -480,7 +435,6 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
       });
     }
 
-    revalidatePath('/reports');
     revalidatePath('/');
     return { success: true };
   } catch (error) {
@@ -492,98 +446,35 @@ export async function getMilestones() {
   try {
     await verifyAuth();
     const snapshot = await getAdminDb().collection('milestones').orderBy('date', 'desc').get();
-    const milestones = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        userId: data.userId,
-        type: data.type,
-        event: data.event,
-        date: data.date,
-        timestamp: sanitizeDate(data.timestamp)
-      };
-    });
-    return { success: true, data: milestones };
+    return { success: true, data: snapshot.docs.map(d => ({ id: d.id, ...d.data(), timestamp: sanitizeDate(d.data().timestamp) })) };
   } catch (error) {
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
 }
 
-// --- 8. Development Domain: Code Analyzer ---
-
-export async function runCodeAnalysis(code: string) {
-  try {
-    await verifyAuth();
-    await getAdminDb().collection('internal_comms').add({
-      agent: 'Code Analyzer',
-      action: 'code_inspection',
-      timestamp: new Date().toISOString(),
-      status: 'SUCCESS'
-    });
-
-    return { 
-      success: true, 
-      analysis: "CODE_INTEGRITY_VERIFIED: No critical syntax errors found in local scope." 
-    };
-  } catch (error: any) {
-    return { success: false, error: "ANALYSIS_INTERRUPTED" };
-  }
-}
-
-export async function deleteAudit(docId: string) {
-  try {
-    await verifyAuth();
-    const db = getAdminDb();
-    await db.collection('internal_comms').doc(docId).delete();
-    revalidatePath('/code-analyzer');
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: "Deletion failed" };
-  }
-}
-
-// --- 9. Laboratory: Neural Calibration ---
+// --- 8. Calibration ---
 
 export async function commitNeuralWeights(config: any) {
   try {
     await verifyAuth();
-    const db = getAdminDb();
-    await db.collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
+    await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
       ...config,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
-
     revalidatePath('/'); 
-    
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: "COMMIT_REJECTED: Neural pathways unstable." };
+    return { success: false, error: "COMMIT_REJECTED" };
   }
 }
 
 export async function getNeuralWeights() {
   try {
     await verifyAuth();
-    const doc = await getAdminDb()
-      .collection('users')
-      .doc('primary_user')
-      .collection('config')
-      .doc('neural-laboratory')
-      .get();
-
-    if (doc.exists) {
-      const data = doc.data() || {};
-      return { 
-        success: true, 
-        data: {
-          ...data,
-          updatedAt: sanitizeDate(data.updatedAt)
-        } 
-      };
-    }
-    return { success: false, error: "NO_CONFIG_FOUND" };
+    const doc = await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').get();
+    return { success: true, data: doc.exists ? doc.data() : null };
   } catch (error) {
-    return { success: false, error: "SYSTEM_READ_ERROR" };
+    return { success: false };
   }
 }
 
@@ -593,27 +484,21 @@ export async function syncArchitectureLesson() {
     const docRef = await getAdminDb().collection('plans').add({
       title: "First Lesson Plan on Architecture",
       type: "Lesson Plan",
-      storagePath: "Vault/QlgcLKxywSXa.../First lesson Plan on Achitecture.txt",
       userId: 'primary_user',
       createdAt: new Date().toISOString(),
       status: 'active'
     });
-    
     return { success: true, id: docRef.id };
   } catch (error) {
-    return { success: false, error: "SYNC_FAILED" };
+    return { success: false };
   }
 }
 
-/**
- * Librarian Export: Bundles all AI data into a unified structure for portability.
- */
 export async function exportVaultData() {
   try {
     await verifyAuth();
     const db = getAdminDb();
     const userId = 'primary_user';
-
     const [blueprints, curriculum, gems, milestones, user] = await Promise.all([
       db.collection('blueprints').where('userId', '==', userId).get(),
       db.collection('curriculum').where('userId', '==', userId).get(),
@@ -622,19 +507,19 @@ export async function exportVaultData() {
       db.collection('users').doc(userId).get()
     ]);
 
-    const bundle = {
-      version: '4.2.0',
-      exportedAt: new Date().toISOString(),
-      identity: user.data() || MOCK_USER_CONTEXT,
-      archives: {
-        blueprints: blueprints.docs.map(d => ({ id: d.id, ...d.data() })),
-        curriculum: curriculum.docs.map(d => ({ id: d.id, ...d.data() })),
-        security_logs: gems.docs.map(d => ({ id: d.id, ...d.data() })),
-        historical_milestones: milestones.docs.map(d => ({ id: d.id, ...d.data() }))
+    return {
+      success: true,
+      bundle: {
+        exportedAt: new Date().toISOString(),
+        identity: user.data() || MOCK_USER_CONTEXT,
+        archives: {
+          blueprints: blueprints.docs.map(d => d.data()),
+          curriculum: curriculum.docs.map(d => d.data()),
+          gems: gems.docs.map(d => d.data()),
+          milestones: milestones.docs.map(d => d.data())
+        }
       }
     };
-
-    return { success: true, bundle };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

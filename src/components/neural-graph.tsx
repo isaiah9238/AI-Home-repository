@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Network, Share2, Info, X, Zap, Database, Brain, Rocket, BookOpen, MessageSquareCode } from 'lucide-react';
+import { Network, Share2, Info, X, Zap, Database, Brain, Rocket, BookOpen, MessageSquareCode, ShieldCheck, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -158,7 +159,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 overflow-hidden">
         <div className="lg:col-span-8 relative bg-black/20 border border-white/5 rounded-2xl overflow-hidden group">
-          {/* Background Grid */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
                style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
           
@@ -168,14 +168,8 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
                 <feGaussianBlur stdDeviation="3" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
-              <linearGradient id="linkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="currentColor" stopOpacity="0.2" />
-                <stop offset="50%" stopColor="currentColor" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="currentColor" stopOpacity="0.2" />
-              </linearGradient>
             </defs>
 
-            {/* 1. Links & Data Flow */}
             {graphData.links.map((link, i) => {
               const s = findNode(link.source);
               const t = findNode(link.target);
@@ -193,7 +187,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
                     strokeOpacity={isHighlighted ? 0.4 : 0.1}
                     className="transition-all duration-500"
                   />
-                  {/* Flowing Data Particle */}
                   <circle r="1.5" fill={color}>
                     <animateMotion
                       dur={`${link.speed}s`} 
@@ -205,7 +198,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               );
             })}
 
-            {/* 2. Nodes */}
             {graphData.nodes.map((node) => {
               const isCore = node.id === 'core';
               const isSelected = selectedNode?.id === node.id;
@@ -223,12 +215,10 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
                     </g>
                   )}
                   
-                  {/* External Node Ring for Selection */}
                   {isSelected && (
                     <circle cx={node.x} cy={node.y} r={isCore ? 20 : 10} fill="none" stroke={color} strokeWidth="1" strokeDasharray="2 2" className="animate-[spin_4s_linear_infinite]" />
                   )}
 
-                  {/* Node Circle */}
                   <circle
                     cx={node.x} cy={node.y}
                     r={isCore ? 14 : 6}
@@ -239,7 +229,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
                     filter="url(#nodeGlow)"
                   />
                   
-                  {/* Label */}
                   <text
                     x={node.x} y={node.y + (isCore ? 32 : 20)}
                     textAnchor="middle"
@@ -255,7 +244,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
           </svg>
         </div>
 
-        {/* Right Sidebar - Context Inspector */}
         <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
           <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 overflow-hidden flex flex-col">
             <CardHeader className="border-b border-white/5 py-3">
@@ -268,19 +256,17 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
               <CardContent className="pt-6">
                 {selectedNode ? (
                   <div className="space-y-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-base font-bold text-white uppercase mb-1 leading-tight">{selectedNode.label}</h4>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[7px] border-white/10 text-white/40 flex items-center gap-1 uppercase">
-                            {getGroupIcon(selectedNode.group)} {selectedNode.group}
+                    <div>
+                      <h4 className="text-base font-bold text-white uppercase mb-1 leading-tight">{selectedNode.label}</h4>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[7px] border-white/10 text-white/40 flex items-center gap-1 uppercase">
+                          {getGroupIcon(selectedNode.group)} {selectedNode.group}
+                        </Badge>
+                        {selectedNode.status && (
+                          <Badge className="bg-blue-500/20 text-blue-400 text-[7px] uppercase tracking-widest h-4">
+                            {selectedNode.status}
                           </Badge>
-                          {selectedNode.status && (
-                            <Badge className="bg-blue-500/20 text-blue-400 text-[7px] uppercase tracking-widest h-4">
-                              {selectedNode.status}
-                            </Badge>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
 
@@ -312,8 +298,6 @@ export function NeuralGraph({ lessons }: NeuralGraphProps) {
                       </p>
                       <div className="flex justify-between"><span>UUID:</span> <span className="text-white/60">{selectedNode.id.slice(0, 12)}</span></div>
                       <div className="flex justify-between"><span>VECTOR:</span> <span className="text-white/60">[{selectedNode.x.toFixed(0)}, {selectedNode.y.toFixed(0)}]</span></div>
-                      <div className="flex justify-between"><span>LATENCY:</span> <span className="text-white/60">1.2ms</span></div>
-                      <div className="flex justify-between"><span>JITTER:</span> <span className="text-white/60">0.02ms</span></div>
                     </div>
 
                     <Button className="w-full bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-widest h-10">

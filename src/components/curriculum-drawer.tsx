@@ -101,7 +101,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
         className: "bg-black/80 border-green-500/30 text-green-400 font-mono text-[8px]",
       });
       loadPendingPlans();
-      // In a real app, we'd refresh the parent's progress state too
     }
     setIntegratingId(null);
   };
@@ -131,7 +130,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
       <Tabs value={activeTab} className="w-full">
         <TabsContent value="overview" className="mt-0 animate-in fade-in duration-500">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Knowledge Stats */}
             <Card className="bg-black/20 border-blue-500/20 backdrop-blur-md">
               <CardHeader className="pb-2">
                 <CardTitle className="text-[10px] text-blue-500/50 uppercase tracking-widest">Mastery_Levels</CardTitle>
@@ -154,7 +152,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
               </CardContent>
             </Card>
 
-            {/* Current Focus */}
             <div className="p-6 rounded-xl border border-white/5 bg-white/5 flex flex-col justify-center relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Brain className="w-32 h-32 text-blue-400" />
@@ -201,8 +198,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
 
         <TabsContent value="synthesis" className="mt-0 animate-in slide-in-from-right-4 duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* Left: Input */}
             <div className="lg:col-span-5 space-y-6">
               <Card className="bg-black/20 border-purple-500/20 backdrop-blur-md">
                 <CardHeader>
@@ -243,7 +238,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
               </div>
             </div>
 
-            {/* Right: Pending Queue */}
             <div className="lg:col-span-7 space-y-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[10px] text-white/20 uppercase tracking-[0.4em] flex items-center gap-2">
@@ -297,7 +291,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
                 </div>
               )}
             </div>
-
           </div>
         </TabsContent>
       </Tabs>

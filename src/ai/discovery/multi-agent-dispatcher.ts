@@ -1,10 +1,9 @@
-
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
-import { generateInitialFiles } from './generate-initial-files';
-import { mentorAiFlow } from './mentor-ai';
-import { webIntel } from './web-intel';
+import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
+import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
+import { webIntel } from '@/ai/discovery/web-intel';
 
 /**
  * @fileOverview The Multi-Agent Dispatcher
@@ -56,7 +55,9 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
       case 'code_inspector':
         return await analyzeCodeSnippet({ code: input.request, language: 'typescript' });
       case 'web_intel':
-        return await webIntel({ url: input.request });
+        // Ensure the request is passed as a URL object if likely a URL
+        const isUrl = input.request.startsWith('http');
+        return await webIntel({ url: isUrl ? input.request : 'https://google.com' });
       case 'general_mentor':
       default:
         return await mentorAiFlow({ request: input.request });

@@ -1,11 +1,7 @@
-'use server';
-
 /**
  * @fileOverview AI output filtering flow.
  *
  * - filterAIOutput - A function that filters AI-generated text for harmful content.
- * - FilterAIOutputInput - The input type for the filterAIOutput function.
- * - FilterAIOutputOutput - The return type for the filterAIOutput function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -23,11 +19,7 @@ const FilterAIOutputOutputSchema = z.object({
 });
 export type FilterAIOutputOutput = z.infer<typeof FilterAIOutputOutputSchema>;
 
-export async function filterAIOutput(input: FilterAIOutputInput): Promise<FilterAIOutputOutput> {
-  return filterAIOutputFlow(input);
-}
-
-const prompt = ai.definePrompt({
+const filterPrompt = ai.definePrompt({
   name: 'filterAIOutputPrompt',
   input: {schema: FilterAIOutputInputSchema},
   output: {schema: FilterAIOutputOutputSchema},
@@ -48,14 +40,14 @@ Respond with JSON.  The isSafe field should be true if the text is safe, and fal
   },
 });
 
-const filterAIOutputFlow = ai.defineFlow(
+export const filterAIOutput = ai.defineFlow(
   {
     name: 'filterAIOutputFlow',
     inputSchema: FilterAIOutputInputSchema,
     outputSchema: FilterAIOutputOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output} = await filterPrompt(input);
 
     // 💎 Record Gem if unsafe
     if (output && !output.isSafe) {
@@ -63,7 +55,7 @@ const filterAIOutputFlow = ai.defineFlow(
         type: 'ai_output',
         reason: output.reason || 'Unknown safety violation',
         content: input.text,
-        severity: 'high', // AI output violations are treated as high severity
+        severity: 'high',
       });
     }
 

@@ -204,7 +204,6 @@ export async function getSavedBlueprints() {
 export async function generateLessonPlan(subject: string) {
   try {
     await verifyAuth();
-    // Explicitly targeting the high-fidelity model for curriculum synthesis
     const response = await ai.generate({
       model: 'googleai/gemini-2.5-pro',
       prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting. Ensure the content is production-grade.`,

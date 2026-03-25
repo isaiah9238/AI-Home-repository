@@ -1,12 +1,14 @@
-'use server';
-
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
+
+/**
+ * @fileOverview Web Intel Scouting Unit.
+ * Fetches and summarizes content from a URL coordinate.
+ */
 
 export const webIntel = ai.defineFlow(
   {
     name: 'webIntel',
-    // 1. New Input Schema: accepts a URL AND an optional question
     inputSchema: z.object({
       url: z.string().url({ message: "Invalid URL provided." }),
       query: z.string().optional().describe("Optional question to ask about the content")
@@ -19,7 +21,7 @@ export const webIntel = ai.defineFlow(
   async ({ url, query }) => {
     let htmlContent: string;
     
-    // 2. Fetch with a "Real" Browser Header
+    // 1. Fetch with a "Real" Browser Header
     try {
       const pageResponse = await fetch(url, {
         headers: {
@@ -36,8 +38,7 @@ export const webIntel = ai.defineFlow(
       throw new Error(`Failed to fetch URL. ${error.message || ''}`);
     }
 
-    // 3. Dynamic Prompting
-    // If the user asked a question, we change the instructions.
+    // 2. Dynamic Prompting
     const systemInstruction = query 
       ? `You are WebIntel. The user has provided a URL (${url}) and a specific question. Answer the question based ONLY on the provided HTML content.` 
       : `You are WebIntel, a web content summarizer. Extract the main article from the HTML, ignoring navigation/ads. Epitomize it into 3 concise, high-impact bullet points.`;

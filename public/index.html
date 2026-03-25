@@ -1,14 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI_HOME | Portal_Initialization</title>
+    <title>AI Home | System Initialization</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
             background-color: #050505;
             color: #00A8E8;
             font-family: 'Courier New', Courier, monospace;
@@ -17,84 +14,93 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            margin: 0;
             overflow: hidden;
             text-transform: uppercase;
-            letter-spacing: 0.3em;
+            letter-spacing: 0.2em;
         }
-        .hud-frame {
-            border: 1px solid rgba(0, 168, 232, 0.2);
-            padding: 40px;
-            background: rgba(0, 168, 232, 0.02);
-            backdrop-filter: blur(10px);
+        .container {
             text-align: center;
+            border: 1px solid rgba(0, 168, 232, 0.2);
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0, 168, 232, 0.1);
             position: relative;
+            z-index: 10;
         }
-        .hud-frame::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            width: 20px;
-            height: 20px;
-            border-top: 2px solid #00A8E8;
-            border-left: 2px solid #00A8E8;
+        .logo {
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
         }
         .status {
-            font-size: 10px;
-            margin-bottom: 20px;
-            opacity: 0.6;
-        }
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            color: white;
+            font-size: 0.8rem;
+            color: rgba(0, 168, 232, 0.5);
+            margin-top: 2rem;
         }
         .btn {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
             background: transparent;
             border: 1px solid #00A8E8;
             color: #00A8E8;
-            padding: 15px 40px;
             cursor: pointer;
             transition: all 0.3s;
+            font-family: inherit;
             text-decoration: none;
             display: inline-block;
-            font-size: 12px;
+            font-weight: bold;
         }
         .btn:hover {
             background: #00A8E8;
-            color: #050505;
-            box-shadow: 0 0 20px rgba(0, 168, 232, 0.4);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 168, 232, 0.5);
         }
         .scanline {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 2px;
             background: rgba(0, 168, 232, 0.1);
             animation: scan 4s linear infinite;
-            z-index: 100;
+            z-index: 5;
         }
         @keyframes scan {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(100vh); }
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 168, 232, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 168, 232, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.2;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
+    <div class="grid-bg"></div>
     <div class="scanline"></div>
-    <div class="hud-frame">
-        <div class="status">System_Status: Standby // Node: Cabinet_V4</div>
-        <div class="title">AI_HOME_PORTAL</div>
-        <a href="/" class="btn">INITIALIZE_CABINET</a>
+    <div class="container">
+        <div class="logo">
+            <svg width="100" height="100" viewBox="0 0 200 200">
+                <path d="M100 20 L175 60 L175 140 L100 180 L25 140 L25 60 Z" fill="none" stroke="#00A8E8" stroke-width="2" />
+                <circle cx="100" cy="100" r="55" stroke="#00A8E8" stroke-width="8" fill="none" opacity="0.8" />
+            </svg>
+        </div>
+        <h1>Cabinet_Initialization</h1>
+        <p>Neural pathways synchronized. Access verified.</p>
+        <a href="/" class="btn">Engage_Portal</a>
+        <div class="status">
+            NODE_STABLE | V.4.2.0 | PORT_3000
+        </div>
     </div>
-    <script>
-        // Automatic bypass after 2 seconds for high-fidelity transition
-        setTimeout(() => {
-            // Uncomment if you want automatic entry
-            // window.location.href = '/';
-        }, 2000);
-    </script>
 </body>
 </html>

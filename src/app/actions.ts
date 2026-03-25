@@ -1,4 +1,3 @@
-
 'use server';
 
 import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
@@ -77,7 +76,7 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    // YOLO UPGRADE: Using Multi-Agent Dispatcher for agentic routing
+    // Using Multi-Agent Dispatcher for agentic routing
     const result = await multiAgentDispatcherFlow({ request: message });
     
     // Result handling based on agent response types
@@ -206,10 +205,12 @@ export async function generateLessonPlan(subject: string) {
   try {
     await verifyAuth();
     // Explicitly targeting the high-fidelity model for curriculum synthesis
-    const { text } = await ai.generate({
+    const response = await ai.generate({
       model: 'googleai/gemini-2.5-pro',
       prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting. Ensure the content is production-grade.`,
     });
+
+    const text = response.text;
 
     if (!text) throw new Error("EMPTY_SIGNAL: The model returned no content.");
 

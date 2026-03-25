@@ -4,13 +4,12 @@ import { getAdminDb } from '@/lib/firebaseAdmin';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
 
-// Define a schema that matches what actions.ts is sending
 const MentorInputSchema = z.object({
   request: z.string(),
   userProfile: z.any().optional(),
 });
 
-export const mentorAiFlow = ai.defineFlow(
+const flow = ai.defineFlow(
   { 
     name: 'mentorAi', 
     inputSchema: MentorInputSchema 
@@ -22,22 +21,20 @@ export const mentorAiFlow = ai.defineFlow(
       return { response: "SIGNAL_INTERRUPTED: Your request triggered a safety flag. Please refine your query." };
     }
 
-    // 2. Fetch profile context (LANDMARK: Replace this section)
+    // 2. Fetch profile context
     let rawData = input.userProfile;
     if (!rawData) {
       const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
       rawData = userDoc.data();
     }
-    // --- NEW SANITIZATION LAYER ---
+    
     const profile = rawData ? {
       ...rawData,
-      // Convert the "illegal" Class to a "legal" String
       createdAt: rawData.createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: rawData.updatedAt?.toDate?.()?.toISOString() || null,
     } : null;
-    // ---
 
-    // 3. Build the Persona (This now uses the 'clean' profile)
+    // 3. Build the Persona
     const curriculumCtx = profile?.curriculum 
     ? `Curriculum: ${profile.curriculum.integratedPlans} plans integrated, last topic was ${profile.curriculum.lastTopic}.`
     : "";
@@ -78,3 +75,10 @@ export const mentorAiFlow = ai.defineFlow(
     return { response: text };
   }
 );
+
+/**
+ * mentorAi - Standard function wrapper for the Mentor flow.
+ */
+export async function mentorAi(input: { request: string, userProfile?: any }) {
+  return flow(input);
+}

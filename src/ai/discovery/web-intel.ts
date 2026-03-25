@@ -6,7 +6,7 @@ import { ai } from '@/ai/genkit';
  * Fetches and summarizes content from a URL coordinate.
  */
 
-export const webIntel = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'webIntel',
     inputSchema: z.object({
@@ -57,3 +57,10 @@ export const webIntel = ai.defineFlow(
     };
   }
 );
+
+/**
+ * webIntel - Standard function wrapper for the WebIntel flow.
+ */
+export async function webIntel(input: { url: string, query?: string }) {
+  return flow(input);
+}

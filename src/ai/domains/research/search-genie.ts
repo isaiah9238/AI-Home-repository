@@ -4,9 +4,8 @@ import { filterAIOutput } from '../safety/filter-ai-output';
 
 /**
  * SearchGenie: Simulates a scouting mission for general topics.
- * Used when Flux Echo is provided a query instead of a URL.
  */
-export const searchGenie = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'searchGenie',
     inputSchema: z.object({ query: z.string() }),
@@ -65,3 +64,10 @@ export const searchGenie = ai.defineFlow(
     }
   }
 );
+
+/**
+ * searchGenie - Standard function wrapper for the General Recon flow.
+ */
+export async function searchGenie(input: { query: string }) {
+  return flow(input);
+}

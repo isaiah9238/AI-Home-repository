@@ -9,10 +9,8 @@ const FileSchema = z.object({
 
 /**
  * @fileOverview The Architect Flow
- * 
- * Transforms conceptual blueprints into high-fidelity file structures.
  */
-export const generateInitialFiles = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'generateInitialFiles',
     inputSchema: z.object({ blueprint: z.string() }),
@@ -45,3 +43,10 @@ export const generateInitialFiles = ai.defineFlow(
     return output || [];
   }
 );
+
+/**
+ * generateInitialFiles - Standard function wrapper for the Architect flow.
+ */
+export async function generateInitialFiles(input: { blueprint: string }) {
+  return flow(input);
+}

@@ -4,11 +4,9 @@ import { getAdminDb } from '../../lib/firebaseAdmin';
 
 /**
  * @fileOverview A flow to establish the user's home base and fetch profile context.
- *
- * - establishHomeBase - A function that fetches or initializes the user profile.
  */
 
-export const establishHomeBase = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'establishHomeBase',
     inputSchema: z.object({ userId: z.string() }),
@@ -58,3 +56,10 @@ export const establishHomeBase = ai.defineFlow(
     };
   }
 );
+
+/**
+ * establishHomeBase - Standard function wrapper for the Genkit flow to prevent Next.js serialization errors.
+ */
+export async function establishHomeBase(input: { userId: string }) {
+  return flow(input);
+}

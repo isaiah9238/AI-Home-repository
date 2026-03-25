@@ -1,7 +1,7 @@
 'use server';
 
-import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
-import { multiAgentDispatcherFlow } from '@/ai/discovery/multi-agent-dispatcher';
+import { mentorAi } from '@/ai/discovery/mentor-ai';
+import { multiAgentDispatcher } from '@/ai/discovery/multi-agent-dispatcher';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
@@ -11,17 +11,15 @@ import { revalidatePath } from 'next/cache';
 import { ai } from '@/ai/genkit';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
+import { establishHomeBase } from '@/ai/discovery/establish-home-base';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
- * These functions bridge the UI to the AI flows and Database.
+ * These functions bridge the UI to the AI functions and Database.
  */
 
 // --- UTILS ---
 
-/**
- * Robustly sanitizes Firestore dates/timestamps into ISO strings for Client Component compatibility.
- */
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
   if (typeof val.toDate === 'function') return val.toDate().toISOString();
@@ -35,7 +33,6 @@ async function verifyAuth() {
   try {
     const session = await auth();
     if (!session) {
-      // BYPASS: Provide mock session for development
       return { user: { name: "Isaiah Smith", email: "isaiah@example.com" } };
     }
     return session;
@@ -76,10 +73,9 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    // Using Multi-Agent Dispatcher for agentic routing
-    const result = await multiAgentDispatcherFlow({ request: message });
+    // Call the wrapper function instead of the flow directly
+    const result = await multiAgentDispatcher({ request: message });
     
-    // Result handling based on agent response types
     let responseText = "SIGNAL_RECEIVED: Processed.";
     if (typeof result === 'string') responseText = result;
     else if (result && typeof result === 'object') {
@@ -104,7 +100,7 @@ export async function getMorningBriefing(userContext?: any) {
       getSystemIntegrity()
     ]);
 
-    const result = await mentorAiFlow({ 
+    const result = await mentorAi({ 
       request: "Give me my morning briefing.",
       userProfile: {
         ...(userContext || MOCK_USER_CONTEXT),
@@ -263,35 +259,14 @@ export async function deleteLessonPlan(id: string) {
 
 // --- 5. Database: Home Base Logic ---
 
-export async function getHomeBase() {
+export async function getHomeBaseAction() {
   try {
     await verifyAuth();
-    const doc = await getAdminDb().collection('users').doc('primary_user').get();
-    if (doc.exists) {
-      const data = doc.data() || {};
-      return { 
-        success: true, 
-        data: {
-          name: data.name || MOCK_USER_CONTEXT.name,
-          role: data.role || MOCK_USER_CONTEXT.role,
-          interests: data.interests || MOCK_USER_CONTEXT.interests,
-          experiences: data.experiences || MOCK_USER_CONTEXT.experiences,
-          establishedDate: data.establishedDate || MOCK_USER_CONTEXT.establishedDate,
-          gemsBalance: data.gemsBalance ?? MOCK_USER_CONTEXT.gemsBalance,
-          createdAt: sanitizeDate(data.createdAt) || MOCK_USER_CONTEXT.createdAt,
-          updatedAt: sanitizeDate(data.updatedAt) || MOCK_USER_CONTEXT.updatedAt,
-        }
-      };
-    }
-    return { success: true, data: MOCK_USER_CONTEXT };
+    const res = await establishHomeBase({ userId: 'primary_user' });
+    return res.userContext;
   } catch (error) {
-    return { success: true, data: MOCK_USER_CONTEXT };
+    return MOCK_USER_CONTEXT;
   }
-}
-
-export async function getHomeBaseAction() {
-  const res = await getHomeBase();
-  return res.data;
 }
 
 export async function updateHomeBaseAction(updates: any) {

@@ -1,7 +1,7 @@
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 
-export const epitomizeFetchedContent = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'epitomizeFetchedContent',
     inputSchema: z.object({ url: z.string().url() }),
@@ -28,7 +28,7 @@ export const epitomizeFetchedContent = ai.defineFlow(
         .replace(/<[^>]*>?/gm, ' ')
         .replace(/\s+/g, ' ')
         .trim()
-        .slice(0, 30000); // Allow more context for deep read
+        .slice(0, 30000);
 
       const { output } = await ai.generate({
         model: 'googleai/gemini-2.5-pro',
@@ -75,3 +75,10 @@ export const epitomizeFetchedContent = ai.defineFlow(
     }
   }
 );
+
+/**
+ * epitomizeFetchedContent - Standard function wrapper for the Epitomizer flow.
+ */
+export async function epitomizeFetchedContent(input: { url: string }) {
+  return flow(input);
+}

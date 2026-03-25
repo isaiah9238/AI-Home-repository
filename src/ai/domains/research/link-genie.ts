@@ -2,7 +2,7 @@ import { ai } from '../../genkit';
 import { z } from 'genkit';
 import { filterAIOutput } from '../safety/filter-ai-output';
 
-export const linkGenie = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'linkGenie',
     inputSchema: z.object({ url: z.string().url() }),
@@ -20,7 +20,6 @@ export const linkGenie = ai.defineFlow(
       if (!response.ok) throw new Error(`Failed to fetch ${input.url}: ${response.statusText}`);
       
       const html = await response.text();
-      // Improved cleaning: strip script/style tags and then strip all tags
       const cleanText = html
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
         .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
@@ -84,3 +83,10 @@ export const linkGenie = ai.defineFlow(
     }
   }
 );
+
+/**
+ * linkGenie - Standard function wrapper for the Flux Echo flow.
+ */
+export async function linkGenie(input: { url: string }) {
+  return flow(input);
+}

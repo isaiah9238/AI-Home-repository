@@ -1,7 +1,7 @@
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 
-export const analyzeCodeSnippet = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'analyzeCodeSnippet',
     inputSchema: z.object({ 
@@ -49,3 +49,10 @@ export const analyzeCodeSnippet = ai.defineFlow(
     };
   }
 );
+
+/**
+ * analyzeCodeSnippet - Standard function wrapper for the CodeInspector flow.
+ */
+export async function analyzeCodeSnippet(input: { code: string, language?: string }) {
+  return flow(input);
+}

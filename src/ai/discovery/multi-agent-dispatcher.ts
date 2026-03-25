@@ -2,7 +2,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
-import { mentorAiFlow } from '@/ai/discovery/mentor-ai';
+import { mentorAi } from '@/ai/discovery/mentor-ai';
 import { webIntel } from '@/ai/discovery/web-intel';
 
 /**
@@ -21,7 +21,7 @@ const AgentChoiceSchema = z.object({
     .describe('The specialized agent to route the request to.'),
 });
 
-export const multiAgentDispatcherFlow = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'multiAgentDispatcherFlow',
     inputSchema: DispatcherInputSchema,
@@ -55,12 +55,18 @@ export const multiAgentDispatcherFlow = ai.defineFlow(
       case 'code_inspector':
         return await analyzeCodeSnippet({ code: input.request, language: 'typescript' });
       case 'web_intel':
-        // Ensure the request is passed as a URL object if likely a URL
         const isUrl = input.request.startsWith('http');
         return await webIntel({ url: isUrl ? input.request : 'https://google.com' });
       case 'general_mentor':
       default:
-        return await mentorAiFlow({ request: input.request });
+        return await mentorAi({ request: input.request });
     }
   }
 );
+
+/**
+ * multiAgentDispatcher - Standard function wrapper for the Dispatcher flow.
+ */
+export async function multiAgentDispatcher(input: { request: string }) {
+  return flow(input);
+}

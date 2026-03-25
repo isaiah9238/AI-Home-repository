@@ -7,7 +7,7 @@
     <style>
         body {
             background-color: #050505;
-            color: #00A8E8;
+            color: #3b82f6;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
@@ -19,88 +19,95 @@
             text-transform: uppercase;
             letter-spacing: 0.2em;
         }
-        .container {
-            text-align: center;
-            border: 1px solid rgba(0, 168, 232, 0.2);
-            padding: 3rem;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            box-shadow: 0 0 50px rgba(0, 168, 232, 0.1);
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(59, 130, 246, 0.1);
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
             position: relative;
-            z-index: 10;
         }
-        .logo {
-            margin-bottom: 2rem;
-            animation: pulse 2s infinite ease-in-out;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-        .status {
-            font-size: 0.8rem;
-            color: rgba(0, 168, 232, 0.5);
-            margin-top: 2rem;
-        }
-        .btn {
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            background: transparent;
-            border: 1px solid #00A8E8;
-            color: #00A8E8;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: bold;
-        }
-        .btn:hover {
-            background: #00A8E8;
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 168, 232, 0.5);
-        }
-        .scanline {
+
+        .loader::after {
+            content: '';
             position: absolute;
+            inset: 10px;
+            border: 1px solid rgba(59, 130, 246, 0.05);
+            border-bottom: 1px solid #22c55e;
+            border-radius: 50%;
+            animation: spin 2s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            font-size: 10px;
+            margin-top: 10px;
+            opacity: 0.6;
+        }
+
+        .glitch {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .scanline {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 2px;
-            background: rgba(0, 168, 232, 0.1);
+            background: rgba(59, 130, 246, 0.1);
+            opacity: 0.5;
+            z-index: 100;
+            pointer-events: none;
             animation: scan 4s linear infinite;
-            z-index: 5;
         }
+
         @keyframes scan {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
-        .grid-bg {
-            position: absolute;
-            inset: 0;
-            background-image: linear-gradient(rgba(0, 168, 232, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 168, 232, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.2;
-            z-index: 1;
+            0% { top: -100px; }
+            100% { top: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
     <div class="scanline"></div>
-    <div class="container">
-        <div class="logo">
-            <svg width="100" height="100" viewBox="0 0 200 200">
-                <path d="M100 20 L175 60 L175 140 L100 180 L25 140 L25 60 Z" fill="none" stroke="#00A8E8" stroke-width="2" />
-                <circle cx="100" cy="100" r="55" stroke="#00A8E8" stroke-width="8" fill="none" opacity="0.8" />
-            </svg>
-        </div>
-        <h1>Cabinet_Initialization</h1>
-        <p>Neural pathways synchronized. Access verified.</p>
-        <a href="/" class="btn">Engage_Portal</a>
-        <div class="status">
-            NODE_STABLE | V.4.2.0 | PORT_3000
-        </div>
-    </div>
+    <div class="loader"></div>
+    <div class="glitch">System_Initializing</div>
+    <div class="status">Neural_Sync: ACTIVE | Node: CABINET_V4</div>
+    
+    <a href="/" class="btn">ENGAGE_PORTAL</a>
+
+    <script>
+        // Optional: Auto-redirect after a few seconds if you want
+        // setTimeout(() => { window.location.href = '/'; }, 3000);
+    </script>
 </body>
 </html>

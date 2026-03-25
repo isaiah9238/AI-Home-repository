@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,9 +21,6 @@ interface LabConfig {
   experimentalMode: boolean;
 }
 
-/**
- * BinaryMarquee: A scrolling stream of data fragments.
- */
 function BinaryMarquee() {
   const [binary, setBinary] = useState('');
   
@@ -48,9 +44,6 @@ function BinaryMarquee() {
   );
 }
 
-/**
- * VirtualKeyboard: A tactile input simulator for calibration.
- */
 function VirtualKeyboard({ onKey }: { onKey?: (key: string) => void }) {
   const keys = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -37,10 +36,6 @@ interface CurriculumProgress {
   lessons: Lesson[];
 }
 
-/**
- * CurriculumDrawer: The Knowledge Integration Center.
- * Handles both viewing history and synthesizing new lesson plans.
- */
 export function CurriculumDrawer({ progress: initialProgress }: { progress: CurriculumProgress }) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
@@ -50,7 +45,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
   const [pendingPlans, setPendingPlans] = useState<PendingPlan[]>([]);
   const [progress, setProgress] = useState(initialProgress);
 
-  // Load pending plans when switching to synthesis tab
   useEffect(() => {
     if (activeTab === 'synthesis') {
       loadPendingPlans();
@@ -93,7 +87,6 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
     });
 
     if (res.success) {
-      // Remove from pending
       await deleteLessonPlan(plan.id);
       toast({
         title: "INTEGRATION_SUCCESS",

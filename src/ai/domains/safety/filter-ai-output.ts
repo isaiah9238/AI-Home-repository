@@ -40,7 +40,7 @@ Respond with JSON.  The isSafe field should be true if the text is safe, and fal
   },
 });
 
-export const filterAIOutput = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'filterAIOutputFlow',
     inputSchema: FilterAIOutputInputSchema,
@@ -49,7 +49,6 @@ export const filterAIOutput = ai.defineFlow(
   async input => {
     const {output} = await filterPrompt(input);
 
-    // 💎 Record Gem if unsafe
     if (output && !output.isSafe) {
       await recordGem({
         type: 'ai_output',
@@ -62,3 +61,10 @@ export const filterAIOutput = ai.defineFlow(
     return output!;
   }
 );
+
+/**
+ * filterAIOutput - Standard function wrapper for the AI filtering flow to prevent Next.js 15 proxy errors.
+ */
+export async function filterAIOutput(input: FilterAIOutputInput) {
+  return flow(input);
+}

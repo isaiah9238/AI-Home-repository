@@ -6,22 +6,25 @@ import { ai } from '@/ai/genkit';
  * Fetches and summarizes content from a URL coordinate.
  */
 
+const WebIntelInputSchema = z.object({
+  url: z.string().url({ message: "Invalid URL provided." }),
+  query: z.string().optional().describe("Optional question to ask about the content")
+});
+
+const WebIntelOutputSchema = z.object({
+  content: z.string(),
+  suggestedActions: z.array(z.string()),
+});
+
 const flow = ai.defineFlow(
   {
     name: 'webIntel',
-    inputSchema: z.object({
-      url: z.string().url({ message: "Invalid URL provided." }),
-      query: z.string().optional().describe("Optional question to ask about the content")
-    }),
-    outputSchema: z.object({
-      content: z.string(),
-      suggestedActions: z.array(z.string()),
-    }),
+    inputSchema: WebIntelInputSchema,
+    outputSchema: WebIntelOutputSchema,
   },
   async ({ url, query }) => {
     let htmlContent: string;
     
-    // 1. Fetch with a "Real" Browser Header
     try {
       const pageResponse = await fetch(url, {
         headers: {
@@ -38,7 +41,6 @@ const flow = ai.defineFlow(
       throw new Error(`Failed to fetch URL. ${error.message || ''}`);
     }
 
-    // 2. Dynamic Prompting
     const systemInstruction = query 
       ? `You are WebIntel. The user has provided a URL (${url}) and a specific question. Answer the question based ONLY on the provided HTML content.` 
       : `You are WebIntel, a web content summarizer. Extract the main article from the HTML, ignoring navigation/ads. Epitomize it into 3 concise, high-impact bullet points.`;
@@ -59,8 +61,8 @@ const flow = ai.defineFlow(
 );
 
 /**
- * webIntel - Standard function wrapper for the WebIntel flow.
+ * webIntel - Standard function wrapper for the WebIntel flow to prevent Next.js 15 proxy errors.
  */
-export async function webIntel(input: { url: string, query?: string }) {
+export async function webIntel(input: z.infer<typeof WebIntelInputSchema>) {
   return flow(input);
 }

@@ -1,7 +1,7 @@
 import { ai } from '../genkit';
 import { z } from 'genkit';
 
-export const integrateLessonPlans = ai.defineFlow(
+const flow = ai.defineFlow(
   {
     name: 'integrateLessonPlans',
     inputSchema: z.object({ content: z.string(), topic: z.string() }),
@@ -14,3 +14,10 @@ export const integrateLessonPlans = ai.defineFlow(
     return text;
   }
 );
+
+/**
+ * integrateLessonPlans - Standard function wrapper for the Tutor flow.
+ */
+export async function integrateLessonPlans(input: { content: string, topic: string }) {
+  return flow(input);
+}

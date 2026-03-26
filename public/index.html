@@ -3,39 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Home | System Initialization</title>
+    <title>AI Home | Portal Gateway</title>
     <style>
+        :root {
+            --bg: #050505;
+            --accent: #3b82f6;
+            --text: #ffffff;
+            --dim: rgba(255, 255, 255, 0.4);
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #050505;
-            color: #00A8E8;
+            background: var(--bg);
+            color: var(--text);
             font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
 
-        #terminal {
+        .terminal {
             width: 80%;
             max-width: 600px;
-            height: 300px;
-            border: 1px solid rgba(0, 168, 232, 0.2);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            box-shadow: 0 0 30px rgba(0, 168, 232, 0.1);
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border-radius: 8px;
             position: relative;
-            overflow-y: auto;
+        }
+
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(59, 130, 246, 0.1);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .logo {
+            font-size: 12px;
+            letter-spacing: 0.8em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .status {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-top: 30px;
         }
 
         .line {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             opacity: 0;
-            animation: fadeIn 0.1s forwards;
+            animation: fadeIn 0.5s forwards;
         }
 
         @keyframes fadeIn {
@@ -46,110 +83,64 @@
             display: inline-block;
             width: 8px;
             height: 15px;
-            background-color: #00A8E8;
-            animation: blink 1s infinite;
-            vertical-align: middle;
+            background: var(--accent);
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
             50% { opacity: 0; }
         }
 
-        #boot-logo {
-            margin-bottom: 40px;
-            opacity: 0.8;
-            filter: drop-shadow(0 0 10px #00A8E8);
+        .btn {
+            margin-top: 40px;
+            padding: 12px 30px;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+            animation: fadeIn 1s 3s forwards;
         }
 
-        .progress-container {
-            width: 80%;
-            max-width: 600px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.05);
-            margin-top: 20px;
-            position: relative;
+        .btn:hover {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
 
-        .progress-bar {
-            height: 100%;
-            background: #00A8E8;
-            width: 0%;
-            transition: width 0.5s linear;
-            box-shadow: 0 0 10px #00A8E8;
-        }
-
-        .scanline {
-            width: 100%;
-            height: 100px;
-            z-index: 100;
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 168, 232, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
-            opacity: 0.1;
-            position: absolute;
-            bottom: 100%;
-            animation: scanline 6s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes scanline {
-            0% { bottom: 100%; }
-            100% { bottom: -100px; }
-        }
+        .delay-1 { animation-delay: 0.5s; }
+        .delay-2 { animation-delay: 1s; }
+        .delay-3 { animation-delay: 1.5s; }
+        .delay-4 { animation-delay: 2s; }
+        .delay-5 { animation-delay: 2.5s; }
     </style>
 </head>
 <body>
-    <div class="scanline"></div>
-    
-    <svg id="boot-logo" width="80" height="80" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="100" cy="100" r="90" fill="none" stroke="#00A8E8" stroke-width="2" stroke-dasharray="10 5" />
-        <path d="M100 40 L160 80 L160 140 L100 180 L40 140 L40 80 Z" fill="none" stroke="#00A8E8" stroke-width="4" />
-        <circle cx="100" cy="100" r="20" fill="#00A8E8" />
-    </svg>
+    <div class="terminal">
+        <div class="scanline"></div>
+        <div class="logo">The _Cabinet_V4.2.0</div>
 
-    <div id="terminal"></div>
+        <div class="status">
+            <div class="line delay-1">> INITIALIZING_BOOT_SEQUENCE...</div>
+            <div class="line delay-2">> SYNCHRONIZING_NEURAL_PATHWAYS... [OK]</div>
+            <div class="line delay-3">> LIBRARIAN_STATUS: OPERATIONAL</div>
+            <div class="line delay-4">> SYSTEM_INTEGRITY: OPTIMAL</div>
+            <div class="line delay-5">> WAITING_FOR_USER_SIGNAL<span class="cursor"></span></div>
+        </div>
 
-    <div class="progress-container">
-        <div id="bar" class="progress-bar"></div>
+        <button class="btn" onclick="window.location.href='/'">Engage_Portal</button>
     </div>
 
     <script>
-        const lines = [
-            "> INITIALIZING_PORTAL_CORE_V4.2.0...",
-            "> AUTHENTICATING_LIBRARIAN_PROTOCOL...",
-            "> SYNCING_NEURAL_NODES...",
-            "> LOADING_CABINET_RESOURCES...",
-            "> ESTABLISHING_WORKSPACE_COORDINATES...",
-            "> HANDSHAKE_COMPLETE.",
-            "> REDIRECTING_TO_DASHBOARD..."
-        ];
-
-        const terminal = document.getElementById('terminal');
-        const bar = document.getElementById('bar');
-        let currentLine = 0;
-
-        function addLine() {
-            if (currentLine < lines.length) {
-                const div = document.createElement('div');
-                div.className = 'line';
-                div.textContent = lines[currentLine];
-                terminal.appendChild(div);
-                terminal.scrollTop = terminal.scrollHeight;
-                
-                currentLine++;
-                const progress = (currentLine / lines.length) * 100;
-                bar.style.width = progress + '%';
-
-                if (currentLine === lines.length) {
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1000);
-                } else {
-                    setTimeout(addLine, Math.random() * 500 + 200);
-                }
-            }
-        }
-
-        setTimeout(addLine, 500);
+        // Automatic redirection after a few seconds if they don't click
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 8000);
     </script>
 </body>
 </html>

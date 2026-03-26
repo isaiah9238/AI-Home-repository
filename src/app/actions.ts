@@ -45,6 +45,7 @@ const MOCK_USER_CONTEXT = {
   name: "Isaiah Smith",
   role: "Architect",
   interests: ["Soccer", "Web Development", "AI Engineering", "UI/UX Design"],
+  experiences: "Full Stack Development",
   establishedDate: "2026-02-06",
   gemsBalance: 150,
   neuralComplexity: 64,

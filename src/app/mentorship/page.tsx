@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BotMessageSquare, Loader2 } from "lucide-react";
-import { getMorningBriefing, getHomeBaseAction, getHomeBase } from "@/app/actions";
+import { getMorningBriefing, getHomeBase } from "@/app/actions";
 
 /**
  * Mentorship Page
@@ -22,7 +22,7 @@ export default function MentorshipPage() {
           const response = await getMorningBriefing(homeBase.data);
           setBriefing(response);
         } else {
-          setBriefing("Welcome! I don&apos;t know your interests yet. Use the command line on the Dashboard to set your profile variables.");
+          setBriefing("Welcome! I don't know your interests yet. Use the command line on the Dashboard to set your profile variables.");
         }
       } catch (err) {
         console.error("Initialization Error:", err);
@@ -63,8 +63,8 @@ export default function MentorshipPage() {
                   </p>
                   <button 
                     onClick={async () => {
-                      const res = await getHomeBaseAction();
-                      if (res) {
+                      const res = await getHomeBase();
+                      if (res.success) {
                         window.location.reload();
                       }
                     }}

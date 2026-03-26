@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Home | System Initialization</title>
     <style>
-        body {
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: #050505;
             color: #00A8E8;
             font-family: 'Courier New', Courier, monospace;
@@ -13,111 +17,139 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
             overflow: hidden;
-            text-transform: uppercase;
         }
+
         #terminal {
             width: 80%;
             max-width: 600px;
-            text-align: left;
-            min-height: 200px;
+            height: 300px;
+            border: 1px solid rgba(0, 168, 232, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 168, 232, 0.1);
+            position: relative;
+            overflow-y: auto;
         }
+
         .line {
             margin-bottom: 5px;
             opacity: 0;
             animation: fadeIn 0.1s forwards;
-            font-size: 14px;
-            letter-spacing: 1px;
         }
+
         @keyframes fadeIn {
             to { opacity: 1; }
         }
-        .progress-bar {
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #00A8E8;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        #boot-logo {
+            margin-bottom: 40px;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 10px #00A8E8);
+        }
+
+        .progress-container {
             width: 80%;
             max-width: 600px;
             height: 2px;
-            background: rgba(0, 168, 232, 0.1);
-            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
             position: relative;
         }
-        .progress-fill {
+
+        .progress-bar {
+            height: 100%;
+            background: #00A8E8;
             width: 0%;
-            height: 100%;
-            background: #00A8E8;
-            transition: width 2s ease-in-out;
+            transition: width 0.5s linear;
+            box-shadow: 0 0 10px #00A8E8;
         }
-        #btn-enter {
-            margin-top: 60px;
-            padding: 15px 40px;
-            border: 1px solid #00A8E8;
-            background: transparent;
-            color: #00A8E8;
-            cursor: pointer;
-            letter-spacing: 5px;
-            opacity: 0;
-            transition: all 0.3s;
-            font-family: inherit;
-            font-weight: bold;
-        }
-        #btn-enter:hover {
-            background: #00A8E8;
-            color: #050505;
-            box-shadow: 0 0 30px rgba(0, 168, 232, 0.6);
-        }
+
         .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            height: 100px;
             z-index: 100;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 168, 232, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
             opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100px; }
         }
     </style>
 </head>
 <body>
     <div class="scanline"></div>
+    
+    <svg id="boot-logo" width="80" height="80" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#00A8E8" stroke-width="2" stroke-dasharray="10 5" />
+        <path d="M100 40 L160 80 L160 140 L100 180 L40 140 L40 80 Z" fill="none" stroke="#00A8E8" stroke-width="4" />
+        <circle cx="100" cy="100" r="20" fill="#00A8E8" />
+    </svg>
+
     <div id="terminal"></div>
-    <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
-    <button id="btn-enter" onclick="window.location.href='/'">Initialize_Session</button>
+
+    <div class="progress-container">
+        <div id="bar" class="progress-bar"></div>
+    </div>
 
     <script>
         const lines = [
-            "Initializing Cabinet Core V4.2.0...",
-            "Checking Node_Runtime: Version 22 Synchronized.",
-            "Loading Neural Pathways (Next.js 15.5.14)...",
-            "Librarian Protocol: Operational.",
-            "Auth_Node: Bypass_Mode_Engaged.",
-            "Port_Sync: 3000.",
-            "Status: System_Optimal."
+            "> INITIALIZING_PORTAL_CORE_V4.2.0...",
+            "> AUTHENTICATING_LIBRARIAN_PROTOCOL...",
+            "> SYNCING_NEURAL_NODES...",
+            "> LOADING_CABINET_RESOURCES...",
+            "> ESTABLISHING_WORKSPACE_COORDINATES...",
+            "> HANDSHAKE_COMPLETE.",
+            "> REDIRECTING_TO_DASHBOARD..."
         ];
-        const terminal = document.getElementById('terminal');
-        const fill = document.getElementById('fill');
-        const btn = document.getElementById('btn-enter');
 
-        let i = 0;
-        function type() {
-            if (i < lines.length) {
+        const terminal = document.getElementById('terminal');
+        const bar = document.getElementById('bar');
+        let currentLine = 0;
+
+        function addLine() {
+            if (currentLine < lines.length) {
                 const div = document.createElement('div');
                 div.className = 'line';
-                div.innerHTML = `> ${lines[i]}`;
-                div.style.animationDelay = `${i * 0.3}s`;
+                div.textContent = lines[currentLine];
                 terminal.appendChild(div);
-                i++;
-                setTimeout(type, 400);
-            } else {
-                fill.style.width = '100%';
-                setTimeout(() => {
-                    btn.style.opacity = '1';
-                }, 800);
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                currentLine++;
+                const progress = (currentLine / lines.length) * 100;
+                bar.style.width = progress + '%';
+
+                if (currentLine === lines.length) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    setTimeout(addLine, Math.random() * 500 + 200);
+                }
             }
         }
-        type();
+
+        setTimeout(addLine, 500);
     </script>
 </body>
 </html>

@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
-import { sendTerminalMessage, updateHomeBaseAction, getHomeBaseAction } from '@/app/actions';
+import { sendTerminalMessage, updateHomeBaseAction, getHomeBase } from '@/app/actions';
 import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown } from 'lucide-react';
 
 interface TerminalMessage {
@@ -28,8 +27,9 @@ export function AIChat() {
   });
 
   const syncProfile = async () => {
-    const homeBase = await getHomeBaseAction();
-    if (homeBase) {
+    const response = await getHomeBase();
+    if (response.success && response.data) {
+      const homeBase = response.data;
       setProfile({
         name: homeBase.name.toUpperCase().replace(/\s/g, '_'),
         role: homeBase.role?.toUpperCase() || 'PRIMARY_USER',

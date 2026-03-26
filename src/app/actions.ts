@@ -73,7 +73,6 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    // Call the wrapper function instead of the flow directly
     const result = await multiAgentDispatcher({ request: message });
     
     let responseText = "SIGNAL_RECEIVED: Processed.";
@@ -259,13 +258,13 @@ export async function deleteLessonPlan(id: string) {
 
 // --- 5. Database: Home Base Logic ---
 
-export async function getHomeBaseAction() {
+export async function getHomeBase() {
   try {
     await verifyAuth();
     const res = await establishHomeBase({ userId: 'primary_user' });
-    return res.userContext;
+    return { success: true, data: res.userContext };
   } catch (error) {
-    return MOCK_USER_CONTEXT;
+    return { success: true, data: MOCK_USER_CONTEXT };
   }
 }
 

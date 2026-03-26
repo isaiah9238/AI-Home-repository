@@ -1,5 +1,5 @@
 import { InteriorDashboard } from "@/components/interior-dashboard";
-import { getHomeBaseAction } from "@/app/actions";
+import { getHomeBase } from "@/app/actions";
 
 /**
  * AI Home: The Digital Cabinet Dashboard
@@ -9,7 +9,8 @@ import { getHomeBaseAction } from "@/app/actions";
  */
 export default async function AIHomeApp() {
   // 1. Fetch initial profile context from Home Base
-  const userData = await getHomeBaseAction();
+  const response = await getHomeBase();
+  const userData = response.data;
 
   return (
     <div className="w-full bg-[#050505] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden min-h-screen">

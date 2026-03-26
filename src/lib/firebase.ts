@@ -53,7 +53,7 @@ if (typeof window !== "undefined") {
 
 const ai = getAI(app, { backend: new GoogleAIBackend() });
 
-export { app, auth, db, rtdb, storage, functions, firebaseConfig };
+export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
   model: "gemini-2.5-pro" 

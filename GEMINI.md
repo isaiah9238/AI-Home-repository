@@ -34,3 +34,23 @@
 - **Guided Development:** Integrate Mentor, Flux Echo, and Code Analyzer into the sandbox to provide real-time guidance, transforming the Home into a localized learning and development ecosystem.
 
 Currently working on the laboratory-drawer and the neural-graph. Done instructions, prbablility wave, flux echo stays the same. Still needs work: the core, nodes, growth, connectons (check lessons and curriculum), keyboard and binary Marque
+
+# GEMINI MISSION CONTROL (Updated March 2024)
+
+## Current Status: Phase 1 (Adaptation & Expansion)
+We have successfully transitioned to the `getAdminDb()` pattern for Firestore connectivity. 
+
+### Recent Updates:
+- [x] **Firestore Connection Fixed:** Updated `mentor-ai.ts` to correctly call `getAdminDb()`.
+- [~] **Laboratory UI:** Development of the "Neural Graph" and "Laboratory Drawer" is underway.
+- [ ] **Adaptive Brain:** (Next Focus) Evolving `userBrain.ts` for dynamic data ingestion.
+
+### 4. Phase 1: Focus Areas
+- [x] **Primary User Fetch:** Implementing personalized mentor responses via Firestore `users/primary_user`.
+- [/] **UI Registry:** Refining the `LIVE_NEURAL-REGISTRY` and keyboard logic in `src/components/ui/chat.tsx`.
+- [ ] **Curriculum Delivery:** (Pending) Connecting DB retrieval to the Mentor prompt.
+
+### 5. Known Component Locations:
+- **UI Terminal Logic:** `src/components/ui/chat.tsx` (Contains keyboard & registry branding).
+- **AI Core Logic:** `src/ai/discovery/mentor-ai.ts`.
+- **Status HUDs:** `src/components/birthday-drawer.tsx`.

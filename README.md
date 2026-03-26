@@ -1,3 +1,21 @@
+# Web Intel Mentor & Neural Graph
+
+A cybernetic development environment built with Next.js, Google Genkit, and Firebase.
+
+## Technical Stack
+- **IDE:** Developed in [Firebase Studio](https://firebase.google.com/docs/studio).
+- **AI Engine:** Google Genkit + Gemini (Structured Output).
+- **Database:** Firestore (The Librarian).
+- **Styling:** Tailwind CSS + ShadCN UI + Custom Cybernetic HUD components.
+
+## Development Setup
+This project is optimized for Firebase Studio. To modify the environment (Node version, extensions, or env variables), edit `.idx/dev.nix`.
+
+### To Run:
+1. Ensure your `.env` contains the necessary Firebase Admin credentials.
+2. The environment is managed by Nix; use the "Rebuild Environment" button in Studio if you update `dev.nix`.
+3. Run `npm run dev` to view the Laboratory and Neural Graph.
+
 # 🏢 AI Home: The Digital Cabinet
 
 An advanced, domain-driven AI assistant environment built with **Next.js 14**, **Firebase Admin**, and **Google Genkit**.

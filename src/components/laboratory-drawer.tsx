@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity, Info } from 'lucide-react';
+import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -28,17 +28,19 @@ function BinaryMarquee() {
     const chars = '01';
     const generate = () => {
       let str = '';
-      for (let i = 0; i < 100; i++) str += chars[Math.floor(Math.random() * chars.length)];
+      for (let i = 0; i < 120; i++) str += chars[Math.floor(Math.random() * chars.length)];
       setBinary(str);
     };
+    generate();
     const interval = setInterval(generate, 100);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="w-full overflow-hidden bg-white/[0.02] border-y border-white/5 py-1 select-none pointer-events-none">
-      <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite] opacity-20">
-        <span className="text-[8px] font-mono tracking-[0.5em] text-purple-400/60">{binary}{binary}{binary}</span>
+    <div className="w-full overflow-hidden bg-white/[0.02] border-y border-white/5 py-2 select-none pointer-events-none">
+      <div className="flex whitespace-nowrap animate-marquee opacity-20">
+        <span className="text-[12px] font-mono tracking-[0.5em] text-purple-400/60 pr-[0.5em]">{binary}</span>
+        <span className="text-[12px] font-mono tracking-[0.5em] text-purple-400/60 pr-[0.5em]">{binary}</span>
       </div>
     </div>
   );

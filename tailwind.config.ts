@@ -88,23 +88,25 @@ export default {
             height: '0',
           },
         },
-        // NEW: Subtle glow pulse
         'glow-pulse': {
           '0%, 100%': { opacity: '0.4', filter: 'blur(8px)' },
           '50%': { opacity: '1', filter: 'blur(12px)' },
         },
-        // NEW: Sonar ripple effect
         'sonar': {
           '0%': { transform: 'scale(1)', opacity: '0.8' },
           '100%': { transform: 'scale(2)', opacity: '0' },
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        // NEW: Apply them here
         'glow-pulse': 'glow-pulse 4s infinite ease-in-out',
         'sonar': 'sonar 3s infinite cubic-bezier(0, 0, 0.2, 1)',
+        'marquee': 'marquee 60s linear infinite',
       },
     },
   },

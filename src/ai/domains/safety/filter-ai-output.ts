@@ -1,7 +1,5 @@
 /**
- * @fileOverview AI output filtering flow.
- *
- * - filterAIOutput - A function that filters AI-generated text for harmful content.
+ * @fileOverview AI output filtering logic.
  */
 
 import {ai} from '@/ai/genkit';
@@ -40,7 +38,7 @@ Respond with JSON.  The isSafe field should be true if the text is safe, and fal
   },
 });
 
-const flow = ai.defineFlow(
+const filterAIOutputFlow = ai.defineFlow(
   {
     name: 'filterAIOutputFlow',
     inputSchema: FilterAIOutputInputSchema,
@@ -63,8 +61,8 @@ const flow = ai.defineFlow(
 );
 
 /**
- * filterAIOutput - Standard function wrapper for the AI filtering flow to prevent Next.js 15 proxy errors.
+ * filterAIOutput - Asynchronous wrapper for internal logic.
  */
 export async function filterAIOutput(input: FilterAIOutputInput) {
-  return flow(input);
+  return filterAIOutputFlow(input);
 }

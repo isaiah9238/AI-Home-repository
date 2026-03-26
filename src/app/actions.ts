@@ -15,10 +15,7 @@ import { establishHomeBase } from '@/ai/discovery/establish-home-base';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
- * These functions bridge the UI to the AI functions and Database.
  */
-
-// --- UTILS ---
 
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
@@ -54,8 +51,6 @@ const MOCK_USER_CONTEXT = {
   updatedAt: new Date().toISOString(),
 };
 
-// --- 0. System Diagnostics ---
-
 export async function pingServer() {
   try {
     return { 
@@ -68,8 +63,6 @@ export async function pingServer() {
     return { success: false, status: 'OFFLINE' };
   }
 }
-
-// --- 1. Terminal / Chat Logic ---
 
 export async function sendTerminalMessage(message: string) {
   try {
@@ -91,7 +84,6 @@ export async function sendTerminalMessage(message: string) {
   }
 }
 
-// --- 2. Mentor AI: Get Morning Briefing ---
 export async function getMorningBriefing(userContext?: any) {
   try {
     await verifyAuth();
@@ -122,10 +114,7 @@ export async function getMorningBriefing(userContext?: any) {
   }
 }
 
-// --- 3. Research Domain: Flux Echo & Epitomizer ---
-export type ResearchMode = 'scout' | 'deep';
-
-export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
+export async function runResearchMode(input: { url: string, mode: 'scout' | 'deep' }) {
   try {
     await verifyAuth();
     let result;
@@ -151,8 +140,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
   }
 }
-
-// --- 4. Discovery Domain: Architect & Tutor ---
 
 export async function runArchitect(blueprint: string) {
   try {
@@ -257,8 +244,6 @@ export async function deleteLessonPlan(id: string) {
   }
 }
 
-// --- 5. Database: Home Base Logic ---
-
 export async function getHomeBase() {
   try {
     await verifyAuth();
@@ -283,8 +268,6 @@ export async function updateHomeBaseAction(updates: any) {
     return { success: false, error: "LIBRARIAN_WRITE_ERROR" };
   }
 }
-
-// --- 6. Evolution & Curriculum ---
 
 export async function getSystemEvolution() {
   try {
@@ -353,8 +336,6 @@ export async function integrateLessonAction(data: { title: string; subject: stri
   }
 }
 
-// --- 7. Safety & Integrity ---
-
 export async function getSystemIntegrity() {
   try {
     await verifyAuth();
@@ -406,7 +387,7 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     await gemRef.update({ resolution });
 
     if (resolution === 'resolved') {
-      const reward = 25; // Standard reward
+      const reward = 25;
       const userRef = db.collection('users').doc('primary_user');
       await db.runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userRef);
@@ -442,8 +423,6 @@ export async function getMilestones() {
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
 }
-
-// --- 8. Calibration ---
 
 export async function commitNeuralWeights(config: any) {
   try {

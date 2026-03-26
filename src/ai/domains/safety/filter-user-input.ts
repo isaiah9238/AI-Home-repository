@@ -1,9 +1,5 @@
 /**
- * @fileOverview A flow to filter user input for inappropriate language.
- *
- * - filterUserInput - A function that filters user input.
- * - FilterUserInputInput - The input type for the filterUserInput function.
- * - FilterUserInputOutput - The return type for the filterUserInput function.
+ * @fileOverview Internal user input filtering logic.
  */
 
 import {ai} from '@/ai/genkit';
@@ -25,12 +21,6 @@ const FilterUserInputOutputSchema = z.object({
     .describe('The reason why the text is considered inappropriate.'),
 });
 export type FilterUserInputOutput = z.infer<typeof FilterUserInputOutputSchema>;
-
-export async function filterUserInput(
-  input: FilterUserInputInput
-): Promise<FilterUserInputOutput> {
-  return filterUserInputFlow(input);
-}
 
 const prompt = ai.definePrompt({
   name: 'filterUserInputPrompt',
@@ -55,16 +45,22 @@ const filterUserInputFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
 
-    // 💎 Record Gem if inappropriate
     if (output && !output.isAppropriate) {
       await recordGem({
         type: 'user_input',
         reason: output.reason || 'Unknown violation',
         content: input.text,
-        severity: 'medium', // Default for user input
+        severity: 'medium',
       });
     }
 
     return output!;
   }
 );
+
+/**
+ * filterUserInput - Asynchronous wrapper for internal logic.
+ */
+export async function filterUserInput(input: FilterUserInputInput): Promise<FilterUserInputOutput> {
+  return filterUserInputFlow(input);
+}

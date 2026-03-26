@@ -3,144 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Home | Portal Gateway</title>
+    <title>AI Home | System Initialization</title>
     <style>
-        :root {
-            --bg: #050505;
-            --accent: #3b82f6;
-            --text: #ffffff;
-            --dim: rgba(255, 255, 255, 0.4);
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            color: var(--text);
+        body {
+            background-color: #050505;
+            color: #00A8E8;
             font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
         }
 
-        .terminal {
-            width: 80%;
-            max-width: 600px;
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
-            border-radius: 8px;
+        .container {
+            text-align: center;
             position: relative;
-        }
-
-        .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(59, 130, 246, 0.1);
-            animation: scan 4s linear infinite;
             z-index: 10;
         }
 
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
+        .logo-box {
+            width: 120px;
+            height: 120px;
+            border: 2px solid #00A8E8;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: pulse 2s infinite ease-in-out;
         }
 
-        .logo {
-            font-size: 12px;
-            letter-spacing: 0.8em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 20px;
-            opacity: 0.8;
+        .logo-box::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border: 1px dashed rgba(0, 168, 232, 0.3);
+            animation: spin 20s linear infinite;
         }
 
         .status {
-            font-size: 14px;
-            line-height: 1.8;
-            margin-top: 30px;
+            font-size: 10px;
+            color: rgba(0, 168, 232, 0.5);
+            margin-bottom: 5px;
         }
 
-        .line {
-            margin-bottom: 10px;
+        .loading-bar {
+            width: 250px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #00A8E8;
+            animation: load 3s forwards cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .terminal-text {
+            font-size: 12px;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes load {
+            0% { left: -100%; }
+            30% { left: -70%; }
+            60% { left: -20%; }
+            100% { left: 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; box-shadow: 0 0 10px #00A8E8; }
+            50% { opacity: 1; box-shadow: 0 0 30px #00A8E8; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-enter {
+            background: transparent;
+            border: 1px solid #00A8E8;
+            color: #00A8E8;
+            padding: 10px 30px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 20px;
             opacity: 0;
-            animation: fadeIn 0.5s forwards;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        .cursor {
+            transition: all 0.3s;
+            text-decoration: none;
             display: inline-block;
-            width: 8px;
-            height: 15px;
-            background: var(--accent);
-            margin-left: 5px;
-            animation: blink 1s step-end infinite;
+        }
+
+        .btn-enter.ready {
+            opacity: 1;
+            animation: blink 1s infinite;
+        }
+
+        .btn-enter:hover {
+            background: #00A8E8;
+            color: black;
+            box-shadow: 0 0 20px #00A8E8;
         }
 
         @keyframes blink {
-            50% { opacity: 0; }
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.5; }
         }
-
-        .btn {
-            margin-top: 40px;
-            padding: 12px 30px;
-            background: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.2em;
-            cursor: pointer;
-            transition: all 0.3s;
-            opacity: 0;
-            animation: fadeIn 1s 3s forwards;
-        }
-
-        .btn:hover {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .delay-1 { animation-delay: 0.5s; }
-        .delay-2 { animation-delay: 1s; }
-        .delay-3 { animation-delay: 1.5s; }
-        .delay-4 { animation-delay: 2s; }
-        .delay-5 { animation-delay: 2.5s; }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <div class="scanline"></div>
-        <div class="logo">The _Cabinet_V4.2.0</div>
-
-        <div class="status">
-            <div class="line delay-1">> INITIALIZING_BOOT_SEQUENCE...</div>
-            <div class="line delay-2">> SYNCHRONIZING_NEURAL_PATHWAYS... [OK]</div>
-            <div class="line delay-3">> LIBRARIAN_STATUS: OPERATIONAL</div>
-            <div class="line delay-4">> SYSTEM_INTEGRITY: OPTIMAL</div>
-            <div class="line delay-5">> WAITING_FOR_USER_SIGNAL<span class="cursor"></span></div>
+    <div class="scanline"></div>
+    
+    <div class="container">
+        <div class="logo-box">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="2" />
+                <path d="M7 2v20M17 2v20M2 12h20" stroke-dasharray="2 2" opacity="0.5" />
+                <circle cx="12" cy="12" r="3" fill="#00A8E8" />
+            </svg>
         </div>
 
-        <button class="btn" onclick="window.location.href='/'">Engage_Portal</button>
+        <div class="status">Node_ID: CABINET_CORE_V4.2</div>
+        <div class="status">Status: Stabilizing_Neural_Pathways</div>
+        
+        <div class="loading-bar"></div>
+        
+        <div id="terminal" class="terminal-text">INITIALIZING_BOOT_SEQUENCE...</div>
+        
+        <a href="/" id="enter-link" class="btn-enter">ACCESS_DASHBOARD</a>
     </div>
 
     <script>
-        // Automatic redirection after a few seconds if they don't click
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 8000);
+        const terminal = document.getElementById('terminal');
+        const enterLink = document.getElementById('enter-link');
+        const logs = [
+            "SYNCING_WITH_LIBRARIAN...",
+            "AUTHENTICATING_NODE_ACCESS...",
+            "MAPPING_NEURAL_GRAPH...",
+            "LOADING_DRAWERS...",
+            "SYSTEM_READY."
+        ];
+
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < logs.length) {
+                terminal.innerText = logs[i];
+                i++;
+            } else {
+                clearInterval(interval);
+                enterLink.classList.add('ready');
+            }
+        }, 600);
     </script>
 </body>
 </html>

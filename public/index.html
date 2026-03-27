@@ -22,102 +22,81 @@
         .container {
             text-align: center;
             position: relative;
-            z-index: 20;
+            z-index: 10;
         }
         .logo {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
+            border: 2px solid #00A8E8;
+            border-radius: 50%;
             margin-bottom: 2rem;
-            animation: pulse 2s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 168, 232, 0.2);
+            animation: pulse 4s infinite ease-in-out;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-        .loader {
-            width: 300px;
-            height: 2px;
-            background: rgba(0, 168, 232, 0.1);
-            position: relative;
-            margin-top: 1rem;
-        }
-        .progress {
-            position: absolute;
-            height: 100%;
+        .logo-inner {
+            width: 60px;
+            height: 60px;
             background: #00A8E8;
-            width: 0%;
-            animation: load 3s forwards cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 15px #00A8E8;
-        }
-        @keyframes load {
-            0% { width: 0%; }
-            100% { width: 100%; }
+            border-radius: 50%;
+            opacity: 0.8;
         }
         .status {
             font-size: 10px;
-            margin-top: 1.5rem;
-            opacity: 0.6;
-            height: 1rem;
+            color: rgba(0, 168, 232, 0.4);
+            margin-top: 1rem;
+        }
+        .terminal {
+            margin-top: 2rem;
+            font-size: 12px;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem 2.5rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            background: rgba(0, 168, 232, 0.05);
+        }
+        .terminal:hover {
+            background: #00A8E8;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 168, 232, 0.5);
         }
         .scanline {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
-            background-size: 100% 2px, 3px 100%;
+            height: 2px;
+            background: rgba(0, 168, 232, 0.1);
+            z-index: 100;
             pointer-events: none;
-            z-index: 10;
+            animation: scan 4s linear infinite;
         }
-        .grid {
-            position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(0, 168, 232, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 168, 232, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 5;
-            opacity: 0.3;
+        @keyframes scan {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100vh); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
     </style>
-    <script>
-        // Tactical Redirect Sequence
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 3500);
-    </script>
 </head>
 <body>
-    <div class="grid"></div>
     <div class="scanline"></div>
     <div class="container">
-        <svg class="logo" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="100" cy="100" r="80" stroke="#00A8E8" stroke-width="1" stroke-dasharray="10 20" />
-            <circle cx="100" cy="100" r="60" stroke="#00A8E8" stroke-width="4" opacity="0.8" />
-            <path d="M100 40 L100 160 M40 100 L160 100" stroke="#00A8E8" stroke-width="1" opacity="0.4" />
-            <circle cx="100" cy="100" r="10" fill="#00A8E8" class="animate-pulse" />
-        </svg>
-        <div class="title" style="font-weight: bold; font-size: 18px;">Cabinet_Core_Initialized</div>
-        <div class="loader">
-            <div class="progress"></div>
+        <div class="logo">
+            <div class="logo-inner"></div>
         </div>
-        <div class="status" id="status">Synchronizing_Neural_Nodes...</div>
+        <h1>Cabinet_Initialization</h1>
+        <div class="status">Neural_Nodes: Syncing...</div>
+        <div class="status">Librarian: Online</div>
+        <div style="margin-top: 3rem;">
+            <a href="/" class="terminal">Enter_Neural_Interface</a>
+        </div>
     </div>
-    <script>
-        const statusText = [
-            "Connecting_To_Librarian...",
-            "Decrypting_Vault_Frequencies...",
-            "Engaging_Discovery_Tutor...",
-            "System_Identity_Stable.",
-            "Handshake_Complete."
-        ];
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < statusText.length) {
-                document.getElementById('status').innerText = statusText[i++];
-            } else {
-                clearInterval(interval);
-            }
-        }, 600);
-    </script>
 </body>
 </html>

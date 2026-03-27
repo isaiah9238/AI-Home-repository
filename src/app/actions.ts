@@ -5,7 +5,7 @@ import { multiAgentDispatcher } from '@/ai/discovery/multi-agent-dispatcher';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
-import { generateLessonPlanFlow } from '@/ai/discovery/generate-lesson-plan';
+import { generateLessonPlan as generateLessonPlanFlow } from '@/ai/discovery/generate-lesson-plan';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
@@ -56,8 +56,7 @@ export async function pingServer() {
     return { 
       success: true, 
       timestamp: new Date().toISOString(), 
-      status: 'ONLINE',
-      port: 3100
+      status: 'ONLINE'
     };
   } catch (error) {
     return { success: false, status: 'OFFLINE' };

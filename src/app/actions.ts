@@ -57,7 +57,7 @@ export async function pingServer() {
       success: true, 
       timestamp: new Date().toISOString(), 
       status: 'ONLINE',
-      port: 3000
+      port: 3100
     };
   } catch (error) {
     return { success: false, status: 'OFFLINE' };

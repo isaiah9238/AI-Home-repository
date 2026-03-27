@@ -5,10 +5,10 @@ import { multiAgentDispatcher } from '@/ai/discovery/multi-agent-dispatcher';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
+import { generateLessonPlanFlow } from '@/ai/discovery/generate-lesson-plan';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { migrateLessonToDb } from '@/ai/discovery/migrate-lesson-to-db';
 import { revalidatePath } from 'next/cache';
-import { ai } from '@/ai/genkit';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
@@ -187,14 +187,11 @@ export async function getSavedBlueprints() {
 export async function generateLessonPlan(subject: string) {
   try {
     await verifyAuth();
-    const response = await ai.generate({
-      model: 'googleai/gemini-2.5-pro',
-      prompt: `You are the Discovery Tutor. Create a detailed, structured, and technical lesson plan for: ${subject}. Use Markdown formatting. Ensure the content is production-grade.`,
-    });
+    const text = await generateLessonPlanFlow({ subject });
 
-    const text = response.text;
-
-    if (!text) throw new Error("EMPTY_SIGNAL: The model returned no content.");
+    if (!text || text.includes("SIGNAL_LOST")) {
+      throw new Error("EMPTY_SIGNAL: The Tutor could not generate the plan.");
+    }
 
     const planRef = await getAdminDb().collection('lesson_plans').add({
       userId: 'primary_user',

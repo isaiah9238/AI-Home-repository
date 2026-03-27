@@ -1,4 +1,3 @@
-
 import { config } from 'dotenv';
 config();
 
@@ -16,6 +15,7 @@ import '@/ai/domains/research/epitomize-fetched-content';
 import '@/ai/discovery/generate-initial-files';
 import '@/ai/discovery/mentor-ai';
 import '@/ai/discovery/integrate-lesson-plans';
+import '@/ai/discovery/generate-lesson-plan';
 import '@/ai/discovery/establish-home-base';
 
 // Domain: Safety

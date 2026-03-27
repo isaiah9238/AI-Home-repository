@@ -1,0 +1,44 @@
+import { ai } from '../genkit';
+import { z } from 'genkit';
+
+/**
+ * @fileOverview The Discovery Tutor: Plan Generation
+ * 
+ * - generateLessonPlanFlow - Logic for synthesizing structured Markdown lesson plans.
+ */
+
+export async function generateLessonPlanFlow(input: { subject: string }) {
+  return generateFlow(input);
+}
+
+const flow = ai.defineFlow(
+  {
+    name: 'generateLessonPlan',
+    inputSchema: z.object({ subject: z.string() }),
+    outputSchema: z.string(),
+  },
+  async (input) => {
+    const { text } = await ai.generate({
+      model: 'googleai/gemini-2.5-pro',
+      prompt: `
+        ROLE: You are the "Discovery Tutor," a high-fidelity educator residing in the AI Home Cabinet.
+        TASK: Create a detailed, structured, and technical lesson plan for the coordinate: "${input.subject}".
+        
+        CONSTRUCTION_RULES:
+        1. Use clear Markdown formatting (headings, lists, code blocks).
+        2. Ensure the content is production-grade and technically accurate.
+        3. Include a "Conceptual Overview," "Core Logic," and a "Practical Exercise."
+        4. Maintain a supportive yet professional terminal-style tone.
+        
+        OUTPUT: Return the full Markdown plan.
+      `,
+    });
+
+    return text || "SIGNAL_LOST: The Tutor could not synthesize the plan.";
+  }
+);
+
+// Wrapper to prevent Next.js 15 proxy errors
+const generateFlow = async (input: { subject: string }) => {
+  return flow(input);
+};

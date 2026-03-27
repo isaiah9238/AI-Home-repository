@@ -14,5 +14,5 @@ export const ai = genkit({
     // Force the plugin to use the key from your .env
     googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })
   ],
-  model: 'googleai/gemini-2.5-pro', 
+  model: 'googleai/gemini-2.0-flash', 
 });

@@ -4,12 +4,8 @@ import { z } from 'genkit';
 /**
  * @fileOverview The Discovery Tutor: Plan Generation
  * 
- * - generateLessonPlanFlow - Logic for synthesizing structured Markdown lesson plans.
+ * - generateLessonPlan - Logic for synthesizing structured Markdown lesson plans.
  */
-
-export async function generateLessonPlanFlow(input: { subject: string }) {
-  return generateFlow(input);
-}
 
 const flow = ai.defineFlow(
   {
@@ -38,7 +34,9 @@ const flow = ai.defineFlow(
   }
 );
 
-// Wrapper to prevent Next.js 15 proxy errors
-const generateFlow = async (input: { subject: string }) => {
+/**
+ * generateLessonPlan - Standard function wrapper for the Tutor flow.
+ */
+export async function generateLessonPlan(input: { subject: string }) {
   return flow(input);
-};
+}

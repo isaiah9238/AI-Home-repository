@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Home | System Initialization</title>
+    <title>AI Home | Portal Initialization</title>
     <style>
         body {
             background-color: #050505;
@@ -17,86 +17,110 @@
             margin: 0;
             overflow: hidden;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
         }
         .container {
+            border: 1px solid rgba(0, 168, 232, 0.2);
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0, 168, 232, 0.1);
+            max-width: 500px;
+            width: 90%;
             text-align: center;
-            position: relative;
-            z-index: 10;
         }
         .logo {
-            width: 120px;
-            height: 120px;
-            border: 2px solid #00A8E8;
-            border-radius: 50%;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 30px rgba(0, 168, 232, 0.2);
-            animation: pulse 4s infinite ease-in-out;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 0 0 10px #00A8E8;
         }
-        .logo-inner {
-            width: 60px;
-            height: 60px;
-            background: #00A8E8;
-            border-radius: 50%;
-            opacity: 0.8;
-        }
-        .status {
+        .status-line {
             font-size: 10px;
-            color: rgba(0, 168, 232, 0.4);
-            margin-top: 1rem;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            opacity: 0.6;
         }
-        .terminal {
-            margin-top: 2rem;
-            font-size: 12px;
-            color: #fff;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 1rem 2.5rem;
-            border-radius: 4px;
-            transition: all 0.3s;
-            background: rgba(0, 168, 232, 0.05);
+        .loader {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
         }
-        .terminal:hover {
+        .loader-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
             background: #00A8E8;
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 168, 232, 0.5);
+            box-shadow: 0 0 10px #00A8E8;
+            animation: move 2s infinite ease-in-out;
+        }
+        @keyframes move {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            border: 1px solid #00A8E8;
+            color: #00A8E8;
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 4px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: transparent;
+        }
+        .btn:hover {
+            background: #00A8E8;
+            color: #050505;
+            box-shadow: 0 0 20px #00A8E8;
         }
         .scanline {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: rgba(0, 168, 232, 0.1);
-            z-index: 100;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
+            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            animation: scan 4s linear infinite;
-        }
-        @keyframes scan {
-            0% { transform: translateY(-100px); }
-            100% { transform: translateY(100vh); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
+            z-index: 100;
+            opacity: 0.1;
         }
     </style>
 </head>
 <body>
     <div class="scanline"></div>
     <div class="container">
-        <div class="logo">
-            <div class="logo-inner"></div>
-        </div>
-        <h1>Cabinet_Initialization</h1>
-        <div class="status">Neural_Nodes: Syncing...</div>
-        <div class="status">Librarian: Online</div>
-        <div style="margin-top: 3rem;">
-            <a href="/" class="terminal">Enter_Neural_Interface</a>
-        </div>
+        <div class="logo">AI_HOME</div>
+        <div class="status-line">SYSTEM_ID: CABINET_V4.2.0</div>
+        <div class="status-line">NODE_STATUS: ONLINE</div>
+        <div class="status-line">LIBRARIAN: SYNCED</div>
+        <div class="loader"><div class="loader-bar"></div></div>
+        <div class="status-line" id="teletype">INITIALIZING_NEURAL_PATHWAYS...</div>
+        <a href="/" class="btn">INITIALIZE_CORE</a>
     </div>
+    <script>
+        const lines = [
+            "DECRYPTING_DRAWERS...",
+            "ESTABLISHING_HOME_BASE...",
+            "SYNCING_ARCHITECT...",
+            "READY_FOR_DEPLOYMENT"
+        ];
+        let i = 0;
+        const el = document.getElementById('teletype');
+        setInterval(() => {
+            el.innerText = lines[i];
+            i = (i + 1) % lines.length;
+        }, 3000);
+    </script>
 </body>
 </html>

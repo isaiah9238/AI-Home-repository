@@ -7,6 +7,7 @@
   env = { };
   idx = {
     extensions = [
+      #any
     ];
     previews = {
       enable = true;
@@ -14,9 +15,9 @@
         web = {
         command = [ "npm" "run" "dev" "--" "-p" "$PORT" "-H" "0.0.0.0" ];
         manager = "web";
-         env = {
-           PORT = "3100";
-           };
+         #env = {
+           #PORT = "3000";
+           #};
         };
       };
     };

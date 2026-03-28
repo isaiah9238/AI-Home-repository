@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMemo, useState } from 'react';
 
 interface Node {
   id: string;
@@ -17,7 +18,12 @@ interface Node {
   status?: string;
   x: number;
   y: number;
-  data?: any;
+}
+
+interface NeuralGraphProps {
+  lessons: any[];
+  neuralComplexity: number;
+  knowledgeIntegration: number;
 }
 
 interface Link {
@@ -28,32 +34,39 @@ interface Link {
 
 interface NeuralGraphProps {
   lessons: any[];
+  neuralComplexity: number;
+  knowledgeIntegration: number;
 }
 
-export function NeuralGraph({ lessons }: NeuralGraphProps) {
+interface NeuralGraphProps {
+  lessons: any[];
+}
+
+export function NeuralGraph({ lessons, neuralComplexity, knowledgeIntegration }: NeuralGraphProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const graphData = useMemo(() => {
     const nodes: Node[] = [];
-    const links: Link[] = [];
-
-    // 1. SYSTEM_CORE (Center)
+    const links: any[] = [];
     const coreX = 400;
     const coreY = 300;
+
+    let lessonComplexity = lesson.status === 'completed' ? 70 + (i % 10) : 40 + (i % 5);
+
     nodes.push({
-      id: 'core',
-      label: 'SYSTEM_CORE',
-      group: 'Core',
-      complexity: 100,
-      x: coreX,
-      y: coreY
+      id: lesson.id || `lesson-${i}`,
+      label: lesson.title || 'FRAGMENT_PENDING',
+      group: 'Curriculum',
+      complexity: lessonComplexity,
+      status: lesson.status,
+      x,
+      y
     });
 
-    // 2. CURRICULUM NODES (Outer Ring)
-    const activeLessons = lessons || [];
-    activeLessons.forEach((lesson, i) => {
-      const angle = (i / Math.max(1, activeLessons.length)) * 2 * Math.PI;
-      const radius = 180 + (i % 2 === 0 ? 20 : -20); // Staggered radius
+    // 2. CURRICULUM NODES (The Hallway Fragments)
+    lessons.forEach((lesson, i) => {
+      const angle = (i / Math.max(1, lessons.length)) * 2 * Math.PI;
+      const radius = 180 + (i % 2 === 0 ? 20 : -20);
       const x = coreX + Math.cos(angle) * radius;
       const y = coreY + Math.sin(angle) * radius;
       

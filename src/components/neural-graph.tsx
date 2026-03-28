@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMemo, useState } from 'react';
 
 interface Node {
   id: string;

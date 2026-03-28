@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit",
     "dev:emulators": "concurrently \"npm run dev\" \"npm run emulators\"",
     "build": "next build",
-    "start": "next start -H 0.0.0.0",
+    "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },

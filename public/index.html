@@ -3,124 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Home | Portal Initialization</title>
+    <title>AI Home | Portal Gateway</title>
     <style>
-        body {
-            background-color: #050505;
-            color: #00A8E8;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            text-transform: uppercase;
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;700&display=swap');
+        
+        :root {
+            --accent: #00A8E8;
+            --bg: #050505;
         }
+
+        body { 
+            background: var(--bg); 
+            color: var(--accent); 
+            font-family: 'JetBrains Mono', monospace; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            perspective: 1000px;
+        }
+
         .container {
-            border: 1px solid rgba(0, 168, 232, 0.2);
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            box-shadow: 0 0 50px rgba(0, 168, 232, 0.1);
-            max-width: 500px;
-            width: 90%;
             text-align: center;
+            z-index: 10;
+            animation: fadeIn 2s ease-out;
         }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 10px;
-            margin-bottom: 30px;
-            color: white;
-            text-shadow: 0 0 10px #00A8E8;
+
+        .glitch { 
+            font-size: 3rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8em; 
+            position: relative;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 168, 232, 0.5);
         }
-        .status-line {
+
+        .status {
             font-size: 10px;
-            letter-spacing: 2px;
-            margin: 10px 0;
-            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            opacity: 0.4;
+            margin-bottom: 40px;
         }
-        .loader {
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.05);
-            margin: 30px 0;
+
+        .scanline { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 4px; 
+            background: rgba(0, 168, 232, 0.1); 
+            animation: scan 6s linear infinite; 
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0, 168, 232, 0.2);
+        }
+
+        .btn { 
+            display: inline-block;
+            margin-top: 20px; 
+            padding: 15px 40px; 
+            border: 1px solid var(--accent); 
+            background: rgba(0, 168, 232, 0.05); 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            text-decoration: none;
+            cursor: pointer; 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-size: 12px;
+            letter-spacing: 0.3em;
             position: relative;
             overflow: hidden;
         }
-        .loader-bar {
+
+        .btn::before {
+            content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            height: 100%;
-            width: 30%;
-            background: #00A8E8;
-            box-shadow: 0 0 10px #00A8E8;
-            animation: move 2s infinite ease-in-out;
-        }
-        @keyframes move {
-            0% { left: -30%; }
-            100% { left: 100%; }
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 30px;
-            border: 1px solid #00A8E8;
-            color: #00A8E8;
-            text-decoration: none;
-            font-size: 12px;
-            letter-spacing: 4px;
-            transition: all 0.3s;
-            cursor: pointer;
-            background: transparent;
-        }
-        .btn:hover {
-            background: #00A8E8;
-            color: #050505;
-            box-shadow: 0 0 20px #00A8E8;
-        }
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
-            background-size: 100% 2px, 3px 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 168, 232, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover { 
+            background: var(--accent); 
+            color: var(--bg); 
+            box-shadow: 0 0 30px rgba(0, 168, 232, 0.4); 
+            transform: translateY(-2px);
+        }
+
+        .grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 168, 232, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 168, 232, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: rotateX(60deg) translateY(-50%);
+            z-index: 1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 1000px; } }
+
+        .telemetry {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 8px;
+            opacity: 0.2;
+            text-align: left;
             pointer-events: none;
-            z-index: 100;
-            opacity: 0.1;
         }
     </style>
 </head>
 <body>
+    <div class="grid"></div>
     <div class="scanline"></div>
+    
     <div class="container">
-        <div class="logo">AI_HOME</div>
-        <div class="status-line">SYSTEM_ID: CABINET_V4.2.0</div>
-        <div class="status-line">NODE_STATUS: ONLINE</div>
-        <div class="status-line">LIBRARIAN: SYNCED</div>
-        <div class="loader"><div class="loader-bar"></div></div>
-        <div class="status-line" id="teletype">INITIALIZING_NEURAL_PATHWAYS...</div>
-        <a href="/" class="btn">INITIALIZE_CORE</a>
+        <div class="glitch">Portal</div>
+        <div class="status">LIBRARIAN_PROTOCOL_ACTIVE // V.4.2.0</div>
+        <a href="/" class="btn">Initialize_Core</a>
     </div>
-    <script>
-        const lines = [
-            "DECRYPTING_DRAWERS...",
-            "ESTABLISHING_HOME_BASE...",
-            "SYNCING_ARCHITECT...",
-            "READY_FOR_DEPLOYMENT"
-        ];
-        let i = 0;
-        const el = document.getElementById('teletype');
-        setInterval(() => {
-            el.innerText = lines[i];
-            i = (i + 1) % lines.length;
-        }, 3000);
-    </script>
+
+    <div class="telemetry">
+        NODE_SYNC: STABLE<br>
+        ENCRYPTION: AES_256<br>
+        AUTH_LINK: READY<br>
+        LATENCY: 14ms
+    </div>
 </body>
 </html>

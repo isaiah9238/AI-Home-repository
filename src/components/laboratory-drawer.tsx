@@ -37,7 +37,7 @@ function BinaryMarquee() {
   }, []);
 
   return (
-    <div className="w-full overflow-hidden bg-white/[0.02] border-y border-white/5 py-3 select-none pointer-events-none">
+    <div className="w-full overflow-hidden bg-white/[0.02] border-y border-white/5 py-4 select-none pointer-events-none">
       <div className="flex whitespace-nowrap animate-marquee opacity-20">
         <span className="text-[14px] font-mono tracking-[0.5em] text-purple-400/60 pr-[0.5em]">{binary}</span>
         <span className="text-[14px] font-mono tracking-[0.5em] text-purple-400/60 pr-[0.5em]">{binary}</span>

@@ -13,7 +13,7 @@
       enable = true;
       previews = {
         web = {
-        command = [ "npm" "run" "dev" "--" "-p" "$PORT" "-H" "0.0.0.0" ];
+        command = [ "npm" "run" "dev" "--" "-p" "$PORT" "0.0.0.0" ];
         manager = "web";
          #env = {
            #PORT = "3000";

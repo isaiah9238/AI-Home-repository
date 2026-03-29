@@ -323,7 +323,12 @@ export function PortalInterface() {
         <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
           <X className="w-6 h-6" />
         </Button>
-        <NeuralGraph lessons={curriculumProgress?.lessons || []} />
+        {/* UPDATE THIS LINE BELOW */}
+        <NeuralGraph 
+          lessons={curriculumProgress?.lessons || []} 
+          neuralComplexity={curriculumProgress?.neuralComplexity || 0}
+          knowledgeIntegration={curriculumProgress?.knowledgeIntegration || 0}
+        />
       </div>
     );
   }

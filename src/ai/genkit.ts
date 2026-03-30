@@ -12,7 +12,7 @@ if (!apiKey) {
 export const ai = genkit({
   plugins: [
     // Force the plugin to use the key from your .env
-    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })
+    googleAI({ apiKey: apiKey })
   ],
-  model: 'googleai/gemini-2.0-flash', 
+  model: 'googleai/gemini-2.5-pro', 
 });

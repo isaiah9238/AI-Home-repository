@@ -5,144 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Home | Portal Gateway</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;700&display=swap');
-        
         :root {
-            --accent: #00A8E8;
+            --accent: #3b82f6;
             --bg: #050505;
         }
-
-        body { 
-            background: var(--bg); 
-            color: var(--accent); 
-            font-family: 'JetBrains Mono', monospace; 
-            overflow: hidden; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            perspective: 1000px;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-
-        .container {
+        .gateway-container {
             text-align: center;
-            z-index: 10;
-            animation: fadeIn 2s ease-out;
-        }
-
-        .glitch { 
-            font-size: 3rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 0.8em; 
+            max-width: 600px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
             position: relative;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(0, 168, 232, 0.5);
         }
-
-        .status {
-            font-size: 10px;
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+        h1 {
+            letter-spacing: 0.5em;
             text-transform: uppercase;
-            letter-spacing: 0.4em;
-            opacity: 0.4;
-            margin-bottom: 40px;
+            font-weight: 100;
+            margin-bottom: 30px;
+            color: rgba(255,255,255,0.8);
         }
-
-        .scanline { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 4px; 
-            background: rgba(0, 168, 232, 0.1); 
-            animation: scan 6s linear infinite; 
-            pointer-events: none;
-            box-shadow: 0 0 15px rgba(0, 168, 232, 0.2);
-        }
-
-        .btn { 
-            display: inline-block;
-            margin-top: 20px; 
-            padding: 15px 40px; 
-            border: 1px solid var(--accent); 
-            background: rgba(0, 168, 232, 0.05); 
-            color: var(--accent); 
-            text-transform: uppercase; 
-            text-decoration: none;
-            cursor: pointer; 
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        .terminal {
             font-size: 12px;
+            color: var(--accent);
+            text-align: left;
+            margin-bottom: 40px;
+            opacity: 0.6;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
+            text-transform: uppercase;
             letter-spacing: 0.3em;
+            font-size: 10px;
+            transition: all 0.5s;
             position: relative;
             overflow: hidden;
         }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 168, 232, 0.2), transparent);
-            transition: 0.5s;
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 30px var(--accent);
         }
-
-        .btn:hover::before {
-            left: 100%;
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
         }
-
-        .btn:hover { 
-            background: var(--accent); 
-            color: var(--bg); 
-            box-shadow: 0 0 30px rgba(0, 168, 232, 0.4); 
-            transform: translateY(-2px);
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
         }
-
-        .grid {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background-image: 
-                linear-gradient(rgba(0, 168, 232, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 168, 232, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: rotateX(60deg) translateY(-50%);
-            z-index: 1;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 1000px; } }
-
-        .telemetry {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            font-size: 8px;
-            opacity: 0.2;
-            text-align: left;
-            pointer-events: none;
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="grid"></div>
-    <div class="scanline"></div>
-    
-    <div class="container">
-        <div class="glitch">Portal</div>
-        <div class="status">LIBRARIAN_PROTOCOL_ACTIVE // V.4.2.0</div>
-        <a href="/" class="btn">Initialize_Core</a>
-    </div>
-
-    <div class="telemetry">
-        NODE_SYNC: STABLE<br>
-        ENCRYPTION: AES_256<br>
-        AUTH_LINK: READY<br>
-        LATENCY: 14ms
+    <div class="gateway-container">
+        <div class="scanline"></div>
+        <h1>Portal_Core</h1>
+        <div class="terminal">
+            <div>> INITIALIZING_LIBRARIAN_V4.2.0... OK</div>
+            <div>> SYNCING_NEURAL_PATHWAYS... OK</div>
+            <div>> ESTABLISHING_VAULT_ENCRYPTION... OK</div>
+            <div>> STATUS: SYSTEM_READY_FOR_DEPLOYMENT</div>
+        </div>
+        <a href="/" class="btn">
+            <span class="pulse"></span>
+            Initialize_Core
+        </a>
     </div>
 </body>
 </html>

@@ -17,6 +17,8 @@ import { establishHomeBase } from '@/ai/discovery/establish-home-base';
  * @fileOverview The "Cabinet" of Server Actions.
  */
 
+export type ResearchMode = 'scout' | 'deep';
+
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
   if (typeof val.toDate === 'function') return val.toDate().toISOString();
@@ -113,7 +115,7 @@ export async function getMorningBriefing(userContext?: any) {
   }
 }
 
-export async function runResearchMode(input: { url: string, mode: 'scout' | 'deep' }) {
+export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
     await verifyAuth();
     let result;

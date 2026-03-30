@@ -106,7 +106,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'glow-pulse': 'glow-pulse 4s infinite ease-in-out',
         'sonar': 'sonar 3s infinite cubic-bezier(0, 0, 0.2, 1)',
-        'marquee': 'marquee 80s linear infinite',
+        'marquee': 'marquee 120s linear infinite',
       },
     },
   },

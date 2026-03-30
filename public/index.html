@@ -3,114 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Home | Portal Gateway</title>
+    <title>AI Home | System Initialization</title>
     <style>
         :root {
-            --accent: #3b82f6;
             --bg: #050505;
+            --accent: #00A8E8;
+            --accent-dim: rgba(0, 168, 232, 0.2);
         }
         body {
-            margin: 0;
-            padding: 0;
             background-color: var(--bg);
-            color: #fff;
+            color: var(--accent);
             font-family: 'Courier New', Courier, monospace;
-            height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100vh;
             overflow: hidden;
-        }
-        .gateway-container {
-            text-align: center;
-            max-width: 600px;
-            padding: 40px;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.02);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 0 100px rgba(0,0,0,0.5);
-            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
         }
         .scanline {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 2px;
-            background: rgba(59, 130, 246, 0.2);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            background: rgba(0, 168, 232, 0.1);
+            z-index: 100;
+            pointer-events: none;
             animation: scan 4s linear infinite;
-            z-index: 10;
-        }
-        h1 {
-            letter-spacing: 0.5em;
-            text-transform: uppercase;
-            font-weight: 100;
-            margin-bottom: 30px;
-            color: rgba(255,255,255,0.8);
         }
         .terminal {
-            font-size: 12px;
-            color: var(--accent);
-            text-align: left;
-            margin-bottom: 40px;
-            opacity: 0.6;
-            line-height: 1.6;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            font-size: 10px;
-            transition: all 0.5s;
+            width: 80%;
+            max-width: 600px;
+            padding: 40px;
+            border: 1px solid var(--accent-dim);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
             position: relative;
-            overflow: hidden;
         }
-        .btn:hover {
+        .line {
+            margin-bottom: 10px;
+            font-size: 12px;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: fadeIn 0.5s forwards;
+        }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 15px;
             background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 30px var(--accent);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        .action-link {
+            margin-top: 30px;
+            display: block;
+            color: white;
+            text-decoration: none;
+            border: 1px solid var(--accent);
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .action-link:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 20px var(--accent);
         }
         @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
+            0% { top: -10%; }
+            100% { top: 110%; }
         }
-        .pulse {
-            width: 10px;
-            height: 10px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="gateway-container">
-        <div class="scanline"></div>
-        <h1>Portal_Core</h1>
-        <div class="terminal">
-            <div>> INITIALIZING_LIBRARIAN_V4.2.0... OK</div>
-            <div>> SYNCING_NEURAL_PATHWAYS... OK</div>
-            <div>> ESTABLISHING_VAULT_ENCRYPTION... OK</div>
-            <div>> STATUS: SYSTEM_READY_FOR_DEPLOYMENT</div>
+    <div class="scanline"></div>
+    
+    <div class="terminal">
+        <div class="line" style="animation-delay: 0.2s;">> Initializing_Librarian_v4.2.0...</div>
+        <div class="line" style="animation-delay: 0.5s;">> Syncing_Neural_Pathways... [OK]</div>
+        <div class="line" style="animation-delay: 0.8s;">> Checking_Cabinet_Integrity... [STABLE]</div>
+        <div class="line" style="animation-delay: 1.1s;">> Loading_Persona_Matrix... [READY]</div>
+        <div class="line" style="animation-delay: 1.4s;">> Establishing_Home_Base_Sync... [ACTIVE]</div>
+        
+        <a href="/" class="action-link">INITIALIZE_CORE_INTERFACE</a>
+        
+        <div class="line" style="animation-delay: 2.0s; margin-top: 20px; font-size: 8px; opacity: 0.4;">
+            SYSTEM_STATUS: ALL_NODES_OPERATIONAL <span class="cursor"></span>
         </div>
-        <a href="/" class="btn">
-            <span class="pulse"></span>
-            Initialize_Core
-        </a>
     </div>
+
+    <script>
+        // Redirect logic if preferred, but manual engagement is more "Cabinet" style
+        // setTimeout(() => { window.location.href = "/"; }, 5000);
+    </script>
 </body>
 </html>

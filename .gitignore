@@ -46,7 +46,6 @@ next-env.d.ts
 .genkit/*
 .env*
 .env*.local
-/keys
 
 # firebase
 .firebase/
@@ -55,3 +54,5 @@ firestore-debug.log
 
 # Editor settings
 .vscode/
+
+keys.json

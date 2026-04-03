@@ -88,23 +88,28 @@ export async function sendTerminalMessage(message: string) {
 export async function getMorningBriefing(userContext?: any) {
   try {
     await verifyAuth();
-    const [curriculum, integrity] = await Promise.all([
-      getCurriculumProgress(),
-      getSystemIntegrity()
+    
+    // Internal calls instead of triggering server actions recursively
+    const db = getAdminDb();
+    const userId = 'primary_user';
+    
+    const [criticalGems, userDoc] = await Promise.all([
+      db.collection('gems').where('resolution', '==', 'pending').where('severity', 'in', ['high', 'critical']).get(),
+      db.collection('users').doc(userId).get()
     ]);
 
     const result = await mentorAi({ 
       request: "Give me my morning briefing.",
       userProfile: {
         ...(userContext || MOCK_USER_CONTEXT),
-        curriculum: curriculum.success ? {
-          integratedPlans: curriculum.integratedPlans,
-          lastTopic: curriculum.lastTopic
+        curriculum: userDoc.exists ? {
+          integratedPlans: 0, // Simplified for briefing context
+          lastTopic: userDoc.data()?.lastLesson || "Initialization"
         } : null,
-        integrity: integrity.success ? {
-          isClean: integrity.isClean,
-          issueCount: integrity.issueCount
-        } : null
+        integrity: {
+          isClean: criticalGems.empty,
+          issueCount: criticalGems.size
+        }
       }
     });
     

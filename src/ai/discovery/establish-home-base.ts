@@ -31,7 +31,10 @@ const flow = ai.defineFlow(
           role: 'Architect',
           established: '2026-02-06',
           curriculumCount: 0,
-          pendingIssues: 0
+          pendingIssues: 0,
+          neuralComplexity: 64,
+          knowledgeIntegration: 82,
+          masteryPhase: 'INITIALIZATION'
         }
       };
     }
@@ -39,6 +42,12 @@ const flow = ai.defineFlow(
     const userData = userDoc.data();
     const curriculumCount = lessonsSnapshot.size;
     const pendingIssues = gemsSnapshot.size;
+    const complexity = userData?.neuralComplexity || 64;
+    
+    // Determine Mastery Phase
+    let masteryPhase = 'INITIAL';
+    if (complexity > 75) masteryPhase = 'ARCHITECT';
+    else if (complexity > 40) masteryPhase = 'EXPANSION';
 
     return {
       status: 'Home Base Established: Librarian Operational',
@@ -51,7 +60,9 @@ const flow = ai.defineFlow(
         curriculumCount,
         pendingIssues,
         isSystemClean: pendingIssues === 0,
-        neuralComplexity: userData?.neuralComplexity || 64
+        neuralComplexity: complexity,
+        knowledgeIntegration: userData?.knowledgeIntegration || 82,
+        masteryPhase
       }
     };
   }

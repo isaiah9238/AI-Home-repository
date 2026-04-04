@@ -400,10 +400,17 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     const gemDoc = await gemRef.get();
     if (!gemDoc.exists) return { success: false, error: "GEM_NOT_FOUND" };
     
+    const gemData = gemDoc.data();
     await gemRef.update({ resolution });
 
     if (resolution === 'resolved') {
-      const reward = 25;
+      // Calculate reward based on severity
+      const severity = gemData?.severity || 'medium';
+      let reward = 25;
+      if (severity === 'critical') reward = 100;
+      else if (severity === 'high') reward = 50;
+      else if (severity === 'low') reward = 10;
+
       const userRef = db.collection('users').doc('primary_user');
       await db.runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userRef);

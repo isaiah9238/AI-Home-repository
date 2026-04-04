@@ -8,7 +8,7 @@
 
 ## 2. Structural Guardrails (The Cabinet Map)
 - **src/ai/discovery:** Memory, Identity, and Architecture (Home Base, Architect, Tutor).
-- **src/ai/domains/research:** Intelligence Scouts and Deep Readers (Flux Echo, Epitomizer, Code Inspector).
+- **src/ai/domains/research:** Intelligence Scouts and Deep Readers (Flux Echo, Epitomizer, Code Inspector, Preview Intent).
 - **src/ai/domains/safety:** Gatekeepers and the Gamified Ledger (Input/Output filters, 24h Gems Drawer).
 - **src/ai/storage:** Dedicated AI file storage managed via Firestore.
 - **src/app/sandbox:** The in-app IDE and execution previewer.
@@ -28,8 +28,8 @@
 - [x] **Gamified Ledger (Gems):** Convert the Safety Ledger into a clean 24-hour cycle where users collect gems/coins.
 - [x] **Dynamic Instructions:** Add adaptive, clickable instruction overlays to the Laboratory and Neural Graph.
 
-## 5. Phase 3: Multi-Agent Orchestration (NEXT)
-- [ ] **Autonomous Previewer:** Develop a sandbox environment where the AI can read user code, analyze intent, and render previews.
+## 5. Phase 3: Multi-Agent Orchestration (ACTIVE)
+- [x] **Autonomous Previewer:** Develop a sandbox environment where the AI can read user code, analyze intent, and render previews.
 - [ ] **Multi-Code Testing Area:** Create a workspace where the user can test multiple sets of code simultaneously.
 - [ ] **Agentic Memory Sync**: Enable agents to leave "notes" for each other in the VFS to coordinate complex tasks.
 - [ ] **High-Fidelity VFS UI**: Enhance the Storage Drawer with drag-and-drop and real-time collaborative editing.
@@ -37,10 +37,11 @@
 # GEMINI MISSION CONTROL (Updated March 2024)
 
 ## Current Status: Phase 3 (Multi-Agent Orchestration)
-We have successfully implemented the persistent foundation of the Cabinet. The system now "remembers" its learning, manages its own files, and rewards maintenance via gems.
+We have successfully implemented the Autonomous Previewer. The system can now analyze intent and execute isolated code previews.
 
 ### Recent Updates:
-- [x] **Mentor Synchronized:** Mentor now explicitly references recent curriculum fragments.
+- [x] **Previewer Chamber Active:** High-fidelity sandbox route with intent-driven srcDoc generation.
+- [x] **Intent Agent Deployed:** New Genkit flow for synthesizing previewable HTML/JS containers.
 - [x] **VFS Core Active:** Virtual File System is live and managing AI assets.
 - [x] **Laboratory Calibration:** Manual weights now directly drive the Adaptive Brain.
 
@@ -48,3 +49,4 @@ We have successfully implemented the persistent foundation of the Cabinet. The s
 - **UI Terminal Logic:** `src/components/ui/chat.tsx` (Contains keyboard & registry branding).
 - **AI Core Logic:** `src/ai/discovery/mentor-ai.ts`.
 - **Status HUDs:** `src/components/interior-dashboard.tsx`.
+- **Sandbox Core:** `src/app/sandbox/page.tsx`.

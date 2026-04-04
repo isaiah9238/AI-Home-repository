@@ -13,6 +13,7 @@ import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
 import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
+import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -471,22 +472,6 @@ export async function getNeuralWeights() {
   }
 }
 
-export async function syncArchitectureLesson() {
-  try {
-    await verifyAuth();
-    const docRef = await getAdminDb().collection('plans').add({
-      title: "First Lesson Plan on Architecture",
-      type: "Lesson Plan",
-      userId: 'primary_user',
-      createdAt: new Date().toISOString(),
-      status: 'active'
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    return { success: false };
-  }
-}
-
 export async function exportVaultData() {
   try {
     await verifyAuth();
@@ -570,17 +555,20 @@ export async function initializeVFS() {
       userId
     });
 
-    await persistVFSNode({
-      name: 'config.json',
-      path: '/config.json',
-      type: 'file',
-      content: JSON.stringify({ version: "4.2.0", status: "STABLE" }, null, 2),
-      parentId: rootDir.id,
-      userId
-    });
-
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+// --- Sandbox Actions ---
+
+export async function getPreviewAnalysis(code: string) {
+  try {
+    await verifyAuth();
+    const result = await analyzePreviewIntent({ code });
+    return { success: true, data: result };
+  } catch (error: any) {
+    return { success: false, error: error.message || "INTENT_ANALYSIS_FAILED" };
   }
 }

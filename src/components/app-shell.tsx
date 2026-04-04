@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Code2, BookOpen, BotMessageSquare, Flag, Cpu, Box } from 'lucide-react';
+import { LayoutDashboard, Code2, BookOpen, BotMessageSquare, Flag, Cpu, Box, FlaskConical } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarInset } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -59,6 +59,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       icon: Box, 
       color: 'text-purple-500',
       description: 'Construction_Core'
+    },
+    { 
+      href: '/sandbox', 
+      label: 'Sandbox', 
+      icon: FlaskConical, 
+      color: 'text-blue-500',
+      description: 'Execution_Core'
     },
     { 
       href: '/code-analyzer', 

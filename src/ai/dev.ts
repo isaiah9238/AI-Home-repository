@@ -11,6 +11,7 @@ import '@/ai/domains/research/analyze-code-snippet';
 import '@/ai/domains/research/link-genie';
 import '@/ai/domains/research/search-genie';
 import '@/ai/domains/research/epitomize-fetched-content';
+import '@/ai/domains/research/analyze-preview-intent';
 
 // Domain: Discovery
 import '@/ai/discovery/generate-initial-files';

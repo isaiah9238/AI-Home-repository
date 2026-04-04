@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './button';
 import { sendTerminalMessage, updateHomeBaseAction, getHomeBase } from '@/app/actions';
-import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown } from 'lucide-react';
+import { Loader2, Terminal, Keyboard, KeyboardOff, ChevronDown, RefreshCcw } from 'lucide-react';
 
 interface TerminalMessage {
   role: 'user' | 'system';
   content: string;
+  isError?: boolean;
 }
 
 export function AIChat() {
@@ -15,6 +16,7 @@ export function AIChat() {
   const [messages, setMessages] = useState<TerminalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const [profile, setProfile] = useState({
@@ -27,17 +29,23 @@ export function AIChat() {
   });
 
   const syncProfile = async () => {
-    const response = await getHomeBase();
-    if (response.success && response.data) {
-      const homeBase = response.data;
-      setProfile({
-        name: homeBase.name.toUpperCase().replace(/\s/g, '_'),
-        role: homeBase.role?.toUpperCase() || 'PRIMARY_USER',
-        interests: Array.isArray(homeBase.interests) ? homeBase.interests.join('_').toUpperCase() : String(homeBase.interests || '').toUpperCase(),
-        experiences: String(homeBase.experiences || 'UNSPECIFIED').toUpperCase(),
-        expectations: 'HIGH',
-        adaptive: 'ON'
-      });
+    try {
+      const response = await getHomeBase();
+      if (response.success && response.data) {
+        const homeBase = response.data;
+        setProfile({
+          name: homeBase.name.toUpperCase().replace(/\s/g, '_'),
+          role: homeBase.role?.toUpperCase() || 'PRIMARY_USER',
+          interests: Array.isArray(homeBase.interests) ? homeBase.interests.join('_').toUpperCase() : String(homeBase.interests || '').toUpperCase(),
+          experiences: String(homeBase.experiences || 'UNSPECIFIED').toUpperCase(),
+          expectations: 'HIGH',
+          adaptive: 'ON'
+        });
+        setIsOffline(false);
+      }
+    } catch (err) {
+      console.warn("Librarian: Profile sync failed. Running in standalone mode.");
+      setIsOffline(true);
     }
   };
 
@@ -53,7 +61,7 @@ export function AIChat() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
@@ -63,10 +71,11 @@ export function AIChat() {
     try {
       const upperInput = userMessage.toUpperCase();
       
+      // Handle SET commands locally
       if (upperInput.startsWith('SET ')) {
         const parts = userMessage.split(' ');
         if (parts.length < 3) {
-          setMessages(prev => [...prev, { role: 'system', content: 'SYSTEM: Invalid syntax. Use SET [FIELD] [VALUE].' }]);
+          setMessages(prev => [...prev, { role: 'system', content: 'SYSTEM: Invalid syntax. Use SET [FIELD] [VALUE].', isError: true }]);
           setLoading(false);
           return;
         }
@@ -87,23 +96,25 @@ export function AIChat() {
             await syncProfile();
             setMessages(prev => [...prev, { role: 'system', content: `LIBRARIAN: Field [${field}] persisted to Home Base.` }]);
           } else {
-            setMessages(prev => [...prev, { role: 'system', content: `ERROR: Librarian write failed.` }]);
+            setMessages(prev => [...prev, { role: 'system', content: `ERROR: Librarian write failed. [${syncResult.error}]`, isError: true }]);
           }
         } else {
-          setMessages(prev => [...prev, { role: 'system', content: `SYSTEM: Field [${field}] is unmapped.` }]);
+          setMessages(prev => [...prev, { role: 'system', content: `SYSTEM: Field [${field}] is unmapped.`, isError: true }]);
         }
         setLoading(false);
         return;
       }
 
+      // Handle general AI queries
       const result = await sendTerminalMessage(userMessage);
       if (result.success) {
         setMessages(prev => [...prev, { role: 'system', content: result.response || 'NO_SIGNAL_RETURNED' }]);
       } else {
-        setMessages(prev => [...prev, { role: 'system', content: `ERROR: ${result.error || "Signal lost."}` }]);
+        setMessages(prev => [...prev, { role: 'system', content: `ERROR: ${result.error || "Signal lost."}`, isError: true }]);
       }
     } catch (error: any) {
-      setMessages(prev => [...prev, { role: 'system', content: `CRITICAL_ERROR: ${error.message || "Signal lost."}` }]);
+      console.error("Terminal interaction failed:", error);
+      setMessages(prev => [...prev, { role: 'system', content: `CRITICAL_ERROR: ${error.message || "Failed to reach backend."}`, isError: true }]);
     } finally {
       setLoading(false);
     }
@@ -113,21 +124,35 @@ export function AIChat() {
 
   return (
     <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      <div ref={scrollRef} className="p-4 border border-green-900/30 bg-black/80 rounded-md h-[200px] overflow-y-auto custom-scrollbar relative shadow-inner">
-        <div className="sticky top-0 right-0 flex items-center justify-between bg-black/40 backdrop-blur-sm px-2 py-1 mb-2 border-b border-green-900/10">
+      <div ref={scrollRef} className="p-4 border border-green-900/30 bg-black/80 rounded-md h-[240px] overflow-y-auto custom-scrollbar relative shadow-inner">
+        <div className="sticky top-0 right-0 flex items-center justify-between bg-black/40 backdrop-blur-sm px-2 py-1 mb-2 border-b border-green-900/10 z-10">
           <p className="text-green-600 font-mono text-[8px] uppercase tracking-widest flex items-center gap-2">
             <Terminal className="w-2 h-2" /> /sys/logs/output.bin
           </p>
-          <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+          <div className="flex items-center gap-2">
+            {isOffline && (
+              <Button variant="ghost" size="icon" onClick={syncProfile} className="h-4 w-4 text-red-500 hover:text-red-400">
+                <RefreshCcw className="w-2 h-2" />
+              </Button>
+            )}
+            <div className={`w-1 h-1 rounded-full animate-pulse ${isOffline ? 'bg-red-500' : 'bg-green-500'}`} />
+          </div>
         </div>
         <div className="space-y-3">
           {messages.length === 0 && !loading && <div className="text-green-900 font-mono text-xs italic">&gt; Awaiting instruction...</div>}
           {messages.map((msg, i) => (
-            <div key={i} className={`font-mono text-sm leading-relaxed ${msg.role === 'user' ? 'text-blue-400/80' : 'text-green-400'}`}>
-              <span className="opacity-30 mr-2">{msg.role === 'user' ? '>' : '#'}</span>{msg.content}
+            <div key={i} className={`font-mono text-sm leading-relaxed ${msg.role === 'user' ? 'text-blue-400/80' : msg.isError ? 'text-red-400' : 'text-green-400'}`}>
+              <span className="opacity-30 mr-2">{msg.role === 'user' ? '>' : msg.isError ? '!' : '#'}</span>
+              {msg.content}
             </div>
           ))}
-          {loading && <div className="flex items-center gap-2 text-green-400 font-mono text-sm animate-pulse"><span className="opacity-30 mr-2">#</span><Loader2 className="w-3 h-3 animate-spin" /> Processing neural logic...</div>}
+          {loading && (
+            <div className="flex items-center gap-2 text-green-400 font-mono text-sm animate-pulse">
+              <span className="opacity-30 mr-2">#</span>
+              <Loader2 className="w-3 h-3 animate-spin" /> 
+              Synthesizing_Response...
+            </div>
+          )}
         </div>
       </div>
 
@@ -136,19 +161,41 @@ export function AIChat() {
           className="flex-1 bg-black border border-green-500/40 p-3 text-green-400 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/20 transition-all placeholder:text-green-900/50 rounded-sm" 
           value={input} 
           onChange={(e) => setInput(e.target.value)} 
-          placeholder="TYPE COMMAND..." 
+          placeholder="TYPE COMMAND OR QUERY..." 
           autoComplete="off" 
+          disabled={loading}
         />
-        <Button type="button" onClick={() => setShowKeyboard(!showKeyboard)} className={`px-4 bg-black border border-green-500/20 text-green-500/60 hover:text-green-400 transition-all ${showKeyboard ? 'bg-green-500/10 border-green-500/40 text-green-400' : ''}`}>
+        <Button 
+          type="button" 
+          onClick={() => setShowKeyboard(!showKeyboard)} 
+          className={`px-4 bg-black border border-green-500/20 text-green-500/60 hover:text-green-400 transition-all ${showKeyboard ? 'bg-green-500/10 border-green-500/40 text-green-400' : ''}`}
+        >
           {showKeyboard ? <KeyboardOff className="w-4 h-4" /> : <Keyboard className="w-4 h-4" />}
         </Button>
-        <Button type="submit" disabled={loading} className="bg-green-600 hover:bg-green-500 text-black font-bold px-8 rounded-sm border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all uppercase tracking-widest text-xs">EXEC</Button>
+        <Button 
+          type="submit" 
+          disabled={loading || !input.trim()} 
+          className="bg-green-600 hover:bg-green-500 text-black font-bold px-8 rounded-sm border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all uppercase tracking-widest text-xs disabled:opacity-50"
+        >
+          EXEC
+        </Button>
       </form>
 
       {showKeyboard && (
         <div className="bg-white/[0.02] p-3 rounded border border-white/5 grid grid-cols-6 md:grid-cols-10 gap-1.5 shadow-2xl backdrop-blur-sm animate-in slide-in-from-bottom-4 duration-300">
           {keys.map((key) => (
-            <button key={key} type="button" onClick={() => { if (key === 'BACK') setInput(prev => prev.slice(0, -1)); else if (key === 'SPACE') setInput(prev => prev + ' '); else if (key === 'ENTER') handleSubmit(); else if (key === 'HIDE') setShowKeyboard(false); else setInput(prev => prev + key); }} className={`p-2 font-mono text-[10px] rounded border transition-all active:scale-95 uppercase tracking-tighter ${key === 'ENTER' ? 'col-span-2 bg-green-900/40 text-green-400 border-green-700/50 hover:bg-green-800/40' : key === 'BACK' ? 'bg-red-900/20 text-red-400 border-red-900/50 hover:bg-red-900/40' : key === 'HIDE' ? 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20 flex items-center justify-center' : 'bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white/80'}`}>
+            <button 
+              key={key} 
+              type="button" 
+              onClick={() => { 
+                if (key === 'BACK') setInput(prev => prev.slice(0, -1)); 
+                else if (key === 'SPACE') setInput(prev => prev + ' '); 
+                else if (key === 'ENTER') handleSubmit(); 
+                else if (key === 'HIDE') setShowKeyboard(false); 
+                else setInput(prev => prev + key); 
+              }} 
+              className={`p-2 font-mono text-[10px] rounded border transition-all active:scale-95 uppercase tracking-tighter ${key === 'ENTER' ? 'col-span-2 bg-green-900/40 text-green-400 border-green-700/50 hover:bg-green-800/40' : key === 'BACK' ? 'bg-red-900/20 text-red-400 border-red-900/50 hover:bg-red-900/40' : key === 'HIDE' ? 'bg-white/10 text-white/60 border-white/20 hover:bg-white/20 flex items-center justify-center' : 'bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white/80'}`}
+            >
               {key === 'HIDE' ? <ChevronDown className="w-3 h-3" /> : key}
             </button>
           ))}
@@ -157,7 +204,9 @@ export function AIChat() {
 
       <div className="mt-6">
         <div className="bg-green-900/5 border border-green-900/20 p-4 rounded-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-1 bg-green-900/20 text-[7px] font-mono text-green-400/60 uppercase px-3 tracking-[0.2em] border-bl border-green-900/20">Node_Access: Stable</div>
+          <div className="absolute top-0 right-0 p-1 bg-green-900/20 text-[7px] font-mono text-green-400/60 uppercase px-3 tracking-[0.2em] border-bl border-green-900/20">
+            Node_Access: {isOffline ? 'Degraded' : 'Stable'}
+          </div>
           <h3 className="text-green-600/40 font-mono text-[10px] mb-4 uppercase tracking-[0.3em] font-bold border-b border-green-900/10 pb-2">Live_Neural_Registry</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 font-mono">
             {[
@@ -176,7 +225,7 @@ export function AIChat() {
           </div>
           <div className="mt-4 pt-4 border-t border-green-900/10 flex justify-between items-center text-[8px] font-mono text-green-900/40 italic uppercase tracking-wider">
             <span>* Persist with "SET [FIELD] [VALUE]"</span>
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-green-500/20 rounded-full animate-ping" />Monitoring_Stream</span>
+            <span className="flex items-center gap-2"><div className={`w-1 h-1 rounded-full animate-ping ${isOffline ? 'bg-red-500/20' : 'bg-green-500/20'}`} />Monitoring_Stream</span>
           </div>
         </div>
       </div>

@@ -36,7 +36,8 @@ const nextConfig: NextConfig = {
         '*.cloudworkstations.dev',
         '*.web.app',
         '*.firebaseapp.com',
-        '*.google.com'
+        '*.google.com',
+        '*.googleusercontent.com'
       ],
     },
   },

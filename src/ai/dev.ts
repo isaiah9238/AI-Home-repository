@@ -17,6 +17,7 @@ import '@/ai/discovery/mentor-ai';
 import '@/ai/discovery/integrate-lesson-plans';
 import '@/ai/discovery/generate-lesson-plan';
 import '@/ai/discovery/establish-home-base';
+import '@/ai/discovery/multi-agent-dispatcher';
 
 // Domain: Safety
 import '@/ai/domains/safety/filter-ai-output';

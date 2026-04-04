@@ -71,10 +71,13 @@ export async function sendTerminalMessage(message: string) {
     const result = await multiAgentDispatcher({ request: message });
     
     let responseText = "SIGNAL_RECEIVED: Processed.";
-    if (typeof result === 'string') responseText = result;
-    else if (result && typeof result === 'object') {
+    if (typeof result === 'string') {
+      responseText = result;
+    } else if (result && typeof result === 'object') {
+      // Prioritize explicit text response fields from our agents
       if ('response' in result) responseText = result.response;
       else if ('content' in result) responseText = result.content;
+      else if ('summary' in result) responseText = result.summary;
       else responseText = JSON.stringify(result, null, 2);
     }
 
@@ -88,8 +91,6 @@ export async function sendTerminalMessage(message: string) {
 export async function getMorningBriefing(userContext?: any) {
   try {
     await verifyAuth();
-    
-    // Internal calls instead of triggering server actions recursively
     const db = getAdminDb();
     const userId = 'primary_user';
     
@@ -103,7 +104,7 @@ export async function getMorningBriefing(userContext?: any) {
       userProfile: {
         ...(userContext || MOCK_USER_CONTEXT),
         curriculum: userDoc.exists ? {
-          integratedPlans: 0, // Simplified for briefing context
+          integratedPlans: 0,
           lastTopic: userDoc.data()?.lastLesson || "Initialization"
         } : null,
         integrity: {

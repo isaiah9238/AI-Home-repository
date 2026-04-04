@@ -3,6 +3,12 @@ import { ai } from '@/ai/genkit';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
+import { establishHomeBase } from './establish-home-base';
+
+/**
+ * @fileOverview The Web Intel Mentor Flow.
+ * High-fidelity briefings that adapt to user progress and system state.
+ */
 
 const MentorInputSchema = z.object({
   request: z.string(),
@@ -21,46 +27,40 @@ const flow = ai.defineFlow(
       return { response: "SIGNAL_INTERRUPTED: Your request triggered a safety flag. Please refine your query." };
     }
 
-    // 2. Fetch profile context
-    let rawData = input.userProfile;
-    if (!rawData) {
-      const userDoc = await getAdminDb().collection('users').doc('primary_user').get();
-      rawData = userDoc.data();
-    }
+    // 2. Fetch High-Fidelity Context from Home Base
+    const userId = 'primary_user';
+    const { userContext } = await establishHomeBase({ userId });
     
-    const profile = rawData ? {
-      ...rawData,
-      createdAt: rawData.createdAt?.toDate?.()?.toISOString() || null,
-      updatedAt: rawData.updatedAt?.toDate?.()?.toISOString() || null,
-    } : null;
+    // 3. Build the Adaptive Persona
+    const recentKnowledgeCtx = userContext.recentKnowledge?.length > 0 
+      ? `RECENT_KNOWLEDGE_FRAGMENTS: ${userContext.recentKnowledge.join(', ')}.`
+      : "RECENT_KNOWLEDGE_FRAGMENTS: System Initialization Only.";
 
-    // 3. Build the Persona
-    const curriculumCtx = profile?.curriculum 
-    ? `Curriculum: ${profile.curriculum.integratedPlans} plans integrated, last topic was ${profile.curriculum.lastTopic}.`
-    : "";
-    const integrityCtx = profile?.integrity
-      ? `System Integrity: ${profile.integrity.isClean ? 'Clean' : profile.integrity.issueCount + ' pending issues'}.`
-      : "";
+    const integrityCtx = userContext.isSystemClean 
+      ? "SYSTEM_STATE: Optimal/Clean." 
+      : `SYSTEM_STATE: ${userContext.pendingIssues} flags pending in the Ledger.`;
 
-    const aiContext = profile 
-      ? `You are a Web Intel Mentor. User: ${profile.name}. Interests: ${profile.interests?.join(', ')}. ${curriculumCtx} ${integrityCtx}` 
-      : "You are a Web Intel Mentor. The user profile is not yet established.";
+    const aiContext = `
+      USER_IDENTITY: ${userContext.name} | Role: ${userContext.role}
+      MASTERY_METRICS: Complexity: ${userContext.neuralComplexity}% | Integration: ${userContext.knowledgeIntegration}%
+      ${recentKnowledgeCtx}
+      ${integrityCtx}
+    `;
 
     // 4. Generate the response
     const { text } = await ai.generate({
       model: 'googleai/gemini-2.5-pro',
       prompt: `
-        ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor.
+        ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor residing in the Cabinet.
         CONTEXT: ${aiContext}
         
         INSTRUCTIONS:
-        1. Acknowledge the user by name if available.
-        2. Reference at least two of their specific interests (e.g., ${profile?.interests?.slice(0,2).join(', ')}).
-        3. Mention their curriculum progress if available.
-        4. Briefly alert them if system integrity has issues, otherwise commend the clean state.
-        5. Keep the briefing under 5 sentences.
-        6. End with a "Signal of the Day"—a tiny, actionable technical tip.
-        7. Maintain a "terminal-style" professional tone.
+        1. Acknowledge the user by name.
+        2. Reference at least one of their RECENT_KNOWLEDGE_FRAGMENTS if available to show context awareness.
+        3. Mention their current Neural Complexity or system integrity state.
+        4. Keep the briefing under 5 sentences.
+        5. End with a "Signal of the Day"—a tiny, actionable technical tip related to their role or recent lessons.
+        6. Maintain a "terminal-style" professional tone.
     
         USER REQUEST: ${input.request}
       `,

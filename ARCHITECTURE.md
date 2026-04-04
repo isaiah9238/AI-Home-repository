@@ -22,21 +22,24 @@ The interface follows a **Cybernetic HUD** aesthetic, utilizing deep blacks (#05
 
 ### A. The Discovery Domain (Identity & Construction)
 *   **Home Base**: Connects to Firestore to anchor the AI's memory.
-*   **The Architect**: A "3D printer for code." Generates production-ready folder structures and complete boilerplate files from conceptual blueprints.
+*   **The Architect**: A "3D printer for code." Generates production-ready folder structures and complete boilerplate files from conceptual blueprints. Persists structure in Firestore.
 *   **The Tutor**: Ingests lesson plans, expanding the neural context density and mastery levels via Server Actions.
 
 ### B. The Research Domain (Intelligence & Analysis)
-*   **Flux Echo (Scout)**: Fast web reconnaissance returning concise signals and summaries.
+*   **Flux Echo (Scout)**: Fast web reconnaissance and Google-like search returning concise signals and summaries.
 *   **Epitomizer (Deep Reader)**: Transforms complex web content into structured, epitomized notes.
 *   **Code Inspector**: Specialized security and performance auditor with structured JSON output.
 
-### C. The Safety Domain (Integrity & Logging)
+### C. The Storage Domain (Persistence)
+*   **Virtual File System (VFS)**: Hierarchical Firestore-backed storage for AI-generated code, assets, and logs.
+
+### D. The Safety Domain (Integrity & Logging)
 *   **Gatekeepers**: Input/Output filters that vet all neural streams for safety.
-*   **Safety Ledger (Gems)**: A vertical timeline of "Safety Pulses" tracking system integrity and model uncertainty.
+*   **Safety Ledger (Gems)**: A 24-hour gamified timeline of "Safety Pulses" rewarding system maintenance with neural credits.
 
 ## 4. Tuning & Explainability
-*   **The Laboratory**: Real-time parameter tuner for neural weights (Temperature, TopP) and system personas.
+*   **The Laboratory**: Real-time parameter tuner for neural weights (Temperature, TopP) and system personas (Architect, Librarian, Mentor).
 *   **The Neural Graph**: Interactive SVG node-map for "Explainable AI," visualizing the density and association strings of learned context.
 
 ---
-*Status: Phase 2.0 (The Integrated Cabinet) is fully operational. Awaiting Phase 3 activation.*
+*Status: Phase 2.0 (The Integrated Cabinet) is fully operational. Awaiting Phase 3 activation (Multi-Agent Orchestration).*

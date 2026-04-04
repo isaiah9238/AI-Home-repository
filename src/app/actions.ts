@@ -74,7 +74,6 @@ export async function sendTerminalMessage(message: string) {
     if (typeof result === 'string') {
       responseText = result;
     } else if (result && typeof result === 'object') {
-      // Prioritize explicit text response fields from our agents
       if ('response' in result) responseText = result.response;
       else if ('content' in result) responseText = result.content;
       else if ('summary' in result) responseText = result.summary;
@@ -154,7 +153,7 @@ export async function runArchitect(blueprint: string) {
     const result = await generateInitialFiles({ blueprint });
     
     if (result && result.length > 0) {
-      await getAdminDb().collection('blueprints').add({
+      const docRef = await getAdminDb().collection('blueprints').add({
         userId: 'primary_user',
         name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
         prompt: blueprint,
@@ -162,6 +161,7 @@ export async function runArchitect(blueprint: string) {
         timestamp: new Date().toISOString(),
         status: 'CONSTRUCTED'
       });
+      return { success: true, data: result, id: docRef.id };
     }
 
     return { success: true, data: result };
@@ -188,6 +188,17 @@ export async function getSavedBlueprints() {
     return { success: true, data: blueprints };
   } catch (error) {
     return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
+  }
+}
+
+export async function deleteBlueprint(id: string) {
+  try {
+    await verifyAuth();
+    await getAdminDb().collection('blueprints').doc(id).delete();
+    revalidatePath('/architect');
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }
 

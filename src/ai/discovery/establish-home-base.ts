@@ -19,7 +19,11 @@ const flow = ai.defineFlow(
     // Fetch primary user data, curriculum, and integrity in parallel
     const [userDoc, lessonsSnapshot, gemsSnapshot] = await Promise.all([
       db.collection('users').doc(userId).get(),
-      db.collection('curriculum').where('userId', '==', userId).get(),
+      db.collection('curriculum')
+        .where('userId', '==', userId)
+        .orderBy('completedAt', 'desc')
+        .limit(5)
+        .get(),
       db.collection('gems').where('resolution', '==', 'pending').get()
     ]);
 
@@ -34,7 +38,8 @@ const flow = ai.defineFlow(
           pendingIssues: 0,
           neuralComplexity: 64,
           knowledgeIntegration: 82,
-          masteryPhase: 'INITIALIZATION'
+          masteryPhase: 'INITIALIZATION',
+          recentKnowledge: []
         }
       };
     }
@@ -44,6 +49,9 @@ const flow = ai.defineFlow(
     const pendingIssues = gemsSnapshot.size;
     const complexity = userData?.neuralComplexity || 64;
     
+    // Extract recent lesson titles for Brain Ingestion
+    const recentKnowledge = lessonsSnapshot.docs.map(doc => doc.data().title);
+
     // Determine Mastery Phase
     let masteryPhase = 'INITIAL';
     if (complexity > 75) masteryPhase = 'ARCHITECT';
@@ -62,14 +70,15 @@ const flow = ai.defineFlow(
         isSystemClean: pendingIssues === 0,
         neuralComplexity: complexity,
         knowledgeIntegration: userData?.knowledgeIntegration || 82,
-        masteryPhase
+        masteryPhase,
+        recentKnowledge
       }
     };
   }
 );
 
 /**
- * establishHomeBase - Standard function wrapper for the Genkit flow to prevent Next.js serialization errors.
+ * establishHomeBase - Standard function wrapper for the Genkit flow.
  */
 export async function establishHomeBase(input: { userId: string }) {
   return flow(input);

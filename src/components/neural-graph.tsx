@@ -16,7 +16,7 @@ interface Node {
   status?: string;
   x: number;
   y: number;
-  data?: any; // Added to prevent 'property does not exist' errors
+  data?: any;
 }
 
 interface Link {
@@ -33,6 +33,7 @@ interface NeuralGraphProps {
 
 export function NeuralGraph({ lessons, neuralComplexity, knowledgeIntegration }: NeuralGraphProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [activeHelpTerm, setActiveHelpTerm] = useState<string | null>(null);
 
   const graphData = useMemo(() => {
     const nodes: Node[] = [];
@@ -114,17 +115,6 @@ export function NeuralGraph({ lessons, neuralComplexity, knowledgeIntegration }:
     }
   };
 
-  const getGroupIcon = (group: Node['group']) => {
-    switch (group) {
-      case 'Core': return <Brain className="w-4 h-4" />;
-      case 'Curriculum': return <BookOpen className="w-4 h-4" />;
-      case 'Research': return <Share2 className="w-4 h-4" />;
-      case 'Development': return <MessageSquareCode className="w-4 h-4" />;
-      case 'Integrity': return <ShieldCheck className="w-4 h-4" />;
-      default: return <Zap className="w-4 h-4" />;
-    }
-  };
-
   return (
     <div className="p-8 w-full h-full flex flex-col bg-black/40 backdrop-blur-xl font-mono overflow-hidden">
       {/* Header UI */}
@@ -135,11 +125,48 @@ export function NeuralGraph({ lessons, neuralComplexity, knowledgeIntegration }:
           </div>
           <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Context_Evolution</h2>
           <DynamicInstructions 
+            variant="blue"
             title="Advanced Neural Mapping" 
             instructions={
-              <div className="space-y-2 text-[11px]">
-                <p><strong>Pulse Core:</strong> Central processing unit. Size reflects global complexity.</p>
-                <p><strong>Pathways:</strong> Animated flow represents active data sync. Speed indicates latency.</p>
+              <div className="space-y-4">
+                <p className="text-white/40 uppercase text-[9px] tracking-widest mb-2 border-b border-white/5 pb-2">XAI_Visualizer_Protocol</p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <button 
+                      onClick={() => setActiveHelpTerm(activeHelpTerm === 'core' ? null : 'core')}
+                      className="flex items-center gap-2 text-blue-400 font-bold hover:text-white transition-colors"
+                    >
+                      <Info className="w-3 h-3" /> PULSE_CORE
+                    </button>
+                    {activeHelpTerm === 'core' && (
+                      <p className="mt-1 pl-5 text-[10px] text-white/50 border-l border-blue-500/30 ml-1.5">
+                        The central unit representing your core AI state. Radius scales dynamically with <span className="text-blue-400">{neuralComplexity}% Complexity</span>.
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <button 
+                      onClick={() => setActiveHelpTerm(activeHelpTerm === 'path' ? null : 'path')}
+                      className="flex items-center gap-2 text-green-400 font-bold hover:text-white transition-colors"
+                    >
+                      <Info className="w-3 h-3" /> PATHWAYS
+                    </button>
+                    {activeHelpTerm === 'path' && (
+                      <p className="mt-1 pl-5 text-[10px] text-white/50 border-l border-green-500/30 ml-1.5">
+                        Active data synchronization streams. Animation speed reflects neural latency and integration depth.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                  <div className="text-[9px] uppercase tracking-widest text-blue-400/60 mb-1">Status_Telemetry</div>
+                  <p className="text-[9px] text-white/40 italic">
+                    Nodes are color-coded by operational domain. Select any node to inspect its specific neural vector and metadata.
+                  </p>
+                </div>
               </div>
             }
           />

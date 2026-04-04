@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity } from 'lucide-react';
+import { Beaker, Zap, Sliders, Save, RotateCcw, Keyboard, Activity, Info, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -86,21 +86,17 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
     experimentalMode: false,
   });
   const [lastInput, setLastInput] = useState<string[]>([]);
+  const [activeHelpTerm, setActiveHelpTerm] = useState<string | null>(null);
 
   useEffect(() => {
     const loadConfig = async () => {
       const result = await getNeuralWeights();
       if (result.success && result.data) {
         setConfig((prev) => ({ ...prev, ...result.data }));
-        toast({
-          title: "NEURAL_SYNC_COMPLETE",
-          description: "Previous calibration weights loaded.",
-          className: "bg-black/80 border-blue-500/30 text-blue-400 font-mono text-[8px]",
-        });
       }
     };
     loadConfig();
-  }, [toast]);
+  }, []);
 
   const handleSave = async () => {
     const result = await commitNeuralWeights(config);
@@ -111,13 +107,6 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
         className: "bg-black/90 border-purple-500/50 text-purple-400 font-mono border-2 backdrop-blur-xl",
       });
       if (onSave) onSave(config);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "CALIBRATION_FAILED",
-        description: result.error || "System interference detected.",
-        className: "font-mono border-2",
-      });
     }
   };
 
@@ -138,12 +127,52 @@ export function LaboratoryDrawer({ onSave }: { onSave?: (config: LabConfig) => v
               </div>
               <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Laboratory</h2>
               <DynamicInstructions 
+                variant="purple"
                 title="Laboratory Protocol" 
                 instructions={
-                  <div className="space-y-2 text-[11px]">
-                    <p><span className="text-purple-400 font-bold">Temperature:</span> Adjusts the "creativity" threshold. Low values (0.1) are precise; high values (0.8+) allow for brainstorming.</p>
-                    <p><span className="text-purple-400 font-bold">Top_P:</span> Nucleus sampling. It limits the AI to most likely words, preventing "rambling."</p>
-                    <p><span className="text-purple-400 font-bold">Persona Matrix:</span> Swaps system prompt logic. The Mentor teaches, the Architect builds, and the Librarian organizes.</p>
+                  <div className="space-y-4">
+                    <p className="text-white/40 uppercase text-[9px] tracking-widest mb-2 border-b border-white/5 pb-2">Adaptive_Contextual_Help</p>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <button 
+                          onClick={() => setActiveHelpTerm(activeHelpTerm === 'temp' ? null : 'temp')}
+                          className="flex items-center gap-2 text-purple-400 font-bold hover:text-white transition-colors"
+                        >
+                          <Info className="w-3 h-3" /> TEMPERATURE
+                        </button>
+                        {activeHelpTerm === 'temp' && (
+                          <p className="mt-1 pl-5 text-[10px] text-white/50 border-l border-purple-500/30 ml-1.5">
+                            Controls randomness. 0.1 = Deterministic (precise, consistent). 0.8+ = Stochastic (creative, unpredictable).
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <button 
+                          onClick={() => setActiveHelpTerm(activeHelpTerm === 'p' ? null : 'temp')}
+                          className="flex items-center gap-2 text-blue-400 font-bold hover:text-white transition-colors"
+                        >
+                          <Info className="w-3 h-3" /> TOP_P (NUCLEUS)
+                        </button>
+                        {activeHelpTerm === 'temp' && (
+                          <p className="mt-1 pl-5 text-[10px] text-white/50 border-l border-blue-500/30 ml-1.5">
+                            Filters token selection to the cumulative probability P. Prevents low-probability "rambling."
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/5">
+                      <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest mb-1">
+                        <AlertTriangle className="w-3 h-3 text-yellow-500" /> Neural_Warning
+                      </div>
+                      <p className="text-[9px] text-white/40 italic">
+                        {config.temperature > 0.8 ? "High randomness active. Neural hallucination risk increased." : 
+                         config.temperature < 0.2 ? "Deterministic mode active. Stability optimized for structural logic." :
+                         "Balanced weights active. Persona maintainting operational equilibrium."}
+                      </p>
+                    </div>
                   </div>
                 }
               />

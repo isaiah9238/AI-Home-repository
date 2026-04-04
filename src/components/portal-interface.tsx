@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database, Archive } from 'lucide-react';
+import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database, Archive, HardDrive } from 'lucide-react';
 import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, getSavedBlueprints, getHomeBase } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { GemsDrawer } from './gems-drawer';
 import { LaboratoryDrawer } from './laboratory-drawer';
 import { NeuralGraph } from './neural-graph';
 import { VaultBackupDrawer } from './vault-backup-drawer';
+import { StorageDrawer } from './storage-drawer';
 
 /**
  * The Portal Interface: A gateway to the Cabinet.
@@ -323,7 +324,6 @@ export function PortalInterface() {
         <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
           <X className="w-6 h-6" />
         </Button>
-        {/* UPDATE THIS LINE BELOW */}
         <NeuralGraph 
           lessons={curriculumProgress?.lessons || []} 
           neuralComplexity={curriculumProgress?.neuralComplexity || 0}
@@ -355,6 +355,17 @@ export function PortalInterface() {
           <X className="w-6 h-6" />
         </Button>
         <VaultBackupDrawer />
+      </div>
+    );
+  }
+
+  if (activeTool === 'storage') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <StorageDrawer />
       </div>
     );
   }
@@ -402,14 +413,14 @@ export function PortalInterface() {
           <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-blue-500/30 text-blue-400/60 uppercase">VIEW_NODES</Badge></div>
         </button>
 
-        {/* Archive / Backup Drawer */}
-        <button onClick={() => setActiveTool('backup')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-300 transform hover:-translate-y-2">
+        {/* Storage Drawer */}
+        <button onClick={() => setActiveTool('storage')} className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-300 transform hover:-translate-y-2">
           <div className="p-6 rounded-lg bg-green-500/5 mb-6 group-hover:scale-110 group-hover:bg-green-500/10 transition-all duration-500 border border-white/5 group-hover:border-green-500/30">
-            <Archive className="w-10 h-10 text-green-400 opacity-60 group-hover:opacity-100" />
+            <HardDrive className="w-10 h-10 text-green-400 opacity-60 group-hover:opacity-100" />
           </div>
-          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">ARCHIVE</h3>
-          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">LIBRARIAN_EXPORT_CORE</p>
-          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400/60 uppercase">BUNDEL_VAULT</Badge></div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">STORAGE</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">VIRTUAL_FILE_SYSTEM</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400/60 uppercase">BROWSE_VAULT</Badge></div>
         </button>
 
         {/* Laboratory Drawer */}

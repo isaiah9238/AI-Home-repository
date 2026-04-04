@@ -12,6 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
+import { persistVFSNode, getNodesByParent, purgeVFSNode, VFSNode } from '@/ai/storage/virtual-file-system';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -505,6 +506,73 @@ export async function exportVaultData() {
         }
       }
     };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// --- VFS Actions ---
+
+export async function getVFSNodesAction(parentId: string | null = null) {
+  try {
+    await verifyAuth();
+    const nodes = await getNodesByParent('primary_user', parentId);
+    return { success: true, data: nodes };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteVFSNodeAction(id: string) {
+  try {
+    await verifyAuth();
+    await purgeVFSNode(id);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function initializeVFS() {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    
+    // Create base directories
+    const rootDir = await persistVFSNode({
+      name: 'System_Root',
+      path: '/',
+      type: 'directory',
+      parentId: null,
+      userId
+    });
+
+    await persistVFSNode({
+      name: 'Blueprints',
+      path: '/Blueprints',
+      type: 'directory',
+      parentId: rootDir.id,
+      userId
+    });
+
+    await persistVFSNode({
+      name: 'Research_Logs',
+      path: '/Research_Logs',
+      type: 'directory',
+      parentId: rootDir.id,
+      userId
+    });
+
+    await persistVFSNode({
+      name: 'config.json',
+      path: '/config.json',
+      type: 'file',
+      content: JSON.stringify({ version: "4.2.0", status: "STABLE" }, null, 2),
+      parentId: rootDir.id,
+      userId
+    });
+
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

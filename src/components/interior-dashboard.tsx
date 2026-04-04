@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIChat } from '@/components/ui/chat';
 import { PortalInterface } from '@/components/portal-interface';
 import { Badge } from '@/components/ui/badge';
-import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, syncArchitectureLesson, pingServer } from '@/app/actions';
+import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, initializeVFS, pingServer } from '@/app/actions';
 
 interface InteriorDashboardProps {
   initialUserData?: any;
@@ -92,9 +92,9 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
 
   const handleManualSync = async () => {
     setSyncing(true);
-    const result = await syncArchitectureLesson();
+    const result = await initializeVFS();
     if (result.success) {
-      alert("Librarian filed the Architecture Lesson successfully.");
+      alert("Librarian: Virtual File System initialized successfully.");
     } else {
       alert("Sync failed. Check server logs.");
     }

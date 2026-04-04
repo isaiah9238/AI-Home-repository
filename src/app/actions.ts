@@ -12,7 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
-import { persistVFSNode, getNodesByParent, purgeVFSNode, VFSNode } from '@/ai/storage/virtual-file-system';
+import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.

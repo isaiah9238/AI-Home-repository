@@ -9,6 +9,7 @@ config();
 // Domain: Research
 import '@/ai/domains/research/analyze-code-snippet';
 import '@/ai/domains/research/link-genie';
+import '@/ai/domains/research/search-genie';
 import '@/ai/domains/research/epitomize-fetched-content';
 
 // Domain: Discovery

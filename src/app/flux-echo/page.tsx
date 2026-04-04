@@ -1,12 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-// FIX: Change runResearch to runResearchMode
 import { runResearchMode, type ResearchMode } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Link as LinkIcon, Zap, Book, ArrowRight } from "lucide-react";
+import { Loader2, Search, Zap, Book, ArrowRight, Globe } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FluxEchoPage() {
@@ -23,7 +22,6 @@ export default function FluxEchoPage() {
     setError(null);
     setResult(null);
     
-    // FIX: Update the function name here as well
     const res = await runResearchMode({ url, mode });
     if (res.success) {
       setResult(res);
@@ -40,7 +38,7 @@ export default function FluxEchoPage() {
           Flux_Echo_Intelligence
         </h1>
         <p className="text-slate-400 font-mono text-sm tracking-widest uppercase opacity-60">
-          Advanced Web Reconnaissance & Epitomization
+          Advanced Web Reconnaissance & Global Search
         </p>
       </div>
 
@@ -69,11 +67,11 @@ export default function FluxEchoPage() {
         <CardContent>
           <form onSubmit={handleAction} className="flex gap-2">
             <div className="relative flex-1">
-              <LinkIcon className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
               <Input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="ENTER_TARGET_URL_COORDINATES..."
+                placeholder="ENTER_URL_OR_RESEARCH_QUERY..."
                 className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-600 font-mono text-sm h-11"
                 required
               />
@@ -100,7 +98,7 @@ export default function FluxEchoPage() {
           <Card className={`bg-slate-900/40 border-slate-800 backdrop-blur-md overflow-hidden ${result.mode === 'deep' ? 'ring-1 ring-purple-500/20' : 'ring-1 ring-blue-500/20'}`}>
             <CardHeader className="bg-slate-800/30 border-b border-slate-800 py-4">
               <CardTitle className="text-xs font-mono text-slate-400 uppercase tracking-[0.3em] flex justify-between items-center">
-                <span>{result.mode === 'deep' ? 'Mission_Deep_Read_Report' : 'Mission_Scout_Summary'}</span>
+                <span>{result.mode === 'deep' ? 'Mission_Deep_Read_Report' : result.url?.startsWith('http') ? 'Mission_Scout_Summary' : 'General_Reconnaissance_Report'}</span>
                 <span className="text-white font-bold">{result.data.title || 'Unknown_Stream'}</span>
               </CardTitle>
             </CardHeader>
@@ -118,7 +116,7 @@ export default function FluxEchoPage() {
                   <div className="bg-blue-500/10 p-2 rounded-lg text-blue-400 group-hover:bg-blue-500/20 transition-colors">
                     <Zap className="w-3 h-3" />
                   </div>
-                  <span className="pt-1">{point}</span>
+                  <span className="pt-1 leading-relaxed">{point}</span>
                 </div>
               ))}
             </div>

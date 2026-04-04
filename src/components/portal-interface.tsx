@@ -160,12 +160,15 @@ export function PortalInterface() {
               </TabsList>
             </Tabs>
             <div className="flex flex-1 gap-2">
-              <Input
-                placeholder="ENTER_COORDINATES_URL..."
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-xs tracking-wider h-11"
-              />
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-white/20" />
+                <Input
+                  placeholder="URL_OR_RESEARCH_QUERY..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/10 font-mono text-xs tracking-wider h-11"
+                />
+              </div>
               <Button onClick={handleResearch} disabled={loading} className={`${researchMode === 'scout' ? 'bg-blue-500/20 text-blue-400 border-blue-500/40' : 'bg-purple-500/20 text-purple-400 border-purple-500/40'} border hover:bg-opacity-30 transition-all h-11 px-6`}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
               </Button>
@@ -177,14 +180,24 @@ export function PortalInterface() {
               <Card className={`bg-black/40 border-white/10 backdrop-blur-md overflow-hidden ${researchResult.mode === 'deep' ? 'border-purple-500/30' : 'border-blue-500/30'}`}>
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3">
                   <CardTitle className="text-[10px] font-mono text-white/50 uppercase tracking-[0.3em] flex justify-between items-center">
-                    <span>{researchResult.mode === 'deep' ? 'EPITOMIZER_DEEP_ESSSENCE' : 'FLUX_ECHO_RECON_REPORT'}</span>
+                    <span>{researchResult.mode === 'deep' ? 'EPITOMIZER_DEEP_ESSSENCE' : researchResult.url?.startsWith('http') ? 'FLUX_ECHO_RECON_REPORT' : 'GENERAL_RECON_REPORT'}</span>
                     <span className="text-white/20">{researchResult.data.title || 'Untitled_Stream'}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="text-white/80 leading-relaxed font-mono text-xs whitespace-pre-wrap">
+                  <div className="text-white/80 leading-relaxed font-mono text-xs whitespace-pre-wrap italic border-l border-white/10 pl-4">
                     {researchResult.mode === 'deep' ? researchResult.data.epitome : researchResult.data.summary}
                   </div>
+                  {researchResult.mode === 'scout' && researchResult.data.keyPoints && (
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {researchResult.data.keyPoints.map((point: string, i: number) => (
+                        <div key={i} className="p-3 rounded bg-white/5 border border-white/5 text-[9px] text-white/40 flex items-start gap-2">
+                          <Zap className="w-2.5 h-2.5 text-blue-400 shrink-0 mt-0.5" />
+                          <span>{point}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

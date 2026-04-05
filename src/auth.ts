@@ -1,10 +1,12 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
-// Librarian Note: Auth.js v5 uses AUTH_SECRET for encryption and trust.
 if (!process.env.AUTH_SECRET) {
   console.warn("⚠️ AUTH_SECRET is missing! Authentication layers may fail.");
 }
+
+// Define the absolute list of who is allowed in
+const ALLOWED_EMAILS = ["your.actual.email@gmail.com"]; 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,11 +16,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   secret: process.env.AUTH_SECRET,
-  trustHost: true, // Critical for port-forwarding proxies in development environments
+  trustHost: true,
   pages: {
     signIn: "/login",
   },
   callbacks: {
+    // 1. The Gatekeeper: Check the email before creating a session
+    async signIn({ user }) {
+      if (user.email && ALLOWED_EMAILS.includes(user.email)) {
+        return true; // Access Granted
+      }
+      
+      console.warn(`Unauthorized login attempt from: ${user.email}`);
+      return false; // Access Denied (redirects back to login with an error)
+    },
+    
+    // 2. The Session Sync
     async session({ session, token }) {
       return session;
     },

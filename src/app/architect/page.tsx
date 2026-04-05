@@ -1,17 +1,23 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Sparkles, Loader2, Folder, FileCode, Copy, Check, Terminal, History, Database, Trash2, ArrowRight } from 'lucide-react';
+import { Box, Sparkles, Loader2, Folder, FileCode, Copy, Check, Terminal, History, Database, Trash2, ArrowRight, ShieldCheck, HardDrive } from 'lucide-react';
 import { runArchitect, getSavedBlueprints, deleteBlueprint } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ArchitectPage() {
+  const { toast } = useToast();
   const [blueprint, setBlueprint] = useState('');
   const [loading, setLoading] = useState(false);
+  const [commitToVFS, setCommitToVFS] = useState(true);
   const [results, setResults] = useState<any[] | null>(null);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -36,12 +42,23 @@ export default function ArchitectPage() {
     setSelectedFile(null);
     
     try {
-      const result = await runArchitect(blueprint);
+      const result = await runArchitect(blueprint, commitToVFS);
       if (result.success) {
         setResults(result.data ?? []);
         loadHistory();
+        if (result.vfsCommitted) {
+          toast({
+            title: "VAULT_SYNC_COMPLETE",
+            description: "Autonomous writing successful. Structure committed to VFS.",
+            className: "bg-black/80 border-green-500/30 text-green-400 font-mono text-[8px]"
+          });
+        }
       } else {
-        alert(result.error);
+        toast({
+          variant: "destructive",
+          title: "CONSTRUCTION_FAILED",
+          description: result.error
+        });
       }
     } catch (error) {
       console.error("Construction Error:", error);
@@ -77,12 +94,12 @@ export default function ArchitectPage() {
             <Box className="w-8 h-8 text-purple-500" /> The_Architect
           </h1>
           <p className="text-white/40 mt-2 uppercase tracking-widest text-xs">
-            High-fidelity system instantiation. Persistent Cabinet Storage active.
+            Phase 3: Autonomous Writing & VFS Synchronization.
           </p>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-purple-500/50 uppercase tracking-[0.3em]">Module: ADAPTIVE_CONSTRUCTION</div>
-          <div className="text-[10px] text-white/20 uppercase tracking-[0.3em]">Sync: FIRESTORE_ENABLED</div>
+          <div className="text-[10px] text-purple-500/50 uppercase tracking-[0.3em]">Module: AUTONOMOUS_CONSTRUCTION</div>
+          <div className="text-[10px] text-white/20 uppercase tracking-[0.3em]">Sync: LIBRARIAN_VFS_ACTIVE</div>
         </div>
       </div>
 
@@ -101,10 +118,10 @@ export default function ArchitectPage() {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
             <CardHeader>
               <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
-                <Terminal className="w-3 h-3" /> Input_Blueprint
+                <Terminal className="w-3 h-3" /> Construction_Input
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <Input
                   placeholder="DESCRIBE_SYSTEM_REQUIREMENTS (e.g. NextJS App with Firebase Auth)..."
@@ -129,6 +146,22 @@ export default function ArchitectPage() {
                   )}
                 </Button>
               </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-4 h-4 text-green-500/60" />
+                  <div className="flex flex-col">
+                    <Label htmlFor="vfs-toggle" className="text-[10px] uppercase text-white/60 tracking-widest cursor-pointer">Autonomous_Vault_Writing</Label>
+                    <span className="text-[8px] text-white/20 uppercase tracking-tighter">Commit structure directly to Virtual File System</span>
+                  </div>
+                </div>
+                <Switch 
+                  id="vfs-toggle"
+                  checked={commitToVFS}
+                  onCheckedChange={setCommitToVFS}
+                  className="data-[state=checked]:bg-purple-500"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -136,7 +169,9 @@ export default function ArchitectPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <Card className="lg:col-span-4 bg-black/40 border-white/5 flex flex-col overflow-hidden">
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3">
-                  <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Structural_Nodes</CardTitle>
+                  <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <HardDrive className="w-3 h-3" /> Structural_Nodes
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 p-2 overflow-y-auto custom-scrollbar">
                   <div className="space-y-1">

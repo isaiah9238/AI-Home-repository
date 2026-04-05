@@ -3,7 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Code2, BookOpen, BotMessageSquare, Flag, Cpu, Box, FlaskConical } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Code2, 
+  BookOpen, 
+  BotMessageSquare, 
+  Flag, 
+  Cpu, 
+  Box, 
+  FlaskConical,
+  Layout 
+} from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarInset } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 

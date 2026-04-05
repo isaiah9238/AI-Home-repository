@@ -1,3 +1,4 @@
+
 'use server';
 
 import { mentorAi } from '@/ai/discovery/mentor-ai';
@@ -167,7 +168,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
     let result;
     const isUrl = input.url.startsWith('http');
 
-    // 1. Execute the Agent
     if (input.mode === 'scout') {
       result = isUrl ? await linkGenie({ url: input.url }) : await searchGenie({ query: input.url });
     } else {
@@ -175,7 +175,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
       result = await epitomizeFetchedContent({ url: input.url });
     }
 
-    // 2. Type-Safe Markdown Generation
     let markdownContent = '';
     
     if (input.mode === 'scout') {
@@ -208,10 +207,8 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       `.trim();
     }
 
-    // 3. AGENTIC INDEXING: Automatically summarize and tag the research
     const analysis = await callLibrarianIndexer(markdownContent, `Research_${input.mode}`);
 
-    // 4. Locate the "Research_Logs" Directory
     const db = getAdminDb();
     const logsDirSnapshot = await db.collection('ai_vfs')
       .where('userId', '==', 'primary_user')
@@ -221,7 +218,6 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       
     const targetFolderId = !logsDirSnapshot.empty ? logsDirSnapshot.docs[0].id : null;
 
-    // 5. AGENTIC MEMORY SYNC: Save to the Virtual File System
     await persistVFSNode({
       name: `Recon_${input.mode}_${Date.now()}.md`,
       path: `/Research_Logs/Recon_${input.mode}_${Date.now()}.md`,
@@ -240,7 +236,12 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       }
     });
 
-    // 6. Update the internal ledger
+    await postAgenticNote(
+      "Flux_Echo",
+      `Mission complete: ${input.url} analyzed in ${input.mode} mode. Report indexed in VFS.`,
+      `Research_${input.mode}`
+    );
+
     await db.collection('internal_comms').add({
       agent: 'Flux Echo',
       action: isUrl ? input.mode : 'general_scout',
@@ -255,25 +256,75 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
   }
 }
 
-export async function runArchitect(blueprint: string) {
+export async function runArchitect(blueprint: string, commitToVFS: boolean = false) {
   try {
     await verifyAuth();
     const result = await generateInitialFiles({ blueprint });
     
     if (result && result.length > 0) {
-      const docRef = await getAdminDb().collection('blueprints').add({
-        userId: 'primary_user',
+      const db = getAdminDb();
+      const userId = 'primary_user';
+
+      // 1. Log to Blueprints Archive
+      const docRef = await db.collection('blueprints').add({
+        userId,
         name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
         prompt: blueprint,
         structure: result,
         timestamp: new Date().toISOString(),
         status: 'CONSTRUCTED'
       });
-      return { success: true, data: result, id: docRef.id };
+
+      // 2. AUTONOMOUS WRITING: Commit structure to VFS
+      if (commitToVFS) {
+        // Create root project folder
+        const projectFolderName = `Project_${Date.now()}`;
+        const blueprintsFolderSnapshot = await db.collection('ai_vfs')
+          .where('userId', '==', userId)
+          .where('name', '==', 'Blueprints')
+          .limit(1)
+          .get();
+        
+        const parentId = !blueprintsFolderSnapshot.empty ? blueprintsFolderSnapshot.docs[0].id : null;
+
+        const rootNode = await persistVFSNode({
+          name: projectFolderName,
+          path: `/Blueprints/${projectFolderName}`,
+          type: 'directory',
+          parentId,
+          userId
+        });
+
+        // Write all files level-by-level (keeping it simple for now)
+        for (const file of result) {
+          await persistVFSNode({
+            name: file.path.split('/').pop() || 'unnamed',
+            path: `/Blueprints/${projectFolderName}/${file.path}`,
+            type: file.type,
+            content: file.content || '',
+            parentId: rootNode.id,
+            userId,
+            metadata: {
+              source_blueprint: docRef.id,
+              owner_agent: 'The_Architect'
+            }
+          });
+        }
+
+        // 3. AGENTIC MEMORY SYNC: Broadcast successful commit
+        await postAgenticNote(
+          "The_Architect",
+          `Autonomous Writing Protocol engaged. New project structure [${projectFolderName}] committed to /Blueprints. Initial files synthesized and indexed.`,
+          "VFS_Commit"
+        );
+      }
+
+      return { success: true, data: result, id: docRef.id, vfsCommitted: commitToVFS };
     }
 
     return { success: true, data: result };
   } catch (error: any) {
+    console.error("Architect Action Error:", error);
     return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
   }
 }
@@ -735,6 +786,16 @@ export async function initializeVFS() {
     await verifyAuth();
     const userId = 'primary_user';
     
+    const rootDirSnapshot = await getAdminDb().collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('name', '==', 'System_Root')
+      .limit(1)
+      .get();
+
+    if (!rootDirSnapshot.empty) {
+      return { success: true, message: "ALREADY_INITIALIZED" };
+    }
+
     const rootDir = await persistVFSNode({
       name: 'System_Root',
       path: '/',
@@ -754,6 +815,14 @@ export async function initializeVFS() {
     await persistVFSNode({
       name: 'Research_Logs',
       path: '/Research_Logs',
+      type: 'directory',
+      parentId: rootDir.id,
+      userId
+    });
+
+    await persistVFSNode({
+      name: 'Agent_Notes',
+      path: '/Agent_Notes',
       type: 'directory',
       parentId: rootDir.id,
       userId

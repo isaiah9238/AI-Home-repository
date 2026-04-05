@@ -6,7 +6,7 @@ if (!process.env.AUTH_SECRET) {
 }
 
 // Define the absolute list of who is allowed in
-const ALLOWED_EMAILS = ["your.actual.email@gmail.com"]; 
+const ALLOWED_EMAILS = ["isaiah9238@hotmail.com"]; 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [

@@ -1,145 +1,98 @@
-# Web Intel Mentor & Neural Graph
+# The Cabinet: High-Fidelity AI Orchestration
 
-A cybernetic development environment built with Next.js, Google Genkit, and Firebase.
+**The Cabinet** is a domain-driven, autonomous AI development environment designed to bridge the gap between static scripts and intelligent, self-evolving systems. It utilizes a **Portal** (Next.js 15 HUD) to interface with a **Cabinet** of specialized AI **Drawers** (Domain Agents) powered by Google Genkit and Firebase.
 
-## Technical Stack
-- **IDE:** Developed in [Firebase Studio](https://firebase.google.com/docs/studio).
-- **AI Engine:** Google Genkit + Gemini (Structured Output).
-- **Database:** Firestore (The Librarian).
-- **Styling:** Tailwind CSS + ShadCN UI + Custom Cybernetic HUD components.
+---
 
-## Development Setup
-This project is optimized for Firebase Studio. To modify the environment (Node version, extensions, or env variables), edit `.idx/dev.nix`.
+## 🏛️ System Architecture
 
-### To Run:
-1. Ensure your `.env` contains the necessary Firebase Admin credentials.
-2. The environment is managed by Nix; use the "Rebuild Environment" button in Studio if you update `dev.nix`.
-3. Run `npm run dev` to view the Laboratory and Neural Graph.
+The system follows a "Clean Room" philosophy, where high-complexity tools are summoned only when needed, maintaining a minimalist operational core.
 
-# 🏢 AI Home: The Digital Cabinet
+### 🧩 The Portal (Interface)
+A cybernetic HUD designed with high-fidelity Glassmorphism, neon-glow telemetry, and real-time status pulses.
+- **Access Terminal**: Secure OAuth2 entry point with system status monitoring.
+- **Interior Dashboard**: A real-time command center visualizing neural complexity and system health.
+- **The Visualizer**: A central gateway for summoning specialized operational drawers.
 
-An advanced, domain-driven AI assistant environment built with **Next.js 14**, **Firebase Admin**, and **Google Genkit**.
+### 📁 The Cabinet (Operational Domains)
 
-## 🚀 Current Capabilities
-- **Evolutionary Tracking**: The system tracks its own "age" and "complexity" based on user interaction.
-- **Curriculum Integration**: Generates structured lesson plans and migrates them into a persistent Firestore "Knowledge Base."
-- **Safety Gatekeepers**: Integrated "Gems" logging system for monitoring AI output integrity.
-- **Glassmorphism UI**: A "Clean Room" aesthetic featuring summoned drawers and real-time status pulses.
+#### 1. Discovery Domain (Identity & Construction)
+- **The Architect**: A 3D printer for code that generates production-ready project structures and commits them directly to the VFS.
+- **The Tutor**: Synthesizes and ingests structured lesson plans to expand the system's neural context density.
+- **Home Base**: Anchors the AI's memory in Firestore, ensuring persistence of user profile and mastery metrics.
 
-## 🛠️ Tech Stack
-- **Framework**: Next.js (App Router)
-- **AI Engine**: Google Genkit + gemini-2.5-pro
-- **Database**: Firestore (Firebase Admin SDK)
-- **UI Components**: Tailwind CSS + Shadcn/UI + Lucide Icons
+#### 2. Research Domain (Intelligence & Analysis)
+- **Flux Echo (Scout)**: Conducts high-speed web reconnaissance and general topic scouting.
+- **Epitomizer**: Deep-reads web coordinates to extract structured essence and technical notes.
+- **Code Inspector**: Specialized auditor for security, performance, and logical integrity.
 
-## 📂 Project Structure
-- `/src/ai`: The Brain (Domains: Discovery, Research, Safety)
-- `/src/app/actions.ts`: The Switchboard (Server-side logic)
-- `/src/components`: The Portal (UI Drawers and HUD elements)
-- `/src/lib`: The Librarian (Firebase/Admin initialization)
+#### 3. Storage Domain (Persistence)
+- **Virtual File System (VFS)**: A hierarchical, Firestore-backed storage layer for AI-generated logic, assets, and agentic notes.
+- **Agentic Memory**: A coordination stream where agents leave "signals" for cross-domain orchestration.
 
-## 📈 Roadmap
-- [x] Phase 1: Initial Portal & Architect Tool
-- [x] Phase 2: Curriculum Integration & System Birthday
-- [ ] Phase 3: "Neural" Search & Memory Retrieval
+#### 4. Safety Domain (Integrity)
+- **Gatekeepers**: High-fidelity input/output filters vetting all neural streams for system safety.
+- **The Ledger (Gems)**: A gamified 24-hour cycle where security pulses are harvested to grow neural credits.
 
-NEW UPDATE ENDS HERE.
+---
 
-# AI Home 🚀
+## 🚀 Technical Stack
 
-Welcome to **AI Home**, the architecture for your personal "Portal" and "Cabinet" of AI tools. This project represents the transition from hacking on external platforms to architecting a system on your own server—one that cannot be turned off.
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **AI Engine**: [Google Genkit](https://firebase.google.com/docs/genkit) + Gemini 2.5 Pro
+- **Database**: [Cloud Firestore](https://firebase.google.com/docs/firestore) (The Librarian)
+- **Authentication**: [NextAuth.js v5](https://authjs.dev/) + Google OAuth
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [ShadCN UI](https://ui.shadcn.com/)
+- **Runtime**: Node.js 22+
 
-## Project Philosophy
+---
 
-The core idea is to build a **Portal**: a doorway between your clean "Home" and the powerful AI "Drawers" (tools) you’ve built.
+## 🛠️ Operational Setup
 
--   **The Clean Room:** The interface is minimalist. Tools are "summoned" only when needed.
--   **The Cabinet:** The backend is organized into specific **Domains** (Discovery, Research, Safety) rather than a flat pile of scripts.
--   **Universal Template:** The system is designed as a house that adapts to its inhabitant, using variables like `The User` instead of hardcoded names.
+### 1. Environment Configuration
+Create a `.env` file in the project root with the following coordinates:
 
-## The Cabinet (Features)
+```env
+# Google AI
+GOOGLE_GENAI_API_KEY="your_api_key"
 
-The system is organized into "Drawers" that you can open via the Portal:
+# Firebase Config (Client)
+NEXT_PUBLIC_FIREBASE_API_KEY="your_api_key"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your_project_id"
 
-### 🔭 The Research Domain (Scout & Analyst)
--   **Flux Echo**: A scout that runs to a URL and brings back a quick briefing.
--   **Epitomizer**: Deep reads webpages and turns noise into clean notes.
--   **Code Inspector**: Reviews code snippets for bugs and security vulnerabilities.
+# NextAuth
+AUTH_SECRET="your_random_secret"
+AUTH_GOOGLE_ID="your_google_client_id"
+AUTH_GOOGLE_SECRET="your_google_client_secret"
 
-### 🧠 The Discovery Domain (Memory & Growth)
--   **Home Base**: The heart of the system. Connects to Firestore to ensure the AI knows who you are.
--   **The Architect**: A "3D printer for code" that generates folder structures from blueprints.
--   **The Tutor**: Ingests lesson plans (PDFs, guides) to teach the AI new contexts.
+# Admin Access
+FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'
+```
 
-### 🛡️ The Safety Domain (Gatekeepers)
--   **Input/Output Filters**: Ensures structural integrity by vetting what enters and leaves the system.
-
-## Tech Stack
-
--   **Framework**: [Next.js](https://nextjs.org/) (with App Router)
--   **AI Toolkit**: [Genkit](https://firebase.google.com/docs/genkit)
--   **UI**: [React](https://react.dev/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **Component Library**: [ShadCN UI](https://ui.shadcn.com/)
--   **Database**: [Firestore](https://firebase.google.com/docs/firestore) (for user profile data)
-
-## Getting Started
-
-Follow these steps to get your local development environment up and running.
-
-### 1. Prerequisites
-
-Make sure you have [Node.js](https://nodejs.org/en) (version 18 or higher) installed on your system.
-
-### 2. Install Dependencies
-
-Clone the repository and install the necessary packages using npm:
+### 2. Development Protocol
+Initialize the environment and launch the HUD:
 
 ```bash
 npm install
-```
-
-### 3. Set Up Environment Variables
-
-This project requires an API key to connect to the Google Gemini service.
-
-1.  Create a new file named `.env` in the root of the project if it doesn't already exist.
-2.  Add your Gemini API key to the file:
-
-    ```env
-    GEMINI_API_KEY="YOUR_API_KEY_HERE"
-    ```
-
-### 4. Run the Development Server
-
-Start the Next.js development server:
-
-```bash
 npm run dev
 ```
 
-Open the local URL provided in your terminal (e.g., http://localhost:9004) with your browser to see the result.
+### 3. Agentic Synchronization
+To initialize the system's root nodes and VFS structure:
 
-## Project Structure: The Cabinet Architecture
+```bash
+npx tsx src/scripts/feed-nodes.ts
+```
 
-The system has been reorganized from a flat structure into specific **Domains**.
+---
 
--   **`src/ai/discovery/`** (Memory & Growth)
-    -   `establish-home-base.ts`: Connects to Firestore and maintains AI self-awareness.
-    -   `generate-initial-files.ts`: The Architect tool for building file structures.
-    -   `integrate-lesson-plans.ts`: The Tutor for ingesting new knowledge.
+## 📈 Roadmap Status: Phase 3 (Active)
 
--   **`src/ai/domains/research/`** (The Scout & Analyst)
-    -   `link-genie.ts`: (Flux Echo) Fetches content from URLs.
-    -   `epitomize-fetched-content.ts`: Summarizes and cleans web content.
-    -   `analyze-code-snippet.ts`: The Code Inspector.
+- [x] **Autonomous Previewer**: Sandbox environment for intent analysis and real-time execution.
+- [x] **Multi-Code Testing Area**: Parallel execution slots with variation synthesis.
+- [x] **Autonomous Writing**: The Architect now performs direct I/O to the VFS.
+- [x] **Agentic Memory Sync**: Cross-agent signaling for complex task coordination.
+- [ ] **High-Fidelity VFS UI**: Enhanced storage drawer with real-time collaborative editing.
 
--   **`src/ai/domains/safety/`** (The Gatekeepers)
-    -   Contains filters for User Input and AI Output.
-
--   **`src/ai/flows/`**
-    -   `userBrain.ts`: The Core Brain. Connects the "Librarian" (Firestore) to the "Mentor" (AI).
-
--   **`src/app/`** (The Portal Interface)
-    -   Follows a "Clean Room" aesthetic. The UI acts as a floating "Portal" that summons specific drawers.
-
+---
+*Status: Cabinet Core V4.2.0 is fully operational. Neural pathways stabilized.*

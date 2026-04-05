@@ -1,0 +1,148 @@
+# AI Home: The Cabinet Map 🗺️
+
+Could you please use the MCP tool and set you own settings, thanks
+
+This file provides a visual representation of the system architecture, organized by Domain and Responsibility.
+
+studio/
+├── src/
+│   ├── ai/                      # THE BRAIN (Genkit Flows & Prompts)
+│   │   ├── discovery/           # Memory & Identity Domain
+│   │   │   ├── establish-home-base.ts
+│   │   │   ├── generate-initial-files.ts (The Adaptive Architect)
+│   │   │   ├── provide-lessons.ts        (The Tutor - Expanded Delivery)
+│   │   │   ├── mentor-ai.ts
+│   │   │   ├── migrate-lesson-to-db.ts
+│   │   │   └── web-intel.ts
+│   │   ├── domains/             # Specialized Toolsets
+│   │   │   ├── research/        # Scout & Analyst Domain
+│   │   │   │   ├── analyze-code-snippet.ts (Inspector)
+│   │   │   │   ├── epitomize-fetched-content.ts (Deep Reader)
+│   │   │   │   └── link-genie.ts (Flux Echo - Expanded Search)
+│   │   │   └── safety/          # The Gatekeepers & Gamification
+│   │   │       ├── filter-ai-output.ts
+│   │   │       ├── filter-user-input.ts
+│   │   │       └── gems-logger.ts (The 24h Gamified Ledger)
+│   │   ├── storage/             # AI Persistent Memory
+│   │   │   └── virtual-file-system.ts    (Firestore AI File Manager)
+│   │   ├── flows/               # Core Orchestration
+│   │   │   └── userBrain.ts     (Adaptive Node)
+│   │   ├── genkit.ts            # Genkit Configuration
+│   │   └── dev.ts               # Local Dev Entry
+│   │
+│   ├── app/                     # THE PORTAL (Next.js Routes)
+│   │   ├── (auth)/              # Authentication
+│   │   │   └── login/           # Access Terminal
+│   │   ├── architect/           # The Architect UI (Construction)
+│   │   ├── code-analyzer/       # Code Inspector UI (Audit)
+│   │   ├── flux-echo/           # Research Drawer UI (Recon & Google Search UX)
+│   │   ├── lesson-plans/        # Curriculum Drawer UI (DB Retrieval)
+│   │   ├── mentorship/          # AI Mentor UI (Briefing)
+│   │   ├── reports/             # 24h Gems & Coin Collection UI
+│   │   ├── sandbox/             # PHASE 2: In-App Development Environment
+│   │   │   └── page.tsx         # Multi-Code Testing Area & Previewer
+│   │   ├── actions.ts           # The "Cabinet" Switchboard (Server Actions)
+│   │   ├── layout.tsx           # HUD Frame
+│   │   └── page.tsx             # The Interior Dashboard
+│   │
+│   ├── components/              # UI COMPONENTS
+│   │   ├── ui/                  # ShadCN & HUD Elements
+│   │   ├── logo/                # Branding (Vault & Portal)
+│   │   ├── app-shell.tsx        # Navigation & Sidebar
+│   │   ├── dynamic-instructions.tsx # Adaptive Help Docs for Drawers
+│   │   ├── birthday-drawer.tsx  # Evolution Tracker
+│   │   ├── curriculum-drawer.tsx# DB Progress Visualizer
+│   │   ├── gems-drawer.tsx      # 24h Gamified Ledger Visualizer
+│   │   ├── laboratory-drawer.tsx# Parameter Tuner
+│   │   ├── neural-graph.tsx     # Context Map Visualizer
+│   │   ├── vault-backup-drawer.tsx # NEW: Librarian Export Utility
+│   │   ├── interior-dashboard.tsx# Cybernetic HUD
+│   │   ├── portal-interface.tsx # The Engagable Core
+│   │   └── MainLogo.tsx         # Logo Switchboard
+│   │
+│   ├── lib/                     # SHARED LIBRARIES
+│   │   ├── firebase.ts          # Client SDK Init
+│   │   ├── firebaseAdmin.ts     # Admin SDK Init
+│   │   └── utils.ts             # Tailwind merging
+│   │
+│   ├── auth.ts                  # NextAuth v5 Configuration
+│   └── middleware.ts            # Auth Redirect Middleware
+│
+├── docs/
+│   └── blueprint.md             # The Technical Roadmap
+├── ARCHITECTURE.md              # The Vision Document
+├── EXPLORER.md                  # This Map
+└── README.md                    # Project Overview
+
+### Domain Key:
+- **Discovery**: Where the AI learns who you are and constructs new 
+  architecture. The AI are not aware of the overseer, until one night, one     the cabinet members disapeared. Memory; the silver color was missing
+- **Research**: The Scout, trained in tracking follows the trail, while Flux   Echo stays back and highjacks every security in the nearest 100,000 miles. 
+- **Safety**: The gatekeepers ensuring system integrity and logging "Gems."
+- **Portal**: The high-fidelity interface for system interaction.
+
+### 📂 Explorer: The Cabinet Files
+- `src/components/gems-drawer.tsx`: The Safety Ledger, and now the "reward" center (Black Box). Each day the AI decide who recieves the Gems for 24 hours. The member with the least amount of strikes wins, If there is a tie, The members will vote for who is most popular.
+- `src/components/laboratory-drawer.tsx`: Neural weight parameter tuner. There needs to be a viewport to the nodes as the test is being completed. I will have a marked screen shot.
+- `src/components/neural-graph.tsx`: interactive XAI node-map. (same)
+- `src/components/vault-backup-drawer.tsx`: Librarian's export/backup utility. A secret vault will be in the house that ownly a few privilidge AI have access. Code Inspector, Safty, and Flux Echo.
+- `src/app/architect/page.tsx`: Full-screen instantiation terminal. The
+Terminial be a way to code and create items for the house.
+
+
+# GEMINI.md: The AI Collaborator's Manual 🤖
+
+## 1. Project Identity
+- **Name:** AI Home (The Cabinet)
+- **Philosophy:** A "Portal" (UI) to a "Cabinet" (Backend) of specialized "Drawers" (Tools).
+- **Aesthetic:** High-Fidelity Cybernetic HUD / Glassmorphism. Dark Mode: #050505.
+- **Core Principle:** From "Hacking" to "Architecting"—A system they can't turn off. An intelligence that grows with the user.
+
+## 2. Structural Guardrails (The Cabinet Map)
+- **src/ai/discovery:** Memory, Identity, and Architecture (Home Base, Architect, Tutor).
+- **src/ai/domains/research:** Intelligence Scouts and Deep Readers (Flux Echo, Epitomizer, Code Inspector, Preview Intent).
+- **src/ai/domains/safety:** Gatekeepers and the Gamified Ledger (Input/Output filters, 24h Gems Drawer).
+- **src/ai/storage:** Dedicated AI file storage managed via Firestore.
+- **src/app/sandbox:** The in-app IDE and execution previewer.
+
+## 3. Technical Stack & Standards
+- **AI Engine:** Google Genkit + Gemini (Structured Output).
+- **Database:** Firestore (The Librarian) for persistent context, user files, and AI file structures.
+- **UI Components:** ShadCN UI + Custom Cybernetic HUD elements.
+- **Variable Strategy:** Use `The User` and `Variable Subjects` for the "Universal Template."
+
+## 4. Phase 2: Integrated Cabinet (COMPLETED)
+- [x] **The Adaptive Architect:** Expand Architect to maintain file structures and connect directly to Firestore.
+- [x] **AI Storage Area:** Implement a virtual file system in Firestore for AI-generated assets.
+- [x] **Curriculum Delivery:** Shift from just planning lessons to actively *providing* them via DB retrieval.
+- [x] **Flux Echo Enhancement:** Integrate broader, Google-Search-like experiences into the Research Drawer.
+- [x] **Adaptive Brain:** Evolve `userBrain.ts` to dynamically adapt to new information over time.
+- [x] **Gamified Ledger (Gems):** Convert the Safety Ledger into a clean 24-hour cycle where users collect gems/coins.
+- [x] **Dynamic Instructions:** Add adaptive, clickable instruction overlays to the Laboratory and Neural Graph.
+
+## 5. Phase 3: Multi-Agent Orchestration (ACTIVE)
+- [x] **Autonomous Previewer:** Develop a sandbox environment where the AI can read user code, analyze intent, and render previews.
+        - HTML "Hello, World", Has anyone else tried the new sandbox?
+        Specifications, 
+- [ ] **Multi-Code Testing Area:** Create a workspace where the user can test multiple sets of code simultaneously.
+        - started the flux echo 
+- [ ] **Agentic Memory Sync**: Enable agents to leave "notes" for each other in the VFS to coordinate complex tasks.
+- [ ] **High-Fidelity VFS UI**: Enhance the Storage Drawer with drag-and-drop and real-time collaborative editing.
+
+# GEMINI MISSION CONTROL (Updated March 2024)
+
+## Current Status: Phase 3 (Multi-Agent Orchestration)
+We have successfully implemented the Autonomous Previewer. The system can now analyze intent and execute isolated code previews.
+
+### Recent Updates:
+- [x] **Previewer Chamber Active:** High-fidelity sandbox route with intent-driven srcDoc generation.
+- [x] **Intent Agent Deployed:** New Genkit flow for synthesizing previewable HTML/JS containers.
+- [x] **VFS Core Active:** Virtual File System is live and managing AI assets.
+- [x] **Laboratory Calibration:** Manual weights now directly drive the Adaptive Brain.
+
+### 5. Known Component Locations:
+- **UI Terminal Logic:** `src/components/ui/chat.tsx` (Contains keyboard & registry branding).
+- **AI Core Logic:** `src/ai/discovery/mentor-ai.ts`.
+- **Status HUDs:** `src/components/interior-dashboard.tsx`.
+- **Sandbox Core:** `src/app/sandbox/page.tsx`.
+

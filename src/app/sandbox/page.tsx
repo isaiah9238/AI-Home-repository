@@ -11,17 +11,29 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function SandboxPage() {
-  const [code, setCode] = useState('');
+  const [files, setFiles] = useState({
+    html: '<!-- HTML Hello, World Specification -->\n<div class="sandbox-test">\n  <h1>Hello, World</h1>\n  <p>Has anyone else tried the new sandbox?</p>\n</div>',
+    css: '.sandbox-test {\n  font-family: monospace;\n  text-align: center;\n  padding: 2rem;\n  color: #fff;\n  background: #050505;\n  border: 1px dashed rgba(255,255,255,0.2);\n  border-radius: 8px;\n}',
+    js: 'console.log("Sandbox initialized");',
+    flux: 'Flux Echo Notes:\n- Started the flux echo search.\n- Preparing Agentic Memory Sync.'
+  });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
   const handlePreview = async () => {
-    if (!code.trim()) return;
+    const combinedCode = `
+<style>${files.css}</style>
+${files.html}
+<script>${files.js}</script>
+<!-- Echo Context: ${files.flux} -->
+    `;
+    
+    if (!combinedCode.trim()) return;
     setLoading(true);
     setResult(null);
     try {
-      const res = await getPreviewAnalysis(code);
+      const res = await getPreviewAnalysis(combinedCode);
       if (res.success) {
         setResult(res.data);
       } else {
@@ -68,18 +80,31 @@ export default function SandboxPage() {
                 <Terminal className="w-3 h-3" /> Source_Logic_Stream
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 p-0">
-              <Textarea
-                placeholder="PASTE_OR_WRITE_CODE_HERE (e.g. React Component, HTML Snippet)..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full h-full bg-transparent border-0 text-blue-100 placeholder:text-white/5 font-mono text-[11px] leading-relaxed resize-none p-6 focus-visible:ring-0 custom-scrollbar"
-              />
+          <CardContent className="flex-1 p-0 flex flex-col">
+            <Tabs defaultValue="html" className="w-full h-full flex flex-col">
+              <TabsList className="bg-transparent border-b border-white/5 w-full justify-start rounded-none h-10 p-0 px-2">
+                <TabsTrigger value="html" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">HTML</TabsTrigger>
+                <TabsTrigger value="css" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">CSS</TabsTrigger>
+                <TabsTrigger value="js" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">JS</TabsTrigger>
+                <TabsTrigger value="flux" className="data-[state=active]:bg-white/5 data-[state=active]:text-purple-400 rounded-none h-full font-mono text-[10px] uppercase px-4 flex items-center gap-2"><Sparkles className="w-3 h-3"/> Flux Echo</TabsTrigger>
+              </TabsList>
+              
+              {['html', 'css', 'js', 'flux'].map((tab) => (
+                <TabsContent key={tab} value={tab} className="flex-1 m-0 p-0 outline-none data-[state=active]:flex flex-col">
+                  <Textarea
+                    placeholder={`PASTE_OR_WRITE_${tab.toUpperCase()}_HERE...`}
+                    value={files[tab as keyof typeof files]}
+                    onChange={(e) => setFiles({ ...files, [tab]: e.target.value })}
+                    className="w-full flex-1 min-h-[300px] bg-transparent border-0 text-blue-100 placeholder:text-white/5 font-mono text-[11px] leading-relaxed resize-none p-6 focus-visible:ring-0 custom-scrollbar"
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
             </CardContent>
             <div className="p-4 bg-white/5 border-t border-white/5">
               <Button 
                 onClick={handlePreview} 
-                disabled={loading || !code.trim()} 
+              disabled={loading} 
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(59,130,246,0.2)]"
               >
                 {loading ? (

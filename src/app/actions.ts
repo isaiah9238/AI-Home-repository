@@ -14,6 +14,7 @@ import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
 import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
 import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
+import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -634,5 +635,80 @@ export async function getPreviewAnalysis(code: string) {
     return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message || "INTENT_ANALYSIS_FAILED" };
+  }
+}
+
+export async function getVariationAnalysis(baseCode: string, instructions: string, count: number = 3) {
+  try {
+    await verifyAuth();
+    const variations = await generateCodeVariations({ baseCode, instructions, count });
+    return { success: true, data: variations };
+  } catch (error: any) {
+    return { success: false, error: error.message || "VARIATION_GENERATION_FAILED" };
+  }
+}
+
+export async function saveTestingWorkspace(name: string, slots: any[]) {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    
+    // Find or create 'Testing_Chambers' folder
+    const db = getAdminDb();
+    const folderSnapshot = await db.collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('name', '==', 'Testing_Chambers')
+      .limit(1)
+      .get();
+      
+    let folderId = !folderSnapshot.empty ? folderSnapshot.docs[0].id : null;
+    
+    if (!folderId) {
+      const folder = await persistVFSNode({
+        name: 'Testing_Chambers',
+        path: '/Testing_Chambers',
+        type: 'directory',
+        parentId: null,
+        userId
+      });
+      folderId = folder.id;
+    }
+
+    const node = await persistVFSNode({
+      name: `${name}.chamber.json`,
+      path: `/Testing_Chambers/${name}.chamber.json`,
+      type: 'file',
+      parentId: folderId,
+      userId,
+      content: JSON.stringify(slots),
+      mimeType: 'application/json',
+      metadata: { 
+        owner_agent: 'Testing_Chamber', 
+        type: 'workspace_save' 
+      }
+    });
+
+    return { success: true, data: node };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getTestingWorkspaces() {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    const db = getAdminDb();
+    const snapshot = await db.collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('metadata.owner_agent', '==', 'Testing_Chamber')
+      .get();
+      
+    return { 
+      success: true, 
+      data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) 
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }

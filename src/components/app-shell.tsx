@@ -68,6 +68,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       description: 'Execution_Core'
     },
     { 
+      href: '/testing-area', 
+      label: 'Testing Chamber', 
+      icon: Layout, 
+      color: 'text-purple-500',
+      description: 'Multi_Agent_Core'
+    },
+    { 
       href: '/code-analyzer', 
       label: 'Code Analyzer', 
       icon: Code2, 

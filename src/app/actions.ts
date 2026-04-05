@@ -128,6 +128,7 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
     let result;
     const isUrl = input.url.startsWith('http');
 
+    // 1. Execute the Agent
     if (input.mode === 'scout') {
       result = isUrl ? await linkGenie({ url: input.url }) : await searchGenie({ query: input.url });
     } else {
@@ -135,7 +136,69 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
       result = await epitomizeFetchedContent({ url: input.url });
     }
 
-    await getAdminDb().collection('internal_comms').add({
+    // 2. Type-Safe Markdown Generation (Fixes the TS Errors)
+    let markdownContent = '';
+    
+    if (input.mode === 'scout') {
+      const scoutData = result as { title?: string, summary: string, keyPoints: string[] };
+      markdownContent = `
+# ${scoutData.title || 'Reconnaissance Report'}
+**Target:** ${input.url}
+**Mode:** Scout
+**Timestamp:** ${new Date().toISOString()}
+
+## Summary
+${scoutData.summary}
+
+## Key Signals
+${scoutData.keyPoints ? scoutData.keyPoints.map(p => `- ${p}`).join('\n') : 'No signals extracted.'}
+      `.trim();
+    } else {
+      const deepData = result as { title: string, epitome: string, structuredNotes: { heading: string, content: string }[] };
+      markdownContent = `
+# ${deepData.title || 'Deep Read Report'}
+**Target:** ${input.url}
+**Mode:** Deep Read
+**Timestamp:** ${new Date().toISOString()}
+
+## Deep Essence
+${deepData.epitome}
+
+## Structured Notes
+${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}\n${n.content}`).join('\n\n') : 'No notes extracted.'}
+      `.trim();
+    }
+
+    // 3. Locate the "Research_Logs" Directory
+    const db = getAdminDb();
+    const logsDirSnapshot = await db.collection('ai_vfs')
+      .where('userId', '==', 'primary_user')
+      .where('name', '==', 'Research_Logs')
+      .limit(1)
+      .get();
+      
+    // If the folder exists, use its ID. Otherwise, fallback to root (null)
+    const targetFolderId = !logsDirSnapshot.empty ? logsDirSnapshot.docs[0].id : null;
+
+    // 4. AGENTIC MEMORY SYNC: Save to the Virtual File System
+    await persistVFSNode({
+      name: `Recon_${input.mode}_${Date.now()}.md`,
+      path: `/Research_Logs/Recon_${input.mode}_${Date.now()}.md`,
+      type: 'file',
+      parentId: targetFolderId, 
+      userId: 'primary_user',
+      content: markdownContent,
+      mimeType: 'text/markdown',
+      metadata: { 
+        owner_agent: 'Flux_Echo', 
+        intent_vector: input.mode,
+        target_url: input.url,
+        access_level: 'shared' 
+      }
+    });
+
+    // 5. Update the internal ledger
+    await db.collection('internal_comms').add({
       agent: 'Flux Echo',
       action: isUrl ? input.mode : 'general_scout',
       target: input.url,
@@ -146,29 +209,6 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
-  }
-}
-
-export async function runArchitect(blueprint: string) {
-  try {
-    await verifyAuth();
-    const result = await generateInitialFiles({ blueprint });
-    
-    if (result && result.length > 0) {
-      const docRef = await getAdminDb().collection('blueprints').add({
-        userId: 'primary_user',
-        name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
-        prompt: blueprint,
-        structure: result,
-        timestamp: new Date().toISOString(),
-        status: 'CONSTRUCTED'
-      });
-      return { success: true, data: result, id: docRef.id };
-    }
-
-    return { success: true, data: result };
-  } catch (error: any) {
-    return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
   }
 }
 

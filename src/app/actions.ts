@@ -212,6 +212,29 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
   }
 }
 
+export async function runArchitect(blueprint: string) {
+  try {
+    await verifyAuth();
+    const result = await generateInitialFiles({ blueprint });
+    
+    if (result && result.length > 0) {
+      const docRef = await getAdminDb().collection('blueprints').add({
+        userId: 'primary_user',
+        name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
+        prompt: blueprint,
+        structure: result,
+        timestamp: new Date().toISOString(),
+        status: 'CONSTRUCTED'
+      });
+      return { success: true, data: result, id: docRef.id };
+    }
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
+  }
+}
+
 export async function getSavedBlueprints() {
   try {
     await verifyAuth();
@@ -232,6 +255,7 @@ export async function getSavedBlueprints() {
     return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
   }
 }
+
 
 export async function deleteBlueprint(id: string) {
   try {

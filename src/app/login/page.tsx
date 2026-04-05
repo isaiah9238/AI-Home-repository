@@ -21,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // trustHost in auth.ts ensures this fetch succeeds behind the workspace proxy
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
       console.error("Login initialization failed:", error);
       setLoading(false);

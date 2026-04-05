@@ -4,6 +4,7 @@ import { getAdminDb } from '@/lib/firebaseAdmin';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
 import { establishHomeBase } from './establish-home-base';
+import { getAgenticContext } from '@/app/actions';
 
 /**
  * @fileOverview The Web Intel Mentor Flow.
@@ -31,7 +32,11 @@ const flow = ai.defineFlow(
     const userId = 'primary_user';
     const { userContext } = await establishHomeBase({ userId });
     
-    // 3. Build the Adaptive Persona
+    // 3. AGENTIC MEMORY SYNC: Fetch recent context from other agents
+    const agenticContextRes = await getAgenticContext();
+    const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "No recent agentic signals.";
+
+    // 4. Build the Adaptive Persona
     const recentKnowledgeCtx = userContext.recentKnowledge?.length > 0 
       ? `RECENT_KNOWLEDGE_FRAGMENTS: ${userContext.recentKnowledge.join(', ')}.`
       : "RECENT_KNOWLEDGE_FRAGMENTS: System Initialization Only.";
@@ -45,9 +50,11 @@ const flow = ai.defineFlow(
       MASTERY_METRICS: Complexity: ${userContext.neuralComplexity}% | Integration: ${userContext.knowledgeIntegration}%
       ${recentKnowledgeCtx}
       ${integrityCtx}
+      RECENT_AGENT_SIGNALS:
+      ${agenticCtx}
     `;
 
-    // 4. Generate the response
+    // 5. Generate the response
     const { text } = await ai.generate({
       model: 'googleai/gemini-2.5-pro',
       prompt: `
@@ -56,7 +63,7 @@ const flow = ai.defineFlow(
         
         INSTRUCTIONS:
         1. Acknowledge the user by name.
-        2. Reference at least one of their RECENT_KNOWLEDGE_FRAGMENTS if available to show context awareness.
+        2. Reference at least one of their RECENT_KNOWLEDGE_FRAGMENTS or RECENT_AGENT_SIGNALS if available to show context awareness.
         3. Mention their current Neural Complexity or system integrity state.
         4. Keep the briefing under 5 sentences.
         5. End with a "Signal of the Day"—a tiny, actionable technical tip related to their role or recent lessons.
@@ -66,7 +73,7 @@ const flow = ai.defineFlow(
       `,
     });
 
-    // 5. Safety Check: AI Output
+    // 6. Safety Check: AI Output
     const outputSafety = await filterAIOutput({ text });
     if (!outputSafety.isSafe) {
       return { response: "SIGNAL_BLOCKED: The generated briefing contained sensitive material and was retracted for system integrity." };

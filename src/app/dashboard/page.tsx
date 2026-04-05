@@ -1,42 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { AuditSidebar } from "@/components/AuditSidebar";
 import { CodeInspector } from "@/components/CodeInspector";
 import { Activity, Cpu, Loader2, Shield } from "lucide-react";
+import { getInternalComms } from '@/app/actions';
 
 // 🏛️ Define the Audit interface to match the Sidebar's expectations
 interface Audit {
   id: string;
   fileName: string;
   agent: string;
-  status: "SUCCESS" | "FAILED" | "PENDING"; // This fixes the 'string' vs 'status' mismatch
+  status: "SUCCESS" | "FAILED" | "PENDING";
   data?: any;
+  timestamp?: string;
 }
-
-// 🛡️ Create the mock history with the explicit Audit type
-const mockAuditHistory: Audit[] = [
-  { 
-    id: 'audit-101', 
-    fileName: 'pittsburgh_traverse.json', 
-    agent: 'Librarian', 
-    status: 'SUCCESS',
-    data: { type: "COGO", method: "Inverse", result: "0.001 closure" }
-  },
-  { 
-    id: 'audit-102', 
-    fileName: 'roadway_profile_v2.json', 
-    agent: 'Flux Echo', 
-    status: 'SUCCESS',
-    data: { stationing: "10+00 to 15+50", vertical_curve: "K-Value 45" }
-  }
-];
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
+  const [history, setHistory] = useState<Audit[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchHistory();
+    }
+  }, [status]);
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    const res = await getInternalComms();
+    if (res.success) {
+      const formattedData = res.data.map((item: any) => ({
+        id: item.id,
+        fileName: item.target || 'System_Audit',
+        agent: item.agent || 'Unknown_Agent',
+        status: item.status || 'SUCCESS',
+        timestamp: item.timestamp,
+        data: item
+      }));
+      setHistory(formattedData);
+    }
+    setLoading(false);
+  };
 
   // 🛡️ Guard 1: The "Librarian is checking the logs" loading state
   if (status === "loading") {
@@ -61,9 +70,11 @@ export default function DashboardPage() {
           <div className="p-2 bg-blue-500/10 rounded border border-blue-500/20">
             <Cpu className="w-4 h-4 text-blue-500" />
           </div>
-          <h1 className="text-xs font-bold tracking-[0.4em] uppercase">Studio_Cabinet / V.4</h1>
+          <h1 className="text-xs font-bold tracking-[0.4em] uppercase flex items-center gap-3">
+            Studio_Cabinet / V.4 {loading && <Loader2 className="w-3 h-3 animate-spin opacity-40" />}
+          </h1>
         </div>
-        
+
         <div className="flex items-center gap-8 opacity-60">
           <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest text-green-400">
             <Shield className="w-3 h-3" /> Firewall_Active
@@ -79,7 +90,7 @@ export default function DashboardPage() {
         {/* Librarian Ledger (Sidebar) */}
         <aside className="w-80 border-r border-white/5 bg-black/40 flex flex-col">
           <AuditSidebar 
-            history={mockAuditHistory} 
+            history={history} 
             onSelectAudit={setSelectedAudit} 
           />
         </aside>

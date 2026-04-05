@@ -4,6 +4,7 @@ import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { mentorAi } from '@/ai/discovery/mentor-ai';
 import { webIntel } from '@/ai/discovery/web-intel';
+import { getAgenticContext } from '@/app/actions';
 
 /**
  * @fileOverview The Multi-Agent Dispatcher
@@ -29,7 +30,11 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     try {
-      // 1. Generate the classification
+      // 1. AGENTIC MEMORY SYNC: Fetch recent context from other agents
+      const agenticContextRes = await getAgenticContext();
+      const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "No recent agentic signals.";
+
+      // 2. Generate the classification
       const response = await ai.generate({
         model: 'googleai/gemini-2.5-pro',
         prompt: `
@@ -40,6 +45,9 @@ const flow = ai.defineFlow(
           - 'web_intel': used for fetching and summarizing content from a URL coordinate.
           - 'general_mentor': used for general questions, profile updates, or conversation.
 
+          RECENT_AGENT_SIGNALS:
+          ${agenticCtx}
+
           User Request: ${input.request}
         `,
         output: {
@@ -49,7 +57,7 @@ const flow = ai.defineFlow(
 
       const agent = response.output?.agent || 'general_mentor';
 
-      // 2. Direct routing to the selected flow wrapper
+      // 3. Direct routing to the selected flow wrapper
       switch (agent) {
         case 'architect':
           return await generateInitialFiles({ blueprint: input.request });

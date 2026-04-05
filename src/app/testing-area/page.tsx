@@ -17,7 +17,8 @@ import {
   Copy,
   Check,
   ChevronRight,
-  Monitor
+  Monitor,
+  ExternalLink
 } from 'lucide-react';
 import { 
   getPreviewAnalysis, 
@@ -191,6 +192,14 @@ export default function TestingChamberPage() {
       toast({ title: "Workspace Restored", description: `Loaded ${workspace.name}` });
     } catch (e) {
       toast({ title: "Load Error", description: "Corruption detected in workspace file.", variant: "destructive" });
+    }
+  };
+
+  const openInNewWindow = (previewCode: string) => {
+    const newWindow = window.open();
+    if (newWindow) {
+      newWindow.document.write(previewCode);
+      newWindow.document.close();
     }
   };
 
@@ -370,12 +379,22 @@ export default function TestingChamberPage() {
 
                 <TabsContent value="preview" className="flex-1 mt-0 bg-white/5 min-h-[300px] relative overflow-hidden">
                   {slot.previewCode ? (
-                    <iframe
-                      srcDoc={slot.previewCode}
-                      className="w-full h-full border-0 bg-white"
-                      title={`Execution_${slot.id}`}
-                      sandbox="allow-scripts"
-                    />
+                    <>
+                      <iframe
+                        srcDoc={slot.previewCode}
+                        className="w-full h-full border-0 bg-white"
+                        title={`Execution_${slot.id}`}
+                        sandbox="allow-scripts"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => openInNewWindow(slot.previewCode)}
+                        className="absolute top-4 right-4 h-8 w-8 bg-black/50 text-white hover:bg-black/70 backdrop-blur-md rounded-lg"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-white/10 uppercase text-[9px] gap-4">
                       <Monitor className="w-10 h-10 opacity-5" />

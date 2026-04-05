@@ -52,6 +52,14 @@ ${files.html}
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const openInNewWindow = (previewCode: string) => {
+    const newWindow = window.open();
+    if (newWindow) {
+      newWindow.document.write(previewCode);
+      newWindow.document.close();
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 font-mono">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-blue-500 pl-6">
@@ -148,6 +156,14 @@ ${files.html}
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-[10px] text-white/30 uppercase tracking-[0.3em]">Execution_Chamber</CardTitle>
                   <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => openInNewWindow(result.previewCode)}
+                      className="h-7 w-7 text-white/30 hover:text-blue-400"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 

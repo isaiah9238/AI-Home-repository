@@ -2,22 +2,28 @@ import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 
 export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const isAuthPage = req.nextUrl.pathname.startsWith('/login');
+  const isApiAuthRoute = req.nextUrl.pathname.startsWith('/api/auth');
+
   // 🚨 THE BYPASS: If running locally, open the blast doors.
   if (process.env.NODE_ENV === 'development') {
     return NextResponse.next();
   }
 
-  const isLoggedIn = !!req.auth;
-  const isDashboardRoute = req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/flux-echo');
-
-  // If trying to access protected routes without a session in production, boot to Login
-  if (!isLoggedIn && isDashboardRoute) {
+  // Redirect to login if not logged in and not on an auth-related page
+  if (!isLoggedIn && !isAuthPage && !isApiAuthRoute) {
     return NextResponse.redirect(new URL('/login', req.nextUrl));
+  }
+
+  // Redirect to dashboard if logged in and trying to access the login page
+  if (isLoggedIn && isAuthPage) {
+    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
   }
 
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/flux-echo/:path*', '/api/ai/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

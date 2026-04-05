@@ -56,6 +56,44 @@ const MOCK_USER_CONTEXT = {
   updatedAt: new Date().toISOString(),
 };
 
+/**
+ * helper: callLibrarianIndexer
+ * Calls the background Cloud Function to analyze content.
+ */
+async function callLibrarianIndexer(content: string, context: string = "General_Sync") {
+  try {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
+    const region = 'us-central1';
+    const functionUrl = `https://${region}-${projectId}.cloudfunctions.net/librarianIndexer`;
+    
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { content, context } })
+    });
+
+    if (!response.ok) {
+      console.warn("Librarian Indexer offline. Fallback to local heuristic.");
+      return {
+        tags: ["Auto_Tagged", context],
+        summary: content.slice(0, 100) + "...",
+        sentiment: "neutral",
+        priority: 1
+      };
+    }
+
+    const result = await response.json();
+    return result.result;
+  } catch (error) {
+    return {
+      tags: ["Fallback"],
+      summary: "Manual entry - Indexer unavailable.",
+      sentiment: "neutral",
+      priority: 1
+    };
+  }
+}
+
 export async function pingServer() {
   try {
     return { 
@@ -137,7 +175,7 @@ export async function runResearchMode(input: { url: string, mode: ResearchMode }
       result = await epitomizeFetchedContent({ url: input.url });
     }
 
-    // 2. Type-Safe Markdown Generation (Fixes the TS Errors)
+    // 2. Type-Safe Markdown Generation
     let markdownContent = '';
     
     if (input.mode === 'scout') {
@@ -170,7 +208,10 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       `.trim();
     }
 
-    // 3. Locate the "Research_Logs" Directory
+    // 3. AGENTIC INDEXING: Automatically summarize and tag the research
+    const analysis = await callLibrarianIndexer(markdownContent, `Research_${input.mode}`);
+
+    // 4. Locate the "Research_Logs" Directory
     const db = getAdminDb();
     const logsDirSnapshot = await db.collection('ai_vfs')
       .where('userId', '==', 'primary_user')
@@ -178,10 +219,9 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       .limit(1)
       .get();
       
-    // If the folder exists, use its ID. Otherwise, fallback to root (null)
     const targetFolderId = !logsDirSnapshot.empty ? logsDirSnapshot.docs[0].id : null;
 
-    // 4. AGENTIC MEMORY SYNC: Save to the Virtual File System
+    // 5. AGENTIC MEMORY SYNC: Save to the Virtual File System
     await persistVFSNode({
       name: `Recon_${input.mode}_${Date.now()}.md`,
       path: `/Research_Logs/Recon_${input.mode}_${Date.now()}.md`,
@@ -194,11 +234,13 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
         owner_agent: 'Flux_Echo', 
         intent_vector: input.mode,
         target_url: input.url,
-        access_level: 'shared' 
+        type: 'research_report',
+        access_level: 'shared',
+        analysis: analysis
       }
     });
 
-    // 5. Update the internal ledger
+    // 6. Update the internal ledger
     await db.collection('internal_comms').add({
       agent: 'Flux Echo',
       action: isUrl ? input.mode : 'general_scout',
@@ -470,7 +512,6 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     await gemRef.update({ resolution });
 
     if (resolution === 'resolved') {
-      // Calculate reward based on severity
       const severity = gemData?.severity || 'medium';
       let reward = 25;
       if (severity === 'critical') reward = 100;
@@ -500,6 +541,28 @@ export async function deleteAudit(id: string) {
     return { success: true };
   } catch (error) {
     return { success: false, error: "LIBRARIAN_DELETE_ERROR" };
+  }
+}
+
+export async function getInternalComms() {
+  try {
+    await verifyAuth();
+    const snapshot = await getAdminDb()
+      .collection('internal_comms')
+      .orderBy('timestamp', 'desc')
+      .limit(50)
+      .get();
+      
+    return { 
+      success: true, 
+      data: snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data(),
+        timestamp: sanitizeDate(doc.data().timestamp)
+      })) 
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }
 
@@ -568,6 +631,83 @@ export async function exportVaultData() {
   }
 }
 
+// --- Agentic Memory Actions ---
+
+export async function postAgenticNote(agentName: string, note: string, intentVector: string) {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    const db = getAdminDb();
+    
+    // 1. AGENTIC INDEXING
+    const analysis = await callLibrarianIndexer(note, intentVector);
+
+    // 2. Find or create 'Agent_Notes' folder
+    const folderSnapshot = await db.collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('name', '==', 'Agent_Notes')
+      .limit(1)
+      .get();
+      
+    let folderId = !folderSnapshot.empty ? folderSnapshot.docs[0].id : null;
+    
+    if (!folderId) {
+      const folder = await persistVFSNode({
+        name: 'Agent_Notes',
+        path: '/Agent_Notes',
+        type: 'directory',
+        parentId: null,
+        userId
+      });
+      folderId = folder.id;
+    }
+
+    const node = await persistVFSNode({
+      name: `Note_${agentName}_${Date.now()}.md`,
+      path: `/Agent_Notes/Note_${agentName}_${Date.now()}.md`,
+      type: 'file',
+      parentId: folderId,
+      userId,
+      content: note,
+      mimeType: 'text/markdown',
+      metadata: { 
+        owner_agent: agentName, 
+        intent_vector: intentVector,
+        type: 'agent_note',
+        analysis: analysis
+      }
+    });
+
+    return { success: true, data: node };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getAgenticContext() {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    const db = getAdminDb();
+    
+    const notesSnapshot = await db.collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('metadata.type', 'in', ['agent_note', 'research_report'])
+      .orderBy('updatedAt', 'desc')
+      .limit(5)
+      .get();
+      
+    const notes = notesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return `[AGENT: ${data.metadata?.owner_agent || 'Unknown'}] [INTENT: ${data.metadata?.intent_vector || 'General'}]\n${data.content}`;
+    });
+
+    return { success: true, context: notes.join('\n---\n') };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 // --- VFS Actions ---
 
 export async function getVFSNodesAction(parentId: string | null = null) {
@@ -595,7 +735,6 @@ export async function initializeVFS() {
     await verifyAuth();
     const userId = 'primary_user';
     
-    // Create base directories
     const rootDir = await persistVFSNode({
       name: 'System_Root',
       path: '/',
@@ -653,10 +792,9 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
     await verifyAuth();
     const userId = 'primary_user';
     
-    // Find or create 'Testing_Chambers' folder
     const db = getAdminDb();
     const folderSnapshot = await db.collection('ai_vfs')
-      .where('userId', '==', userId)
+      .where('userId', '==', 'primary_user')
       .where('name', '==', 'Testing_Chambers')
       .limit(1)
       .get();
@@ -669,7 +807,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
         path: '/Testing_Chambers',
         type: 'directory',
         parentId: null,
-        userId
+        userId: 'primary_user'
       });
       folderId = folder.id;
     }
@@ -679,7 +817,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
       path: `/Testing_Chambers/${name}.chamber.json`,
       type: 'file',
       parentId: folderId,
-      userId,
+      userId: 'primary_user',
       content: JSON.stringify(slots),
       mimeType: 'application/json',
       metadata: { 
@@ -697,10 +835,9 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
 export async function getTestingWorkspaces() {
   try {
     await verifyAuth();
-    const userId = 'primary_user';
     const db = getAdminDb();
     const snapshot = await db.collection('ai_vfs')
-      .where('userId', '==', userId)
+      .where('userId', '==', 'primary_user')
       .where('metadata.owner_agent', '==', 'Testing_Chamber')
       .get();
       

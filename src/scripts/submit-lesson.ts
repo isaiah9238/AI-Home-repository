@@ -53,7 +53,6 @@ async function submitAILesson() {
   }
 }
 
-// Execute the protocol
 submitAILesson().then(() => {
   console.log("👋 PROTOCOL_TERMINATED: AI maintaining standby state.");
   process.exit(0);

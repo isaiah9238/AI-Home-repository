@@ -11,7 +11,7 @@ export const initAdmin = () => {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
   const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.SERVICE_ACCOUNT_KEY;
 
-  // #3 THE PURGE: Neutralize emulator signals in remote environments
+  // #3 THE PURGE: Neutralize emulator signals in remote nodes
   const isRemote = process.env.NODE_ENV === 'production' || 
                    !!process.env.VERCEL || 
                    !!process.env.FIREBASE_STUDIO ||
@@ -49,7 +49,6 @@ export const initAdmin = () => {
     }
   }
 
-  // Fallback to default credentials or project ID only (useful for App Hosting / Workstations)
   return admin.initializeApp({
     projectId: projectId,
   });

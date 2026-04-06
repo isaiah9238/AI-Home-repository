@@ -1,4 +1,3 @@
-
 'use server';
 
 import { mentorAi } from '@/ai/discovery/mentor-ai';
@@ -71,7 +70,7 @@ async function callLibrarianIndexer(content: string, context: string = "General_
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: { content, context } }),
-      signal: AbortSignal.timeout(5000) // 5s timeout to prevent hanging actions
+      signal: AbortSignal.timeout(5000)
     });
 
     if (!response.ok) {
@@ -242,14 +241,6 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       `Research_${input.mode}`
     );
 
-    await db.collection('internal_comms').add({
-      agent: 'Flux Echo',
-      action: isUrl ? input.mode : 'general_scout',
-      target: input.url,
-      timestamp: new Date().toISOString(),
-      status: 'SUCCESS'
-    });
-
     return { success: true, mode: input.mode, data: result };
   } catch (error: any) {
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
@@ -265,7 +256,6 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
       const db = getAdminDb();
       const userId = 'primary_user';
 
-      // 1. Log to Blueprints Archive
       const docRef = await db.collection('blueprints').add({
         userId,
         name: blueprint.slice(0, 50) + (blueprint.length > 50 ? '...' : ''),
@@ -275,9 +265,7 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
         status: 'CONSTRUCTED'
       });
 
-      // 2. AUTONOMOUS WRITING: Commit structure to VFS
       if (commitToVFS) {
-        // Create root project folder
         const projectFolderName = `Project_${Date.now()}`;
         const blueprintsFolderSnapshot = await db.collection('ai_vfs')
           .where('userId', '==', userId)
@@ -295,7 +283,6 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
           userId
         });
 
-        // Write all files level-by-level (keeping it simple for now)
         for (const file of result) {
           await persistVFSNode({
             name: file.path.split('/').pop() || 'unnamed',
@@ -311,7 +298,6 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
           });
         }
 
-        // 3. AGENTIC MEMORY SYNC: Broadcast successful commit
         await postAgenticNote(
           "The_Architect",
           `Autonomous Writing Protocol engaged. New project structure [${projectFolderName}] committed to /Blueprints. Initial files synthesized and indexed.`,
@@ -682,18 +668,14 @@ export async function exportVaultData() {
   }
 }
 
-// --- Agentic Memory Actions ---
-
 export async function postAgenticNote(agentName: string, note: string, intentVector: string) {
   try {
     await verifyAuth();
     const userId = 'primary_user';
     const db = getAdminDb();
     
-    // 1. AGENTIC INDEXING
     const analysis = await callLibrarianIndexer(note, intentVector);
 
-    // 2. Find or create 'Agent_Notes' folder
     const folderSnapshot = await db.collection('ai_vfs')
       .where('userId', '==', userId)
       .where('name', '==', 'Agent_Notes')
@@ -758,8 +740,6 @@ export async function getAgenticContext() {
     return { success: false, error: error.message };
   }
 }
-
-// --- VFS Actions ---
 
 export async function getVFSNodesAction(parentId: string | null = null) {
   try {
@@ -833,8 +813,6 @@ export async function initializeVFS() {
     return { success: false, error: error.message };
   }
 }
-
-// --- Sandbox Actions ---
 
 export async function getPreviewAnalysis(code: string) {
   try {

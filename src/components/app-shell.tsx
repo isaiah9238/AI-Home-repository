@@ -50,7 +50,6 @@ const FluxEchoIcon = (props: React.ComponentProps<'svg'>) => (
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Hide the shell completely on the login page
   if (pathname === '/login') {
     return <>{children}</>;
   }

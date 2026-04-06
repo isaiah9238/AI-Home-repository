@@ -12,14 +12,14 @@ The system follows a "Clean Room" philosophy, where high-complexity tools are su
 A cybernetic HUD designed with glassmorphism, neon telemetry, and real-time status pulses.
 - **Interior Dashboard**: A real-time command center visualizing neural complexity and system health.
 - **The Visualizer**: A central gateway for summoning specialized operational drawers.
-- **Autonomous Previewer**: A live sandbox for intent analysis and code execution.
+- **Autonomous Previewer**: A live sandbox for intent analysis and high-fidelity code execution.
 
 ### 📁 The Cabinet (Operational Domains)
 
 #### 1. Discovery Domain (Identity & Construction)
-- **The Architect**: A 3D printer for code that generates structures and commits them directly to the VFS.
-- **The Tutor**: Synthesizes and ingests lesson plans to expand neural context density.
-- **Home Base**: Anchors the AI's memory in Firestore, ensuring persistence of user mastery.
+- **The Architect**: A 3D printer for code that generates structures and commits them directly to the VFS via the **Autonomous Writing** protocol.
+- **The Tutor**: Synthesizes and ingests lesson plans to expand neural context density and mastery phases.
+- **Home Base**: Anchors the AI's memory in Firestore, ensuring persistence of user mastery and system calibrations.
 
 #### 2. Research Domain (Intelligence & Analysis)
 - **Flux Echo (Scout)**: Conducts high-speed web reconnaissance and general topic scouting.
@@ -27,12 +27,12 @@ A cybernetic HUD designed with glassmorphism, neon telemetry, and real-time stat
 - **Code Inspector**: Specialized auditor for security, performance, and logical integrity.
 
 #### 3. Storage Domain (Persistence)
-- **Virtual File System (VFS)**: A hierarchical, Firestore-backed storage layer for AI assets.
+- **Virtual File System (VFS)**: A hierarchical, Firestore-backed storage layer for all AI-generated assets and blueprints.
 - **Agentic Memory**: A coordination stream where agents leave signals for cross-domain orchestration.
 
 #### 4. Safety Domain (Integrity)
 - **The Ledger (Gems)**: A gamified 24-hour cycle where security pulses are harvested to grow neural credits.
-- **Gatekeepers**: High-fidelity input/output filters vetting all neural streams.
+- **Gatekeepers**: High-fidelity input/output filters vetting all neural streams for system safety.
 
 ---
 

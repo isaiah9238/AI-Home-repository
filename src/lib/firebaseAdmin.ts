@@ -11,6 +11,7 @@ export const initAdmin = () => {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
   const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.SERVICE_ACCOUNT_KEY;
 
+  // #3 THE PURGE: Neutralize emulator signals in remote environments
   const isRemote = process.env.NODE_ENV === 'production' || 
                    !!process.env.VERCEL || 
                    !!process.env.FIREBASE_STUDIO ||
@@ -25,10 +26,14 @@ export const initAdmin = () => {
       'FIREBASE_FUNCTIONS_EMULATOR_HOST'
     ];
     
-    emulatorVars.forEach(key => delete process.env[key]);
+    emulatorVars.forEach(key => {
+      if (process.env[key]) {
+        delete process.env[key];
+      }
+    });
     
     if (process.env.FIREBASE_STUDIO) {
-      console.log("Librarian: Cloud synchronization established. Emulator signals neutralized.");
+      console.log("LIBRARIAN: Cloud synchronization established. Emulator signals neutralized.");
     }
   }
 
@@ -44,6 +49,7 @@ export const initAdmin = () => {
     }
   }
 
+  // Fallback to default credentials or project ID only (useful for App Hosting / Workstations)
   return admin.initializeApp({
     projectId: projectId,
   });

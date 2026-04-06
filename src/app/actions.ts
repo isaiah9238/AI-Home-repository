@@ -70,11 +70,11 @@ async function callLibrarianIndexer(content: string, context: string = "General_
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: { content, context } })
+      body: JSON.stringify({ data: { content, context } }),
+      signal: AbortSignal.timeout(5000) // 5s timeout to prevent hanging actions
     });
 
     if (!response.ok) {
-      console.warn("Librarian Indexer offline. Fallback to local heuristic.");
       return {
         tags: ["Auto_Tagged", context],
         summary: content.slice(0, 100) + "...",
@@ -88,7 +88,7 @@ async function callLibrarianIndexer(content: string, context: string = "General_
   } catch (error) {
     return {
       tags: ["Fallback"],
-      summary: "Manual entry - Indexer unavailable.",
+      summary: "Manual entry - Indexer offline.",
       sentiment: "neutral",
       priority: 1
     };

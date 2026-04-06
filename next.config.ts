@@ -37,7 +37,8 @@ const nextConfig: NextConfig = {
         '*.web.app',
         '*.firebaseapp.com',
         '*.google.com',
-        '*.googleusercontent.com'
+        '*.googleusercontent.com',
+        '*.firebase-studio.google'
       ],
     },
   },

@@ -1,4 +1,3 @@
-
 import { generateLessonPlan as generateFlow } from '../ai/discovery/generate-lesson-plan';
 import { getAdminDb } from '../lib/firebaseAdmin';
 

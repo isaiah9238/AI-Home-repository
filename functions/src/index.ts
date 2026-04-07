@@ -11,6 +11,9 @@ import { googleAI } from "@genkit-ai/google-genai";
 import { onCallGenkit } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
+import { enableFirebaseTelemetry } from '@genkit-ai/firebase';
+
+enableFirebaseTelemetry();
 
 // 1. Initialize Firebase Admin
 initializeApp();

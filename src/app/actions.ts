@@ -35,11 +35,11 @@ async function verifyAuth() {
   try {
     const session = await auth();
     if (!session) {
-      return { user: { name: "Isaiah Smith", email: "isaiah@example.com" } };
+      return { user: { name: "Isaiah Smith", email: "isaiah9238@gmail.com" } };
     }
     return session;
   } catch (error) {
-    return { user: { name: "Isaiah Smith", email: "isaiah@example.com" } };
+    return { invalidnamne: "n/a", email: "n/a" };
   }
 }
 
@@ -491,7 +491,7 @@ export async function integrateLessonAction(data: { title: string; subject: stri
   try {
     await verifyAuth();
     const result = await migrateLessonToDb(data);
-    return { success: true, planId: result?.success ? 'GENERATED_ID' : null };
+    return { success: true, planId: result.success ? 'GENERATED_ID' : null };
   } catch (error: any) {
     return { success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." };
   }
@@ -713,7 +713,7 @@ export async function postAgenticNote(agentName: string, note: string, intentVec
 
     return { success: true, data: node };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { ssuccess: false, error: error.message };
   }
 }
 

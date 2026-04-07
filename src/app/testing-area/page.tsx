@@ -76,7 +76,7 @@ export default function TestingChamberPage() {
     setLoadingWorkspaces(true);
     const res = await getTestingWorkspaces();
     if (res.success) {
-      setSavedWorkspaces(res.data);
+      setSavedWorkspaces(res.data || []);
     }
     setLoadingWorkspaces(false);
   };
@@ -110,7 +110,7 @@ export default function TestingChamberPage() {
     updateSlot(id, { loading: true });
     try {
       const res = await getPreviewAnalysis(slot.code);
-      if (res.success) {
+      if (res.success && res.data) {
         updateSlot(id, { 
           previewCode: res.data.previewCode, 
           intent: res.data.intent, 
@@ -118,7 +118,7 @@ export default function TestingChamberPage() {
           loading: false 
         });
       } else {
-        toast({ title: "Execution Failed", description: res.error, variant: "destructive" });
+        toast({ title: "Execution Failed", description: res.error || "Signal lost.", variant: "destructive" });
         updateSlot(id, { loading: false });
       }
     } catch (error) {
@@ -136,7 +136,7 @@ export default function TestingChamberPage() {
     setIsGeneratingVariations(true);
     try {
       const res = await getVariationAnalysis(baseSlot.code, variationInstructions, variationCount);
-      if (res.success) {
+      if (res.success && res.data) {
         const newVariations = res.data.map((v: any) => ({
           id: `var_${Date.now()}_${v.id}`,
           name: `Variation_${v.id}`,
@@ -155,10 +155,10 @@ export default function TestingChamberPage() {
         // Automatically execute new variations
         for (const v of newVariations) {
           const previewRes = await getPreviewAnalysis(v.code);
-          if (previewRes.success) {
+          if (previewRes.success && previewRes.data) {
             setSlots(prev => prev.map(s => s.id === v.id ? { 
               ...s, 
-              previewCode: previewRes.data.previewCode, 
+              previewCode: previewRes.data!.previewCode, 
               loading: false 
             } : s));
           } else {

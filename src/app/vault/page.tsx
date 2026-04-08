@@ -1,4 +1,5 @@
 "use client"; // This is the magic word that tells Next.js this page is interactive
+export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, query } from "firebase/firestore";

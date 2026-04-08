@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -88,6 +87,7 @@ export default function ArchitectPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 font-mono">
+      {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-purple-500 pl-6">
         <div>
           <h1 className="text-4xl font-light tracking-[0.2em] uppercase flex items-center gap-4 text-white">
@@ -113,6 +113,7 @@ export default function ArchitectPage() {
           </TabsTrigger>
         </TabsList>
 
+        {/* NEW BLUEPRINT TAB */}
         <TabsContent value="new" className="space-y-8 mt-0">
           <Card className="bg-black/40 border-white/5 backdrop-blur-xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
@@ -165,8 +166,10 @@ export default function ArchitectPage() {
             </CardContent>
           </Card>
 
+          {/* RESULTS GRID */}
           {results && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              {/* SIDEBAR: STRUCTURAL NODES */}
               <Card className="lg:col-span-4 bg-black/40 border-white/5 flex flex-col overflow-hidden">
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3">
                   <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold flex items-center gap-2">
@@ -175,33 +178,38 @@ export default function ArchitectPage() {
                 </CardHeader>
                 <CardContent className="flex-1 p-2 overflow-y-auto custom-scrollbar">
                   <div className="space-y-1">
-                    {results.map((file, i) => (
-                      <div 
-                        key={i} 
-                        onClick={() => file.type === 'file' && setSelectedFile(file)}
-                        className={`
-                          flex items-center gap-3 p-2 rounded cursor-pointer transition-all group
-                          ${file.type === 'file' ? 'hover:bg-purple-500/10' : 'cursor-default'}
-                          ${selectedFile?.path === file.path ? 'bg-purple-500/20 border-l-2 border-purple-500' : 'border-l-2 border-transparent'}
-                        `}
-                      >
-                        {file.type === 'directory' ? (
-                          <Folder className="w-3 h-3 text-purple-400/60" />
-                        ) : (
-                          <FileCode className="w-3 h-3 text-blue-400/60" />
-                        )}
-                        <span className={`text-[11px] truncate ${file.type === 'directory' ? 'text-purple-300/80 font-bold' : 'text-white/60'}`}>
-                          {file.path}
-                        </span>
-                        {file.content && (
-                          <Badge variant="outline" className="ml-auto text-[7px] border-blue-500/20 text-blue-400/40 uppercase">BP</Badge>
-                        )}
-                      </div>
-                    ))}
+                    {results.map((node, i) => {
+                      const depth = (node.path.match(/\//g) || []).length;
+                      return (
+                        <div 
+                          key={i} 
+                          onClick={() => node.type === 'file' && setSelectedFile(node)}
+                          style={{ paddingLeft: `${depth * 12 + 8}px` }}
+                          className={`
+                            flex items-center gap-3 p-2 rounded cursor-pointer transition-all group
+                            ${node.type === 'file' ? 'hover:bg-purple-500/10' : 'cursor-default'}
+                            ${selectedFile?.path === node.path ? 'bg-purple-500/20 border-l-2 border-purple-500' : 'border-l-2 border-transparent'}
+                          `}
+                        >
+                          {node.type === 'directory' ? (
+                            <Folder className="w-3 h-3 text-purple-400/60" />
+                          ) : (
+                            <FileCode className="w-3 h-3 text-blue-400/60" />
+                          )}
+                          <span className={`text-[11px] truncate ${node.type === 'directory' ? 'text-purple-300/80 font-bold' : 'text-white/60'}`}>
+                            {node.path.split('/').pop()}
+                          </span>
+                          {node.content && (
+                            <Badge variant="outline" className="ml-auto text-[7px] border-blue-500/20 text-blue-400/40 uppercase">BP</Badge>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
 
+              {/* MAIN CONTENT: NODE PREVIEW */}
               <Card className="lg:col-span-8 bg-black/40 border-white/5 flex flex-col overflow-hidden">
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest font-bold">
@@ -227,7 +235,9 @@ export default function ArchitectPage() {
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center opacity-10">
                       <Box className="w-16 h-16 mb-4" />
-                      <span className="text-[10px] uppercase tracking-[0.4em]">Awaiting_Selection</span>
+                      <span className="text-[10px] uppercase tracking-[0.4em]">
+                        {selectedFile ? 'NODE_EMPTY' : 'Awaiting_Selection'}
+                      </span>
                     </div>
                   )}
                 </CardContent>
@@ -236,6 +246,7 @@ export default function ArchitectPage() {
           )}
         </TabsContent>
 
+        {/* RETRIEVAL LOGS (HISTORY) TAB */}
         <TabsContent value="history" className="mt-0 animate-in slide-in-from-right-4 duration-500">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedBlueprints.length === 0 ? (

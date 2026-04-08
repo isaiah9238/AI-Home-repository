@@ -34,6 +34,10 @@ A cybernetic HUD designed with glassmorphism, neon telemetry, and real-time stat
 - **The Ledger (Gems)**: A gamified 24-hour cycle where security pulses are harvested to grow neural credits.
 - **Gatekeepers**: High-fidelity input/output filters vetting all neural streams for system safety.
 
+#### 5. Privacy Domain (The Black Box)
+- **Sovereign Vault**: A locally-encrypted secure enclave for sensitive credentials and identity vectors. 
+- **Node_Active**: Uses client-side AES-256 encryption to ensure even the Librarian cannot read sensitive neural keys without the Master Passphrase.
+
 ---
 
 ## 🚀 Technical Stack

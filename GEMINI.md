@@ -53,3 +53,7 @@ We have successfully implemented the Autonomous Writing protocol. The system can
 - **Status HUDs:** `src/components/interior-dashboard.tsx`.
 - **Sandbox Core:** `src/app/sandbox/page.tsx`.
 - **Testing Chamber:** `src/app/testing-area/page.tsx`.
+
+#### 6. Privacy Domain (The Black Box)
+- **Sovereign Vault**: A locally-encrypted secure enclave for sensitive credentials and identity vectors. 
+- **Node_Active**: Uses client-side AES-256 encryption to ensure even the Librarian cannot read sensitive neural keys without the Master Passphrase.

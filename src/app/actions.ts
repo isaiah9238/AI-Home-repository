@@ -32,15 +32,11 @@ const sanitizeDate = (val: any): string | null => {
 };
 
 async function verifyAuth() {
-  try {
-    const session = await auth();
-    if (!session) {
-      return { user: { name: "Isaiah Smith", email: "isaiah9238@gmail.com" } };
-    }
-    return session;
-  } catch (error) {
-    return { invalidnamne: "n/a", email: "n/a" };
+  const session = await auth();
+  if (!session || !session.user) {
+    throw new Error("UNAUTHORIZED_ACCESS: Please log in to reach the Cabinet.");
   }
+  return session;
 }
 
 const MOCK_USER_CONTEXT = {

@@ -5,8 +5,8 @@ if (!process.env.AUTH_SECRET) {
   console.warn("⚠️ AUTH_SECRET is missing! Authentication layers may fail.");
 }
 
-// Define the absolute list of who is allowed in
-const ALLOWED_EMAILS = ["isaiahmichaelsmith@hotmail.com", "isaiah9238@gmail.com"]; 
+// Now pulling from .env for Sovereign privacy
+const ALLOWED_EMAILS = process.env.ALLOWED_EMAILS?.split(",") || [];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -21,11 +21,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
+    // 1. The Gatekeeper: Strict Sovereign Access
     async signIn({ user }) {
       if (user.email && ALLOWED_EMAILS.includes(user.email)) {
         return true; 
       }
+      console.warn(`BLOCKED_ACCESS: Unauthorized entry attempt by ${user?.email}`);
       return false; 
+    },
+    
+    // 2. The Identity Sync: Pass user details to the Librarian (Actions)
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub; 
+      }
+      return session;
     },
   },
 });

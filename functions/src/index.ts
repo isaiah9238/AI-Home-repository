@@ -13,8 +13,6 @@ import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
 
-enableFirebaseTelemetry();
-
 // 1. Initialize Firebase Admin
 initializeApp();
 
@@ -29,7 +27,7 @@ const ai = genkit({
   plugins: [googleAI()],
   model: "googleai/gemini-2.5-flash",
 });
-
+enableFirebaseTelemetry();
 /**
  * FLOW: Librarian Indexer
  *

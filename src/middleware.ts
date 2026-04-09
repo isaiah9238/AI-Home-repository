@@ -1,3 +1,6 @@
+// This is likely the line you are missing or need to verify
+export { auth as middleware } from "@/auth"; 
+
 import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 
@@ -25,5 +28,6 @@ export default auth((req) => {
 });
 
 export const config = {
+  // This regex ensures middleware doesn't run on static files or specific API routes
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

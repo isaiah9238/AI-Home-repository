@@ -105,10 +105,14 @@ export function PortalInterface() {
     setSelectedFile(null);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn("LIBRARIAN: Clipboard access blocked by system policy.", err);
+    }
   };
 
   if (!isOpen) {

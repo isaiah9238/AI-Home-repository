@@ -12,12 +12,14 @@ import {
   Globe,
   Lock,
   Wifi,
-  WifiOff
+  WifiOff,
+  LogOut
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIChat } from '@/components/ui/chat';
 import { PortalInterface } from '@/components/portal-interface';
 import { Badge } from '@/components/ui/badge';
+import { signOut } from "next-auth/react";
 import { getHomeBase, getCurriculumProgress, getSystemEvolution, getSystemIntegrity, initializeVFS, pingServer } from '@/app/actions';
 
 interface InteriorDashboardProps {
@@ -143,9 +145,18 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
         
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
-            <Badge variant="outline" className="border-blue-500/20 text-blue-400/60 bg-blue-500/5 font-mono text-[9px] tracking-widest px-4 py-1">
-              AUTH: {profile?.name ? profile.name.split(' ')[0].toUpperCase() : 'USER'}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="p-1.5 rounded-md hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-white/20 hover:text-red-500 transition-all group"
+                title="Terminate Session"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+              <Badge variant="outline" className="border-blue-500/20 text-blue-400/60 bg-blue-500/5 font-mono text-[9px] tracking-widest px-4 py-1">
+                AUTH: {profile?.name ? profile.name.split(' ')[0].toUpperCase() : 'USER'}
+              </Badge>
+            </div>
             <span className="text-[7px] text-white/10 uppercase tracking-[0.4em] mt-1">Cabinet_V4.2.0</span>
           </div>
           <div className="h-10 w-[1px] bg-white/5" />

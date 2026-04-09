@@ -1,14 +1,17 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { VaultLogo } from '@/app/logo';
-import { Lock, ChevronRight, Cpu, Loader2 } from 'lucide-react';
+import { Lock, ChevronRight, Cpu, Loader2, AlertTriangle } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [timestamp, setTimestamp] = useState('');
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -21,10 +24,21 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // trustHost in auth.ts ensures this fetch succeeds behind the workspace proxy
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await signIn("google", { callbackUrl: "/" });
     } catch (error) {
       console.error("Login initialization failed:", error);
       setLoading(false);
+    }
+  };
+
+  const getErrorMessage = (err: string) => {
+    switch (err) {
+      case "AccessDenied":
+        return "UNAUTHORIZED_NODE: Your email is not on the Sovereign whitelist. Check ALLOWED_EMAILS in .env.";
+      case "Configuration":
+        return "SYSTEM_ERROR: Auth configuration mismatch. Verify AUTH_SECRET and Google OAuth keys in .env.";
+      default:
+        return `SIGNAL_INTERRUPTED: ${err}`;
     }
   };
 
@@ -57,6 +71,18 @@ export default function LoginPage() {
           <Lock className="w-4 h-4 text-blue-500/60" />
         </div>
 
+        {error && (
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-500">
+            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Access_Denied</span>
+              <p className="text-[9px] text-red-400/80 leading-relaxed uppercase tracking-tighter">
+                {getErrorMessage(error)}
+              </p>
+            </div>
+          </div>
+        )}
+
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
@@ -76,7 +102,7 @@ export default function LoginPage() {
 
         <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center opacity-40 text-[8px] uppercase tracking-[0.3em]">
           <span>Security: TLS_1.3</span>
-          <span className="text-blue-500">Node_Stable</span>
+          <span className="text-blue-500">{timestamp}</span>
           <span>V.4.2.0</span>
         </div>
       </div>
@@ -90,5 +116,17 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center font-mono text-blue-500/40 tracking-[0.5em] uppercase text-[10px]">
+        Synchronizing_Node...
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

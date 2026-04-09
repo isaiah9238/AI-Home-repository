@@ -15,7 +15,7 @@ export default auth((req) => {
 
   // 2. The Development Bypass (Keep this for now if you want easy access)
   if (process.env.NODE_ENV === 'development') {
-    // return NextResponse.next(); // Uncomment this to bypass security
+    return NextResponse.next(); // Uncomment this to bypass security
   }
 
   // 3. Security Logic

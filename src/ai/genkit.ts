@@ -14,5 +14,5 @@ export const ai = genkit({
     // Force the plugin to use the key from your .env
     googleAI({ apiKey: apiKey })
   ],
-  model: 'googleai/gemini-1.5-pro', 
+  model: 'googleai/gemini-2.5-pro', 
 });

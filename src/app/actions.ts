@@ -12,7 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
-import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
+import { persistVFSNode, getNodesByParent, purgeVFSNode, VFSNode } from '@/ai/storage/virtual-file-system';
 import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 
@@ -111,9 +111,9 @@ export async function sendTerminalMessage(message: string) {
     if (typeof result === 'string') {
       responseText = result;
     } else if (result && typeof result === 'object') {
-      if ('response' in result) responseText = result.response;
-      else if ('content' in result) responseText = result.content;
-      else if ('summary' in result) responseText = result.summary;
+      if ('response' in result) responseText = (result as any).response;
+      else if ('content' in result) responseText = (result as any).content;
+      else if ('summary' in result) responseText = (result as any).summary;
       else responseText = JSON.stringify(result, null, 2);
     }
 
@@ -709,7 +709,7 @@ export async function postAgenticNote(agentName: string, note: string, intentVec
 
     return { success: true, data: node };
   } catch (error: any) {
-    return { ssuccess: false, error: error.message };
+    return { success: false, error: error.message };
   }
 }
 
@@ -888,6 +888,29 @@ export async function getTestingWorkspaces() {
       success: true, 
       data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) 
     };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createVFSDirectory(name: string, parentId: string | null) {
+  try {
+    await verifyAuth();
+    const userId = 'primary_user';
+    
+    const node = await persistVFSNode({
+      name,
+      path: `/manual/${name}`, // Simplified path logic for VFS
+      type: 'directory',
+      parentId,
+      userId,
+      metadata: {
+        owner_agent: 'User',
+        type: 'manual_directory'
+      }
+    });
+    
+    return { success: true, data: node };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

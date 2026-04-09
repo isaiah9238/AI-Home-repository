@@ -20,7 +20,8 @@ import {
   LayoutGrid,
   Sparkles,
   MessageSquare,
-  Send
+  Send,
+  Home
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,10 +30,19 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { 
   getVFSNodesAction, 
   deleteVFSNodeAction, 
   initializeVFS,
-  postAgenticNote 
+  postAgenticNote,
+  createVFSDirectory 
 } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -58,6 +68,8 @@ export function StorageDrawer() {
   const [searchTerm, setSearch] = useState('');
   const [newNote, setNewNote] = useState('');
   const [isPostingNote, setIsPostingNote] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
   useEffect(() => {
     loadNodes(currentParentId);
@@ -74,12 +86,19 @@ export function StorageDrawer() {
 
   const handleNavigate = (node: VFSNode) => {
     if (node.type === 'directory') {
-      setHistory(prev => [...prev, { id: currentParentId, name: nodes.find(n => n.id === currentParentId)?.name || 'Root' }]);
+      const currentName = currentParentId === null ? 'Root' : (nodes.find(n => n.id === currentParentId)?.name || 'Unknown');
+      setHistory(prev => [...prev, { id: currentParentId, name: currentName }]);
       setCurrentParentId(node.id);
       setSelectedFile(null);
     } else {
       setSelectedFile(node);
     }
+  };
+
+  const jumpToBreadcrumb = (id: string | null, index: number) => {
+    setHistory(prev => prev.slice(0, index));
+    setCurrentParentId(id);
+    setSelectedFile(null);
   };
 
   const goBack = () => {
@@ -91,12 +110,25 @@ export function StorageDrawer() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Confirm permanent node purge?")) return;
     const res = await deleteVFSNodeAction(id);
     if (res.success) {
       toast({ title: "PURGE_COMPLETE", description: "Node removed from storage.", className: "bg-black/80 border-red-500/30 text-red-400 font-mono text-[8px]" });
       loadNodes(currentParentId);
       if (selectedFile?.id === id) setSelectedFile(null);
     }
+  };
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+    setIsCreatingFolder(true);
+    const res = await createVFSDirectory(newFolderName, currentParentId);
+    if (res.success) {
+      setNewFolderName('');
+      loadNodes(currentParentId);
+      toast({ title: "DIRECTORY_SYNTHESIZED", description: `Folder ${newFolderName} added to vault.` });
+    }
+    setIsCreatingFolder(false);
   };
 
   const handleInitialize = async () => {
@@ -155,18 +187,53 @@ export function StorageDrawer() {
             <div className="lg:col-span-7 flex flex-col gap-4 overflow-hidden">
               <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 flex flex-col overflow-hidden">
                 <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    {history.length > 0 && (
-                      <Button variant="ghost" size="icon" onClick={goBack} className="h-7 w-7 text-white/40 hover:text-white">
-                        <ArrowLeft className="w-4 h-4" />
-                      </Button>
-                    )}
-                    <span className="text-[10px] text-white/30 uppercase tracking-widest">
-                      {history.map(h => h.name).join(' / ') || 'System_Root'}
-                    </span>
+                  <div className="flex items-center gap-2 overflow-hidden flex-1">
+                    <Button variant="ghost" size="icon" onClick={() => jumpToBreadcrumb(null, 0)} className="h-7 w-7 text-white/40 hover:text-white shrink-0">
+                      <Home className="w-3.5 h-3.5" />
+                    </Button>
+                    <div className="flex items-center gap-1 text-[10px] text-white/30 uppercase tracking-widest overflow-hidden">
+                      {history.map((h, i) => (
+                        <div key={i} className="flex items-center gap-1">
+                          <ChevronRight className="w-3 h-3 opacity-20" />
+                          <button onClick={() => jumpToBreadcrumb(h.id, i)} className="hover:text-white transition-colors truncate max-w-[100px]">{h.name}</button>
+                        </div>
+                      ))}
+                      {currentParentId && (
+                        <>
+                          <ChevronRight className="w-3 h-3 opacity-20" />
+                          <span className="text-green-400 font-bold truncate max-w-[150px]">{nodes.find(n => n.id === currentParentId)?.name || 'Loading...'}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                   <div className="ml-auto flex items-center gap-3">
-                    <div className="relative">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="h-7 bg-white/5 border border-white/10 text-[8px] uppercase tracking-widest gap-2 px-3">
+                          <Plus className="w-3 h-3" /> Folder
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#0a0a0a] border-white/10 text-white font-mono">
+                        <DialogHeader>
+                          <DialogTitle className="text-xs uppercase tracking-widest text-white/60">Node_Synthesis</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4 space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-[8px] text-white/30 uppercase tracking-[0.3em]">Directory_Name</label>
+                            <Input 
+                              value={newFolderName} 
+                              onChange={(e) => setNewFolderName(e.target.value)}
+                              placeholder="FOLDER_ALPHA..."
+                              className="bg-white/5 border-white/10 text-[11px]"
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={handleCreateFolder} disabled={isCreatingFolder || !newFolderName.trim()} className="w-full bg-green-600 hover:bg-green-500 text-[10px] uppercase tracking-widest h-10">Synthesize_Directory</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    <div className="relative hidden md:block">
                       <Search className="absolute left-2 top-2 w-3 h-3 text-white/20" />
                       <Input 
                         placeholder="Filter..." 
@@ -241,13 +308,13 @@ export function StorageDrawer() {
                     {selectedFile ? (
                       <div className="space-y-6">
                         <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="text-sm font-bold text-white uppercase mb-1">{selectedFile.name}</h4>
+                          <div className="min-w-0 flex-1 pr-4">
+                            <h4 className="text-sm font-bold text-white uppercase mb-1 truncate">{selectedFile.name}</h4>
                             <Badge className="bg-green-500/10 text-green-400 text-[7px] uppercase h-4 px-2">
                               {selectedFile.type}
                             </Badge>
                           </div>
-                          <Button variant="outline" size="sm" className="h-7 border-white/10 text-white/40 text-[8px] uppercase hover:text-white">
+                          <Button variant="outline" size="sm" className="h-7 border-white/10 text-white/40 text-[8px] uppercase hover:text-white shrink-0">
                             <Download className="w-3 h-3 mr-2" /> Export
                           </Button>
                         </div>

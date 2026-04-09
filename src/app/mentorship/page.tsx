@@ -22,7 +22,7 @@ export default function MentorshipPage() {
           const response = await getMorningBriefing(homeBase.data);
           setBriefing(response);
         } else {
-          setBriefing("Welcome! I don't know your interests yet. Use the command line on the Dashboard to set your profile variables.");
+          setBriefing("Welcome! I don&apos;t know your interests yet. Use the command line on the Dashboard to set your profile variables.");
         }
       } catch (err) {
         console.error("Initialization Error:", err);

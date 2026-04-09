@@ -3,6 +3,7 @@
   packages = [
     pkgs.nodejs_22
     pkgs.nodePackages.nodemon
+    pkgs.psmisc
   ];
   env = { };
   idx = {

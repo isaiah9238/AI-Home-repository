@@ -55,7 +55,7 @@ export function VaultBackupDrawer() {
       className: "bg-black/80 border-green-500/30 text-green-400 font-mono text-[8px]",
     });
   };
-
+  
   return (
     <div className="p-8 w-full h-full flex flex-col bg-black/40 backdrop-blur-xl font-mono overflow-y-auto custom-scrollbar">
       <div className="flex items-center justify-between mb-8">

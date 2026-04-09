@@ -1,33 +1,36 @@
-// This is likely the line you are missing or need to verify
-export { auth as middleware } from "@/auth"; 
-
 import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname.startsWith('/login');
-  const isApiAuthRoute = req.nextUrl.pathname.startsWith('/api/auth');
+  const { nextUrl } = req;
+  
+  const isAuthPage = nextUrl.pathname.startsWith('/login');
+  const isApiAuthRoute = nextUrl.pathname.startsWith('/api/auth');
 
-  // 🚨 THE BYPASS: If running locally, open the blast doors.
-  if (process.env.NODE_ENV === 'development') {
+  // 1. Allow API Auth routes to pass through untouched
+  if (isApiAuthRoute) {
     return NextResponse.next();
   }
 
-  // Redirect to login if not logged in and not on an auth-related page
-  if (!isLoggedIn && !isAuthPage && !isApiAuthRoute) {
-    return NextResponse.redirect(new URL('/login', req.nextUrl));
+  // 2. The Development Bypass (Keep this for now if you want easy access)
+  if (process.env.NODE_ENV === 'development') {
+    // return NextResponse.next(); // Uncomment this to bypass security
   }
 
-  // Redirect to dashboard if logged in and trying to access the login page
+  // 3. Security Logic
+  if (!isLoggedIn && !isAuthPage) {
+    return NextResponse.redirect(new URL('/login', nextUrl));
+  }
+
   if (isLoggedIn && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+    return NextResponse.redirect(new URL('/', nextUrl)); // Send to home/dashboard
   }
 
   return NextResponse.next();
 });
 
 export const config = {
-  // This regex ensures middleware doesn't run on static files or specific API routes
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // We want to PROTECT everything EXCEPT static files and the favicon
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

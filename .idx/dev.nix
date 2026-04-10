@@ -17,9 +17,9 @@
         web = {
         command = [ "npm" "run" "dev" "--" "-p" "$PORT" "-H" "0.0.0.0" ];
         manager = "web";
-         #env = {
-           #PORT = "3000";
-           #};
+        env = {
+          PORT = "3000";
+          };
         };
       };
     };

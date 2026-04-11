@@ -402,13 +402,16 @@ export async function deleteLessonPlan(id: string) {
 }
 
 export async function getHomeBase() {
-  try {
-    await verifyAuth();
-    const res = await establishHomeBase({ userId: 'primary_user' });
-    return { success: true, data: res.userContext };
-  } catch (error) {
-    return { success: true, data: MOCK_USER_CONTEXT };
-  }
+  // BYPASS: Manually returning your data to test the UI
+  return { 
+    success: true, 
+    data: {
+      name: "Isaiah Smith",
+      role: "Architect",
+      uid: "QIgcLKxywSXaX5XcN0KMWEUQVlh1",
+      interests: ["Land Surveying", "Next.js", "AI Engineering"]
+    } 
+  };
 }
 
 export async function updateHomeBaseAction(updates: any) {

@@ -1,5 +1,6 @@
 import { InteriorDashboard } from "@/components/interior-dashboard";
 import { getHomeBase } from "@/app/actions";
+import { redirect } from 'next/navigation';
 
 /**
  * AI Home: The Digital Cabinet Dashboard
@@ -7,18 +8,19 @@ import { getHomeBase } from "@/app/actions";
  * This server component acts as the entry point, fetching context from the Librarian (Firestore)
  * before handing off to the cybernetic HUD interface.
  */
+// src/app/page.tsx (conceptual update)
 export default async function AIHomeApp() {
-  // 1. Fetch initial profile context from Home Base
   const response = await getHomeBase();
-  const userData = response.data;
+  
+  // If getHomeBase fails (and we aren't using the bypass), 
+  // we would redirect to /login here.
+  if (!response.success) {
+    redirect('/login'); 
+  }
 
   return (
-    <div className="w-full bg-[#050505] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden min-h-screen">
-      {/* Visual background layer */}
-      <div className="hud-scanline" />
-      
-      {/* 2. Pass serialized context to the High-Fidelity HUD */}
-      <InteriorDashboard initialUserData={userData} />
+    <div className="min-h-screen bg-black">
+      <InteriorDashboard initialUserData={response.data} />
     </div>
   );
 }

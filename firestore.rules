@@ -1,58 +1,67 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // General fallback: only allow authenticated users
-      allow read, write: if request.auth != null;
-    }
 
-    // LIBRARIAN_ARCHIVE: Only you can manage your code audits
-    match /internal_comms/{auditId} {
-      allow read, write: if isSignedIn();
-    }
-  
-    // Allow the script (and you) to edit the primary_user
-    match /users/primary_user {
-      allow read, write: if true;
-    }
-
-    // Helper: Check if user is logged in (if you use Firebase Auth)
+    // --- HELPER FUNCTIONS ---
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // LOOPS: Allow anyone to read, but only let authenticated users write/delete
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- 1. THE BLACK BOX (Sovereign Vault) ---
+    // Documents here MUST be named exactly your Firebase UID
+    match /sovereign_vault/{vaultId} {
+      allow read, write: if isOwner(vaultId);
+    }
+
+    // --- 2. THE LIBRARIAN (Workspaces & Projects) ---
+    match /workspaces/{workspaceId} {
+      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /projects/{projectId} {
+      allow read, write: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      
+      match /{allPaths=**} {
+        allow read, write: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+      }
+    }
+
+    // --- 3. EXISTING FEATURES (Loops & Comments) ---
     match /loops/{loopId} {
       allow read: if true;
-      allow write: if isSignedIn(); 
+      allow write: if isSignedIn();
       
-      // Lines subcollection
       match /lines/{lineId} {
         allow read: if true;
         allow write: if isSignedIn();
       }
     }
-    
-    // COMMENTS: Public can create, but let's prevent "Update" and "Delete"
+
     match /comments/{commentId} {
-      allow get, list: if true;
-      allow create: if true; 
-      allow update, delete: if false; // Truly immutable
+      allow get, list, create: if true;
+      allow update, delete: if false; 
     }
 
-    // DERIVATIVES: Write-only for history. 
-    // Added a check to ensure the document being created isn't massive.
     match /derivatives/{derivativeId} {
-      allow create: if request.resource.size < 5 * 1024; // Limit to 5KB to prevent bloat
+      allow create: if request.resource.size < 5 * 1024;
       allow read, update, delete: if false;
     }
 
-    match /workspaces/{workspaceId} {
-      // Only the person who created the workspace can read or edit it
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
-  
-      // When creating, ensure they stamp their own UID as the owner
-      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    // --- 4. INTERNAL & ADMIN ---
+    match /internal_comms/{auditId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /users/primary_user {
+      // Warning: 'if true' allows anyone in the world to edit this. 
+      // Changed to 'isSignedIn()' for safety.
+      allow read, write: if isSignedIn();
     }
   }
 }

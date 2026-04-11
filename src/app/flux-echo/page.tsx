@@ -5,7 +5,7 @@ import { runResearchMode, type ResearchMode } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Zap, Book, ArrowRight } from "lucide-react";
+import { Loader2, Search, Zap, Book, ArrowRight } from "lucide-center";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FluxEchoPage() {
@@ -38,7 +38,7 @@ export default function FluxEchoPage() {
           Flux_Echo_Intelligence
         </h1>
         <p className="text-slate-400 font-mono text-sm tracking-widest uppercase opacity-60">
-          Advanced Web Reconnaissance & Global Search
+          Advanced Web Reconnaissance &amp; Global Search
         </p>
       </div>
 

@@ -77,7 +77,7 @@ export default function TestingChamberPage() {
     setLoadingWorkspaces(true);
     const res = await getTestingWorkspaces();
     if (res.success && res.data) {
-      setSavedWorkspaces(res.data);
+      setSavedWorkspaces(res.data || []);
     } else {
       setSavedWorkspaces([]);
     }
@@ -140,7 +140,7 @@ export default function TestingChamberPage() {
     try {
       const res = await getVariationAnalysis(baseSlot.code, variationInstructions, variationCount);
       if (res.success && res.data) {
-        const newVariations = res.data.map((v: any) => ({
+        const newVariations = (res.data || []).map((v: any) => ({
           id: `var_${Date.now()}_${v.id}`,
           name: `Variation_${v.id}`,
           code: v.code,
@@ -217,7 +217,7 @@ export default function TestingChamberPage() {
             <Layout className="w-8 h-8 text-purple-500 animate-pulse" /> Testing_Chamber
           </h1>
           <p className="text-white/40 mt-2 uppercase tracking-widest text-xs">
-            Multi-Agent Orchestration & Parallel Execution Environment.
+            Multi-Agent Orchestration &amp; Parallel Execution Environment.
           </p>
         </div>
 

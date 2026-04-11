@@ -21,7 +21,9 @@ import {
   Sparkles,
   MessageSquare,
   Send,
-  Home
+  Home,
+  Save,
+  Edit2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,7 +44,8 @@ import {
   deleteVFSNodeAction, 
   initializeVFS,
   postAgenticNote,
-  createVFSDirectory 
+  createVFSDirectory,
+  updateVFSNodeAction
 } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,6 +73,9 @@ export function StorageDrawer() {
   const [isPostingNote, setIsPostingNote] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadNodes(currentParentId);
@@ -90,8 +96,11 @@ export function StorageDrawer() {
       setHistory(prev => [...prev, { id: currentParentId, name: currentName }]);
       setCurrentParentId(node.id);
       setSelectedFile(null);
+      setIsEditing(false);
     } else {
       setSelectedFile(node);
+      setEditedContent(node.content || '');
+      setIsEditing(false);
     }
   };
 
@@ -99,14 +108,7 @@ export function StorageDrawer() {
     setHistory(prev => prev.slice(0, index));
     setCurrentParentId(id);
     setSelectedFile(null);
-  };
-
-  const goBack = () => {
-    if (history.length === 0) return;
-    const last = history[history.length - 1];
-    setHistory(prev => prev.slice(0, -1));
-    setCurrentParentId(last.id);
-    setSelectedFile(null);
+    setIsEditing(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -117,6 +119,21 @@ export function StorageDrawer() {
       loadNodes(currentParentId);
       if (selectedFile?.id === id) setSelectedFile(null);
     }
+  };
+
+  const handleSaveContent = async () => {
+    if (!selectedFile) return;
+    setIsSaving(true);
+    const res = await updateVFSNodeAction(selectedFile.id, editedContent);
+    if (res.success) {
+      toast({ title: "VAULT_SYNC_COMPLETE", description: "File content updated in Librarian archives." });
+      setSelectedFile({ ...selectedFile, content: editedContent });
+      setIsEditing(false);
+      loadNodes(currentParentId);
+    } else {
+      toast({ variant: "destructive", title: "SYNC_FAILED", description: res.error });
+    }
+    setIsSaving(false);
   };
 
   const handleCreateFolder = async () => {
@@ -298,10 +315,20 @@ export function StorageDrawer() {
 
             <div className="lg:col-span-5 flex flex-col gap-4 overflow-hidden">
               <Card className="bg-black/40 border-white/5 backdrop-blur-md flex-1 flex flex-col overflow-hidden">
-                <CardHeader className="bg-white/5 border-b border-white/5 py-3">
+                <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-[10px] text-white/30 uppercase tracking-widest flex items-center gap-2">
                     <ShieldCheck className="w-3 h-3 text-green-500" /> Node_Inspector
                   </CardTitle>
+                  {selectedFile?.type === 'file' && !isEditing && (
+                    <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-7 w-7 text-white/30 hover:text-green-400">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                  {isEditing && (
+                    <Button variant="ghost" size="icon" onClick={handleSaveContent} disabled={isSaving} className="h-7 w-7 text-green-400 hover:text-green-300">
+                      {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    </Button>
+                  )}
                 </CardHeader>
                 <ScrollArea className="flex-1">
                   <CardContent className="pt-6">
@@ -335,9 +362,17 @@ export function StorageDrawer() {
                         {selectedFile.type === 'file' && (
                           <div className="space-y-3">
                             <span className="text-[8px] text-white/20 uppercase tracking-[0.2em] block">Data_Stream_Preview</span>
-                            <div className="p-4 rounded-lg bg-black/60 border border-white/5 font-mono text-[10px] text-green-400/70 whitespace-pre overflow-auto max-h-60 custom-scrollbar">
-                              {selectedFile.content || '// Empty Stream'}
-                            </div>
+                            {isEditing ? (
+                              <Textarea 
+                                value={editedContent}
+                                onChange={(e) => setEditedContent(e.target.value)}
+                                className="min-h-[300px] bg-black/60 border-green-500/20 text-green-400 font-mono text-[10px] focus-visible:ring-green-500/30"
+                              />
+                            ) : (
+                              <div className="p-4 rounded-lg bg-black/60 border border-white/5 font-mono text-[10px] text-green-400/70 whitespace-pre overflow-auto max-h-60 custom-scrollbar">
+                                {selectedFile.content || '// Empty Stream'}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

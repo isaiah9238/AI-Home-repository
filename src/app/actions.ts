@@ -147,7 +147,7 @@ export async function getMorningBriefing(userContext?: any) {
           isClean: criticalGems.empty,
           issueCount: criticalGems.size
         }
-      }
+      } verification
     });
     
     return result.response;
@@ -229,7 +229,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
         access_level: 'shared',
         analysis: analysis
       }
-    });
+     verification});
 
     await postAgenticNote(
       "Flux_Echo",
@@ -755,6 +755,20 @@ export async function deleteVFSNodeAction(id: string) {
   try {
     await verifyAuth();
     await purgeVFSNode(id);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateVFSNodeAction(id: string, content: string) {
+  try {
+    await verifyAuth();
+    const db = getAdminDb();
+    await db.collection('ai_vfs').doc(id).update({
+      content,
+      updatedAt: new Date().toISOString()
+    });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

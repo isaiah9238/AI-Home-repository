@@ -75,8 +75,10 @@ export default function TestingChamberPage() {
   const fetchWorkspaces = async () => {
     setLoadingWorkspaces(true);
     const res = await getTestingWorkspaces();
-    if (res.success) {
-      setSavedWorkspaces(res.data || []);
+    if (res.success && res.data) {
+      setSavedWorkspaces(res.data);
+    } else {
+      setSavedWorkspaces([]);
     }
     setLoadingWorkspaces(false);
   };
@@ -114,7 +116,7 @@ export default function TestingChamberPage() {
         updateSlot(id, { 
           previewCode: res.data.previewCode, 
           intent: res.data.intent, 
-          techStack: res.data.techStack,
+          techStack: res.data.techStack || [],
           loading: false 
         });
       } else {
@@ -141,14 +143,13 @@ export default function TestingChamberPage() {
           id: `var_${Date.now()}_${v.id}`,
           name: `Variation_${v.id}`,
           code: v.code,
-          intent: v.intent,
+          intent: v.intent || '',
           previewCode: '',
           loading: true,
-          techStack: v.techStack
+          techStack: v.techStack || []
         }));
 
-        const updatedSlots = [...slots, ...newVariations];
-        setSlots(updatedSlots);
+        setSlots(prev => [...prev, ...newVariations]);
         setIsVariationDialogOpen(false);
         setVariationInstructions('');
 
@@ -159,6 +160,8 @@ export default function TestingChamberPage() {
             setSlots(prev => prev.map(s => s.id === v.id ? { 
               ...s, 
               previewCode: previewRes.data!.previewCode, 
+              intent: previewRes.data!.intent,
+              techStack: previewRes.data!.techStack || [],
               loading: false 
             } : s));
           } else {

@@ -19,7 +19,6 @@ import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 import { type ResearchMode } from './types';
 
 // --- THE ARCHITECT'S CLOCK ---
-// Removed export to comply with 'use server' restrictions.
 const maxDuration = 60; 
 
 // --- UTILS ---

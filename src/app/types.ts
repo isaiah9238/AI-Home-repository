@@ -6,7 +6,10 @@ export type ResearchMode = 'scout' | 'deep';
 
 export type CodeAnalysisState = {
   message?: string | null;
-  errors?: { code?: string[]; language?: string[] };
+  errors?: { 
+    code?: string[]; 
+    language?: string[] 
+  };
   data?: {
     complexity: string;
     bugs: string;

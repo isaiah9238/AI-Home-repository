@@ -147,7 +147,7 @@ export async function getMorningBriefing(userContext?: any) {
           isClean: criticalGems.empty,
           issueCount: criticalGems.size
         }
-      } verification
+      }
     });
     
     return result.response;
@@ -229,7 +229,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
         access_level: 'shared',
         analysis: analysis
       }
-     verification});
+    });
 
     await postAgenticNote(
       "Flux_Echo",

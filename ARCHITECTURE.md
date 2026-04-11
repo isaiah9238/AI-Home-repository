@@ -16,30 +16,28 @@ The interface follows a **Cybernetic HUD** aesthetic, utilizing deep blacks (#05
 
 *   **Access Terminal (Login)**: A high-security entry point featuring scanning animations and system status telemetry.
 *   **Interior Dashboard (Home)**: A real-time command center with dynamic metrics (Neural Complexity, Uptime) and a "Visualizer" window for summoned drawers.
-*   **The Flutter**: Smooth, slide-in-from-bottom animations for all summoned drawers, ensuring the tools feel like they are "floating" over the home screen.
+*   **The Testing Chamber**: A parallel execution environment where multiple logic streams can be evolved and previewed simultaneously.
+*   **The Autonomous Previewer**: A high-fidelity sandbox that analyzes code intent and synthesizes live execution environments using CDN-backed runners.
 
 ## 3. The Cabinet Domains (The Backend)
 
 ### A. The Discovery Domain (Identity & Construction)
 *   **Home Base**: Connects to Firestore to anchor the AI's memory.
-*   **The Architect**: A "3D printer for code." Generates production-ready folder structures and complete boilerplate files from conceptual blueprints. Persists structure in Firestore.
-*   **The Tutor**: Ingests lesson plans, expanding the neural context density and mastery levels via Server Actions.
+*   **The Architect**: A "3D printer for code." Generates production-ready structures and boilerplate, now featuring the **Autonomous Writing Protocol** for direct VFS commits.
+*   **The Tutor**: Synthesizes structured lesson plans, expanding neural context density and mastery levels.
 
 ### B. The Research Domain (Intelligence & Analysis)
-*   **Flux Echo (Scout)**: Fast web reconnaissance and Google-like search returning concise signals and summaries.
+*   **Flux Echo (Scout)**: High-speed research scout for web reconnaissance and topic scouting.
 *   **Epitomizer (Deep Reader)**: Transforms complex web content into structured, epitomized notes.
-*   **Code Inspector**: Specialized security and performance auditor with structured JSON output.
+*   **Code Inspector**: Specialized security and performance auditor with structured JSON output and refactoring suggestions.
 
 ### C. The Storage Domain (Persistence)
-*   **Virtual File System (VFS)**: Hierarchical Firestore-backed storage for AI-generated code, assets, and logs.
+*   **Virtual File System (VFS)**: Hierarchical Firestore-backed storage layer. Supports collaborative editing, manual node synthesis, and breadcrumb navigation.
+*   **Agentic Memory**: A coordination stream where agents leave signals (Agent Notes) for cross-domain orchestration.
 
 ### D. The Safety Domain (Integrity & Logging)
-*   **Gatekeepers**: Input/Output filters that vet all neural streams for safety.
-*   **Safety Ledger (Gems)**: A 24-hour gamified timeline of "Safety Pulses" rewarding system maintenance with neural credits.
-
-## 4. Tuning & Explainability
-*   **The Laboratory**: Real-time parameter tuner for neural weights (Temperature, TopP) and system personas (Architect, Librarian, Mentor).
-*   **The Neural Graph**: Interactive SVG node-map for "Explainable AI," visualizing the density and association strings of learned context.
+*   **Gatekeepers**: Bidirectional filters that vet all neural streams for system safety.
+*   **Safety Ledger (Gems)**: A 24-hour gamified cycle where "Safety Pulses" are harvested to grow neural credits and maintain system health.
 
 ---
-*Status: Phase 2.0 (The Integrated Cabinet) is fully operational. Awaiting Phase 3 activation (Multi-Agent Orchestration).*
+*Status: Phase 3.0 (Multi-Agent Orchestration) is ACTIVE. Cabinet Core V4.2.0 is fully operational.*

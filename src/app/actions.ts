@@ -15,6 +15,8 @@ import { establishHomeBase } from '@/ai/discovery/establish-home-base';
 import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
 import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
+import { cookies } from 'next/headers';
+import { verifySessionCookie } from '@/lib/firebaseAdmin';
 
 /**
  * @fileOverview The "Cabinet" of Server Actions.
@@ -32,6 +34,15 @@ const sanitizeDate = (val: any): string | null => {
 };
 
 async function verifyAuth() {
+  // 1. Check for the Manual Bypass (Our "Testing Key")
+  const cookieStore = await cookies();
+  const isBypassed = cookieStore.get('auth_bypass')?.value === 'true';
+
+  if (isBypassed || process.env.NODE_ENV === 'development') {
+     return { user: { email: 'isaiah@smith.com', id: 'primary_user' } };
+  }
+
+  // 2. Standard Auth Check
   const session = await auth();
   if (!session || !session.user) {
     throw new Error("UNAUTHORIZED_ACCESS: Please log in to reach the Cabinet.");

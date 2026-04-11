@@ -11,8 +11,7 @@ if (!apiKey) {
 
 export const ai = genkit({
   plugins: [
-    // Force the plugin to use the key from your .env
     googleAI({ apiKey: apiKey })
   ],
-  model: 'googleai/gemini-2.5-pro', 
+  model: 'googleai/gemini-1.5-pro', // Using the stable 1.5 Pro for multi-agent reasoning
 });

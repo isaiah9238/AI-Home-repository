@@ -5,7 +5,7 @@ import { runResearchMode, type ResearchMode } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Zap, Book, ArrowRight, Globe } from "lucide-react";
+import { Loader2, Search, Zap, Book, ArrowRight } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FluxEchoPage() {

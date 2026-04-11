@@ -12,7 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { searchGenie } from '@/ai/domains/research/search-genie';
 import { establishHomeBase } from '@/ai/discovery/establish-home-base';
-import { persistVFSNode, getNodesByParent, purgeVFSNode, VFSNode } from '@/ai/storage/virtual-file-system';
+import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/virtual-file-system';
 import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 
@@ -409,7 +409,8 @@ export async function getHomeBase() {
       name: "Isaiah Smith",
       role: "Architect",
       uid: "QIgcLKxywSXaX5XcN0KMWEUQVlh1",
-      interests: ["Land Surveying", "Next.js", "AI Engineering"]
+      interests: ["Land Surveying", "Next.js", "AI Engineering"],
+      gemsBalance: 150
     } 
   };
 }
@@ -889,10 +890,10 @@ export async function getTestingWorkspaces() {
       
     return { 
       success: true, 
-      data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) 
+      data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) || []
     };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message, data: [] };
   }
 }
 

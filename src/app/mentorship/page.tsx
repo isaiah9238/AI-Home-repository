@@ -56,7 +56,7 @@ export default function MentorshipPage() {
                 </p>
               </div>
               
-              {(briefing?.includes("don't know your interests") || briefing?.includes("offline")) && (
+              {(briefing?.includes("don&apos;t know your interests") || briefing?.includes("offline")) && (
                 <div className="flex flex-col items-center gap-4 pt-6 border-t border-white/5 mt-4">
                   <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
                     Librarian_Status: Awaiting_Data

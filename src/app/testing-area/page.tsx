@@ -31,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   Dialog, 
@@ -114,8 +115,8 @@ export default function TestingChamberPage() {
       const res = await getPreviewAnalysis(slot.code);
       if (res.success && res.data) {
         updateSlot(id, { 
-          previewCode: res.data.previewCode, 
-          intent: res.data.intent, 
+          previewCode: res.data.previewCode || '', 
+          intent: res.data.intent || '', 
           techStack: res.data.techStack || [],
           loading: false 
         });
@@ -159,9 +160,9 @@ export default function TestingChamberPage() {
           if (previewRes.success && previewRes.data) {
             setSlots(prev => prev.map(s => s.id === v.id ? { 
               ...s, 
-              previewCode: previewRes.data!.previewCode, 
-              intent: previewRes.data!.intent,
-              techStack: previewRes.data!.techStack || [],
+              previewCode: previewRes.data?.previewCode || '', 
+              intent: previewRes.data?.intent || '',
+              techStack: previewRes.data?.techStack || [],
               loading: false 
             } : s));
           } else {

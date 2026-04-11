@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { performCodeAnalysis, type CodeAnalysisState } from './actions';
+import { performCodeAnalysis } from './actions';
+import { type CodeAnalysisState } from '../types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

@@ -4,30 +4,20 @@ import { z } from 'zod';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { filterUserInput } from '@/ai/domains/safety/filter-user-input';
 import { getAdminDb } from '@/lib/firebaseAdmin';
+import { type CodeAnalysisState } from '../types';
 
-// 1. SCHEMAS & TYPES (Keep these at the top)
+// 1. SCHEMAS (Keep these at the top)
 const CodeAnalysisSchema = z.object({
   code: z.string().min(10),
   language: z.string().min(1),
 });
 
-export type CodeAnalysisState = {
-  message?: string | null;
-  errors?: { code?: string[]; language?: string[] };
-  data?: {
-    complexity: string;
-    bugs: string;
-    vulnerabilities: string;
-    suggestedFixes: string;
-  } | null;
-};
-
 // 2. THE LIBRARIAN'S ARCHIVE ACTION (Standalone)
 export async function getAuditHistory(limitCount = 10) {
   try {
-    const db = getAdminDb(); // Call the function
+    const db = getAdminDb();
     const snapshot = await db.collection('internal_comms')
-      .where('agent', '==', 'Code Inspector') // 🔍 Keep the archive focused
+      .where('agent', '==', 'Code Inspector')
       .orderBy('timestamp', 'desc')
       .limit(limitCount)
       .get();
@@ -69,9 +59,8 @@ export async function performCodeAnalysis(
     const analysisResult = await analyzeCodeSnippet({ code, language });
 
     if (analysisResult) {
-      // 📚 LIBRARIAN HANDSHAKE
       try {
-        const db = getAdminDb(); // Added parentheses here!
+        const db = getAdminDb();
         await db.collection('internal_comms').add({
           agent: 'Code Inspector',
           action: 'security_audit',

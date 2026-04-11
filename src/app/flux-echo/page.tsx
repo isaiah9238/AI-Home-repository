@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { runResearchMode, type ResearchMode } from '@/app/actions';
+import { runResearchMode } from '@/app/actions';
+import { type ResearchMode } from '@/app/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Zap, Book, ArrowRight } from "lucide-center";
+import { Loader2, Search, Zap, Book, ArrowRight } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FluxEchoPage() {
@@ -99,19 +100,19 @@ export default function FluxEchoPage() {
             <CardHeader className="bg-slate-800/30 border-b border-slate-800 py-4">
               <CardTitle className="text-xs font-mono text-slate-400 uppercase tracking-[0.3em] flex justify-between items-center">
                 <span>{result.mode === 'deep' ? 'Mission_Deep_Read_Report' : result.url?.startsWith('http') ? 'Mission_Scout_Summary' : 'General_Reconnaissance_Report'}</span>
-                <span className="text-white font-bold">{result.data.title || 'Unknown_Stream'}</span>
+                <span className="text-white font-bold">{result.data?.title || 'Unknown_Stream'}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-8">
               <div className="text-slate-200 leading-relaxed font-mono text-sm whitespace-pre-wrap max-w-3xl mx-auto italic border-l-2 border-slate-700 pl-6 py-2">
-                {result.mode === 'deep' ? result.data.epitome : result.data.summary}
+                {result.mode === 'deep' ? result.data?.epitome : result.data?.summary}
               </div>
             </CardContent>
           </Card>
 
           {result.mode === 'scout' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.data.keyPoints.map((point: string, i: number) => (
+              {result.data?.keyPoints?.map((point: string, i: number) => (
                 <div key={i} className="p-5 rounded-xl border border-slate-800 bg-slate-900/30 text-xs font-mono text-slate-400 flex items-start gap-4 group hover:bg-blue-500/5 hover:border-blue-500/20 transition-all cursor-default">
                   <div className="bg-blue-500/10 p-2 rounded-lg text-blue-400 group-hover:bg-blue-500/20 transition-colors">
                     <Zap className="w-3 h-3" />
@@ -122,7 +123,7 @@ export default function FluxEchoPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {result.data.structuredNotes.map((note: any, i: number) => (
+              {result.data?.structuredNotes?.map((note: any, i: number) => (
                 <div key={i} className="p-6 rounded-xl border border-slate-800 bg-slate-900/30 space-y-3 group hover:bg-purple-500/5 hover:border-purple-500/20 transition-all cursor-default">
                   <div className="flex items-center gap-3">
                     <div className="bg-purple-500/10 p-2 rounded-lg text-purple-400 group-hover:bg-purple-500/20 transition-colors">

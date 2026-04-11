@@ -217,7 +217,7 @@ export default function TestingChamberPage() {
             <Layout className="w-8 h-8 text-purple-500 animate-pulse" /> Testing_Chamber
           </h1>
           <p className="text-white/40 mt-2 uppercase tracking-widest text-xs">
-            Multi-Agent Orchestration &amp; Parallel Execution Environment.
+            Multi-Agent Orchestration & Parallel Execution Environment.
           </p>
         </div>
 

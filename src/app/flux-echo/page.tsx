@@ -39,7 +39,7 @@ export default function FluxEchoPage() {
           Flux_Echo_Intelligence
         </h1>
         <p className="text-slate-400 font-mono text-sm tracking-widest uppercase opacity-60">
-          Advanced Web Reconnaissance &amp; Global Search
+          Advanced Web Reconnaissance & Global Search
         </p>
       </div>
 

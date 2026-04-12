@@ -18,9 +18,6 @@ import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-inte
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 import { type ResearchMode } from './types';
 
-// --- THE ARCHITECT'S CLOCK ---
-const maxDuration = 60; 
-
 // --- UTILS ---
 const sanitizeDate = (val: any): string | null => {
   if (!val) return null;
@@ -852,10 +849,10 @@ export async function initializeVFS() {
   }
 }
 
-export async function getPreviewAnalysis(code: string) {
+export async function getPreviewAnalysis(code: string, context?: string) {
   try {
     await verifyAuth();
-    const result = await analyzePreviewIntent({ code });
+    const result = await analyzePreviewIntent({ code, context });
     return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message || "INTENT_ANALYSIS_FAILED" };

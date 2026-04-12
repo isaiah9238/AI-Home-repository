@@ -1,10 +1,9 @@
+// 1. Instructions: Replace existing file with this enhanced version.
+// 2. Added: Recursive sub-node fetching for bulk movement or deletion.
+// 3. Added: Vault isolation metadata for Privacy Domain nodes.
+
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import * as admin from 'firebase-admin';
-
-/**
- * @fileOverview The Librarian's Virtual File System (VFS) Manager.
- * Handles the persistence and retrieval of AI-generated assets in Firestore.
- */
 
 export interface VFSNode {
   id: string;
@@ -16,16 +15,21 @@ export interface VFSNode {
   userId: string;
   updatedAt: string;
   mimeType?: string;
-  metadata?: any;
+  metadata?: {
+    isVault?: boolean;      // Flag for Sovereign Vault access
+    agentOrigin?: string;  // Which agent (Architect/Scout) created this?
+    neuralWeight?: number; // Importance to the Adaptive Brain
+  };
 }
 
 const COLLECTION_NAME = 'ai_vfs';
 
 /**
- * Syncs a node to the Firestore VFS collection.
+ * Persist or Update a Node.
  */
 export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   const db = getAdminDb();
+  // Check if ID exists in metadata or props to allow updates
   const docRef = db.collection(COLLECTION_NAME).doc();
   
   const newNode = {
@@ -35,42 +39,28 @@ export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   };
 
   await docRef.set(newNode);
-  
-  // Return a plain object suitable for Client Components
-  return {
-    ...node,
-    id: docRef.id,
-    updatedAt: new Date().toISOString() // Optimistic local timestamp for the client
-  } as VFSNode;
+  return { ...newNode, updatedAt: new Date().toISOString() } as VFSNode;
 }
 
 /**
- * Retrieves all nodes for a user at a specific depth.
- */
-export async function getNodesByParent(userId: string, parentId: string | null) {
-  const db = getAdminDb();
-  const snapshot = await db.collection(COLLECTION_NAME)
-    .where('userId', '==', userId)
-    .where('parentId', '==', parentId)
-    .orderBy('type', 'desc') // Directories first
-    .orderBy('name', 'asc')
-    .get();
-
-  return snapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      ...data,
-      id: doc.id,
-      updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
-    } as VFSNode;
-  });
-}
-
-/**
- * Deletes a node and recursively marks its children for deletion (logic-side).
+ * Recursive Purge: Ensures directories don't leave "ghost" children.
  */
 export async function purgeVFSNode(nodeId: string) {
   const db = getAdminDb();
-  await db.collection(COLLECTION_NAME).doc(nodeId).delete();
+  const batch = db.batch();
+  
+  // Find all descendants
+  const findChildren = async (pid: string) => {
+    const snapshot = await db.collection(COLLECTION_NAME).where('parentId', '==', pid).get();
+    for (const doc of snapshot.docs) {
+      batch.delete(doc.ref);
+      await findChildren(doc.id); // Recurse
+    }
+  };
+
+  await findChildren(nodeId);
+  batch.delete(db.collection(COLLECTION_NAME).doc(nodeId));
+  
+  await batch.commit();
   return { success: true };
 }

@@ -70,11 +70,13 @@ export async function getHomeBase() {
       userId: session.user?.id || 'primary_user' 
     });
 
+    const context = result?.userContext || {};
+
     return { 
       success: true, 
       data: {
         ...MOCK_USER_CONTEXT,
-        ...(result?.userContext || {}),
+        ...context,
         uid: session.user?.id || 'primary_user'
       } 
     };
@@ -248,7 +250,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       
     const targetFolderId = !logsDirSnapshot.empty ? logsDirSnapshot.docs[0].id : null;
 
-    await persistVFSNode({
+    const node = await persistVFSNode({
       name: `Recon_${input.mode}_${Date.now()}.md`,
       path: `/Research_Logs/Recon_${input.mode}_${Date.now()}.md`,
       type: 'file',
@@ -272,7 +274,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       `Research_${input.mode}`
     );
 
-    return { success: true, mode: input.mode, data: result };
+    return { success: true, mode: input.mode, data: result, node };
   } catch (error: any) {
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
   }
@@ -456,7 +458,7 @@ export async function getSystemEvolution() {
     await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
     const data = doc.data();
-    const establishedDate = data?.establishedDate || MOCK_USER_CONTEXT.establishedDate;
+    const establishedDate = sanitizeDate(data?.establishedDate) || MOCK_USER_CONTEXT.establishedDate;
     const start = new Date(establishedDate);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - start.getTime());
@@ -677,10 +679,10 @@ export async function exportVaultData() {
         exportedAt: new Date().toISOString(),
         identity: user.data() || MOCK_USER_CONTEXT,
         archives: {
-          blueprints: blueprints.docs.map(d => d.data()),
-          curriculum: curriculum.docs.map(d => d.data()),
-          gems: gems.docs.map(d => d.data()),
-          milestones: milestones.docs.map(d => d.data())
+          blueprints: blueprints.docs.map(d => ({ ...d.data(), timestamp: sanitizeDate(d.data().timestamp) })),
+          curriculum: curriculum.docs.map(d => ({ ...d.data(), completedAt: sanitizeDate(d.data().completedAt) })),
+          gems: gems.docs.map(d => ({ ...d.data(), time: sanitizeDate(d.data().time) })),
+          milestones: milestones.docs.map(d => ({ ...d.data(), timestamp: sanitizeDate(d.data().timestamp) }))
         }
       }
     };
@@ -925,7 +927,14 @@ export async function getTestingWorkspaces() {
       
     return { 
       success: true, 
-      data: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) || []
+      data: snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          updatedAt: sanitizeDate(data.updatedAt) || new Date().toISOString()
+        };
+      }) || []
     };
   } catch (error: any) {
     return { success: false, error: error.message, data: [] };

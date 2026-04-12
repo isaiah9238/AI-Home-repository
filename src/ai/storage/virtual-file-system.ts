@@ -35,7 +35,13 @@ export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   };
 
   await docRef.set(newNode);
-  return newNode;
+  
+  // Return a plain object suitable for Client Components
+  return {
+    ...node,
+    id: docRef.id,
+    updatedAt: new Date().toISOString() // Optimistic local timestamp for the client
+  } as VFSNode;
 }
 
 /**

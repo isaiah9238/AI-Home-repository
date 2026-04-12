@@ -6,6 +6,14 @@ import { getAdminDb } from '../../lib/firebaseAdmin';
  * @fileOverview A flow to establish the user's home base and fetch profile context.
  */
 
+// Utility to ensure dates are strings for Server Action serializability
+const sanitizeVal = (val: any): any => {
+  if (!val) return val;
+  if (typeof val.toDate === 'function') return val.toDate().toISOString();
+  if (typeof val._seconds === 'number') return new Date(val._seconds * 1000).toISOString();
+  return val;
+};
+
 const flow = ai.defineFlow(
   {
     name: 'establishHomeBase',
@@ -62,7 +70,7 @@ const flow = ai.defineFlow(
       userContext: {
         name: userData?.name || 'Isaiah Smith',
         role: userData?.role || 'Primary User',
-        established: userData?.establishedDate || '2026-02-06',
+        established: sanitizeVal(userData?.establishedDate) || '2026-02-06',
         interests: userData?.interests || [],
         gemsBalance: userData?.gemsBalance || 0,
         curriculumCount,

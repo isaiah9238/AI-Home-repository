@@ -18,7 +18,7 @@ const flow = ai.defineFlow(
   async (input) => {
     try {
       const { output } = await ai.generate({
-        model: 'googleai/gemini-2.5-pro',
+        model: 'googleai/gemini-2.5-flash',
         prompt: `
           You are Flux Echo, conducting a "General Reconnaissance" mission.
           The user is scouting for intelligence on: "${input.query}".

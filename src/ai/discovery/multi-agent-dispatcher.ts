@@ -36,7 +36,7 @@ const flow = ai.defineFlow(
 
       // 2. Generate the classification
       const response = await ai.generate({
-        model: 'googleai/gemini-2.5-pro',
+        model: 'googleai/gemini-2.5-flash',
         prompt: `
           You are a multi-agent dispatcher for the AI Home Cabinet. 
           Analyze the request and route it to the best agent:

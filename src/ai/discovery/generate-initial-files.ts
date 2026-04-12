@@ -18,7 +18,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'googleai/gemini-2.5-pro',
+      model: 'googleai/gemini-2.5-flash',
       prompt: `
         You are The Architect, a high-fidelity 3D printer for software architecture residing in the AI Home Cabinet.
         Your task is to transform a conceptual blueprint into a production-ready file system structure.

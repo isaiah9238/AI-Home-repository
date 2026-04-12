@@ -240,7 +240,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
             </CardHeader>
             <CardContent className="space-y-2 font-mono">
               {(profile?.interests || ["Next.js", "AI Engineering", "UI/UX", "Land Surveying"]).map((interest: string) => (
-                <div key={interest} className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 group hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-crosshair">
+                <div key={interest} className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 group hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-default">
                   <span className="text-[10px] text-white/50 group-hover:text-blue-400 uppercase tracking-widest">{interest}</span>
                   <div className="w-1 h-1 rounded-full bg-blue-500/20 group-hover:bg-blue-500 animate-pulse" />
                 </div>

@@ -56,10 +56,10 @@ const ai = getAI(app, { backend: new GoogleAIBackend() });
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
-  model: "gemini-2.5-flash" 
+  model: "gemini-1.5-flash" 
 });
 
 export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-2.5-flash",
+  model: "gemini-1.5-flash",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });

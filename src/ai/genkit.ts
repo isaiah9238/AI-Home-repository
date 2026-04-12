@@ -13,5 +13,5 @@ export const ai = genkit({
   plugins: [
     googleAI({ apiKey: apiKey })
   ],
-  model: 'googleai/gemini-2.5-flash', // Using high-speed 2.5 Flash for multi-agent reasoning
+  model: 'googleai/gemini-1.5-flash', // High-speed Flash model for multi-agent reasoning
 });

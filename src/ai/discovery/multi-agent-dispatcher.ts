@@ -4,7 +4,6 @@ import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { mentorAi } from '@/ai/discovery/mentor-ai';
 import { webIntel } from '@/ai/discovery/web-intel';
-import { getAgenticContext } from '@/app/actions';
 
 /**
  * @fileOverview The Multi-Agent Dispatcher
@@ -14,6 +13,7 @@ import { getAgenticContext } from '@/app/actions';
 
 const DispatcherInputSchema = z.object({
   request: z.string(),
+  agenticContext: z.string().optional().describe("Collective memory fragments from other agents"),
 });
 
 const AgentChoiceSchema = z.object({
@@ -30,13 +30,11 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     try {
-      // 1. AGENTIC MEMORY SYNC: Fetch recent context from other agents
-      const agenticContextRes = await getAgenticContext();
-      const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "No recent agentic signals.";
+      const agenticCtx = input.agenticContext || "No recent agentic signals.";
 
-      // 2. Generate the classification
+      // 1. Generate the classification
       const response = await ai.generate({
-        model: 'googleai/gemini-2.5-flash',
+        model: 'googleai/gemini-1.5-flash',
         prompt: `
           You are a multi-agent dispatcher for the AI Home Cabinet. 
           Analyze the request and route it to the best agent:
@@ -57,7 +55,7 @@ const flow = ai.defineFlow(
 
       const agent = response.output?.agent || 'general_mentor';
 
-      // 3. Direct routing to the selected flow wrapper
+      // 2. Direct routing to the selected flow wrapper
       switch (agent) {
         case 'architect':
           return await generateInitialFiles({ blueprint: input.request });
@@ -68,7 +66,7 @@ const flow = ai.defineFlow(
           return await webIntel({ url: isUrl ? input.request : 'https://google.com' });
         case 'general_mentor':
         default:
-          return await mentorAi({ request: input.request });
+          return await mentorAi({ request: input.request, agenticContext: input.agenticContext });
       }
     } catch (error: any) {
       console.error("Dispatcher Flow Error:", error.message);
@@ -80,6 +78,6 @@ const flow = ai.defineFlow(
 /**
  * multiAgentDispatcher - Standard function wrapper for the Dispatcher flow.
  */
-export async function multiAgentDispatcher(input: { request: string }) {
+export async function multiAgentDispatcher(input: z.infer<typeof DispatcherInputSchema>) {
   return flow(input);
 }

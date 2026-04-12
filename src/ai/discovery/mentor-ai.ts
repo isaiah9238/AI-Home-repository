@@ -1,10 +1,8 @@
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
-import { getAdminDb } from '@/lib/firebaseAdmin';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
 import { establishHomeBase } from './establish-home-base';
-import { getAgenticContext } from '@/app/actions';
 
 /**
  * @fileOverview The Web Intel Mentor Flow.
@@ -14,6 +12,7 @@ import { getAgenticContext } from '@/app/actions';
 const MentorInputSchema = z.object({
   request: z.string(),
   userProfile: z.any().optional(),
+  agenticContext: z.string().optional().describe("Collective memory fragments from other agents"),
 });
 
 const flow = ai.defineFlow(
@@ -32,9 +31,8 @@ const flow = ai.defineFlow(
     const userId = 'primary_user';
     const { userContext } = await establishHomeBase({ userId });
     
-    // 3. AGENTIC MEMORY SYNC: Fetch recent context from other agents
-    const agenticContextRes = await getAgenticContext();
-    const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "No recent agentic signals.";
+    // 3. Use provided Agentic Context
+    const agenticCtx = input.agenticContext || "No recent agentic signals detected.";
 
     // 4. Build the Adaptive Persona
     const recentKnowledgeCtx = userContext.recentKnowledge?.length > 0 
@@ -56,7 +54,7 @@ const flow = ai.defineFlow(
 
     // 5. Generate the response
     const { text } = await ai.generate({
-      model: 'googleai/gemini-2.5-flash',
+      model: 'googleai/gemini-1.5-flash',
       prompt: `
         ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor residing in the Cabinet.
         CONTEXT: ${aiContext}
@@ -74,18 +72,18 @@ const flow = ai.defineFlow(
     });
 
     // 6. Safety Check: AI Output
-    const outputSafety = await filterAIOutput({ text });
+    const outputSafety = await filterAIOutput({ text: text || "" });
     if (!outputSafety.isSafe) {
       return { response: "SIGNAL_BLOCKED: The generated briefing contained sensitive material and was retracted for system integrity." };
     }
 
-    return { response: text };
+    return { response: text || "SIGNAL_LOST: Mentor could not synthesize a briefing." };
   }
 );
 
 /**
  * mentorAi - Standard function wrapper for the Mentor flow.
  */
-export async function mentorAi(input: { request: string, userProfile?: any }) {
+export async function mentorAi(input: z.infer<typeof MentorInputSchema>) {
   return flow(input);
 }

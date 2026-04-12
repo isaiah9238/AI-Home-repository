@@ -23,7 +23,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'googleai/gemini-2.5-flash',
+      model: 'googleai/gemini-1.5-flash',
       prompt: `
         You are the "Execution Intent Agent," the core of the Cabinet's Neural Link.
         

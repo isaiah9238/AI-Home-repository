@@ -61,6 +61,34 @@ async function verifyAuth() {
   return session;
 }
 
+/**
+ * internalGetAgenticContext
+ * decodes recent VFS signals for agent grounding.
+ * (Not exported to prevent circular loops in AI flows)
+ */
+async function internalGetAgenticContext() {
+  try {
+    const userId = 'primary_user';
+    const db = getAdminDb();
+    
+    const notesSnapshot = await db.collection('ai_vfs')
+      .where('userId', '==', userId)
+      .where('metadata.type', 'in', ['agent_note', 'research_report'])
+      .orderBy('updatedAt', 'desc')
+      .limit(5)
+      .get();
+      
+    const notes = notesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return `[AGENT: ${data.metadata?.owner_agent || 'Unknown'}] [INTENT: ${data.metadata?.intent_vector || 'General'}]\n${data.content}`;
+    });
+
+    return { success: true, context: notes.join('\n---\n') };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 // --- THE HOME BASE ACTION ---
 export async function getHomeBase() {
   try {
@@ -142,7 +170,13 @@ export async function pingServer() {
 export async function sendTerminalMessage(message: string) {
   try {
     await verifyAuth();
-    const result = await multiAgentDispatcher({ request: message });
+    const agenticContextRes = await internalGetAgenticContext();
+    const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "";
+
+    const result = await multiAgentDispatcher({ 
+      request: message,
+      agenticContext: agenticCtx
+    });
     
     let responseText = "SIGNAL_RECEIVED: Processed.";
     if (typeof result === 'string') {
@@ -167,13 +201,15 @@ export async function getMorningBriefing(userContext?: any) {
     const db = getAdminDb();
     const userId = 'primary_user';
     
-    const [criticalGems, userDoc] = await Promise.all([
+    const [criticalGems, userDoc, agenticContextRes] = await Promise.all([
       db.collection('gems').where('resolution', '==', 'pending').where('severity', 'in', ['high', 'critical']).get(),
-      db.collection('users').doc(userId).get()
+      db.collection('users').doc(userId).get(),
+      internalGetAgenticContext()
     ]);
 
     const result = await mentorAi({ 
       request: "Give me my morning briefing.",
+      agenticContext: agenticContextRes.success ? agenticContextRes.context : "",
       userProfile: {
         ...(userContext || MOCK_USER_CONTEXT),
         curriculum: userDoc.exists ? {
@@ -741,27 +777,7 @@ export async function postAgenticNote(agentName: string, note: string, intentVec
 }
 
 export async function getAgenticContext() {
-  try {
-    await verifyAuth();
-    const userId = 'primary_user';
-    const db = getAdminDb();
-    
-    const notesSnapshot = await db.collection('ai_vfs')
-      .where('userId', '==', userId)
-      .where('metadata.type', 'in', ['agent_note', 'research_report'])
-      .orderBy('updatedAt', 'desc')
-      .limit(5)
-      .get();
-      
-    const notes = notesSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return `[AGENT: ${data.metadata?.owner_agent || 'Unknown'}] [INTENT: ${data.metadata?.intent_vector || 'General'}]\n${data.content}`;
-    });
-
-    return { success: true, context: notes.join('\n---\n') };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
+  return internalGetAgenticContext();
 }
 
 export async function getVFSNodesAction(parentId: string | null = null) {

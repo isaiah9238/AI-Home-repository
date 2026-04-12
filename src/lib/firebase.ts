@@ -12,7 +12,7 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "studio-3863072923-d4373.firebaseapp.com",
-  databaseURL: "https://studio-3863072923-d4373-default-rtdb.firebaseio.com", 
+  databaseURL: "https://studio-3863072923-default-rtdb.firebaseio.com", 
   projectId: "studio-3863072923-d4373",
   storageBucket: "studio-3863072923-d4373.firebasestorage.app",
   messagingSenderId: "1032380781554",
@@ -56,10 +56,10 @@ const ai = getAI(app, { backend: new GoogleAIBackend() });
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
-  model: "gemini-2.5-flash" 
+  model: "gemini-1.5-flash" 
 });
 
 export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-2.5-flash",
+  model: "gemini-1.5-flash",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });

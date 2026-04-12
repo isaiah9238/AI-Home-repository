@@ -1,42 +1,49 @@
+// Instructions: Run this script to establish the VFS hierarchy.
+// Use: npx ts-node -P tsconfig.json src/scripts/feed-nodes.ts
 
-import { initializeVFS, postAgenticNote } from '../app/actions';
+import { getAdminDb } from '../lib/firebaseAdmin';
+import * as admin from 'firebase-admin';
 
-async function main() {
-  console.log("🛠️  INITIALIZING_SYSTEM_NODES...");
-  
-  try {
-    // 1. Initialize VFS Structure
-    const initRes = await initializeVFS();
-    if (initRes.success) {
-      console.log("✅ VFS_STRUCTURE_SYNCED");
-    } else {
-      console.error("❌ INIT_FAILED:", initRes.error);
-    }
+const COLLECTION_NAME = 'ai_vfs';
 
-    // 2. Post Initial Agentic Memory Sync
-    console.log("📡 BROADCASTING_INITIAL_SIGNALS...");
-    await postAgenticNote(
-      "Librarian", 
-      "Virtual File System established. Monitoring all node transitions.", 
-      "System_Initialization"
-    );
-    
-    await postAgenticNote(
-      "Flux_Echo", 
-      "Phase 3 active. Monitoring external signals. OAuth layers verified.", 
-      "Security_Sync"
-    );
+async function seedCabinetNodes() {
+ const db = getAdminDb();
+ const userId = "master-architect"; // Replace with your actual Firebase UID
 
-    await postAgenticNote(
-      "The_Architect", 
-      "Testing Chamber expanded. Parallel execution logic synchronized.", 
-      "Module_Construction"
-    );
+ const rootNodes = [
+   { name: 'Discovery', path: '/discovery', type: 'directory', parentId: null },
+   { name: 'Research', path: '/research', type: 'directory', parentId: null },
+   { name: 'Safety', path: '/safety', type: 'directory', parentId: null },
+   { name: 'Vault', path: '/vault', type: 'directory', parentId: null, metadata: { isVault: true } }
+ ];
 
-    console.log("✅ NODES_FED_SUCCESSFULLY");
-  } catch (error) {
-    console.error("❌ CRITICAL_FAILURE:", error);
-  }
+ console.log("🏛️ LIBRARIAN: Initiating Cabinet node growth...");
+ try {
+   for (const node of rootNodes) {
+    // Check for existing root to prevent duplicates
+     const existing = await db.collection(COLLECTION_NAME)
+       .where('path', '==', node.path)
+       .where('userId', '==', userId)
+       .get();
+
+     if (existing.empty) {
+       const docRef = db.collection(COLLECTION_NAME).doc();
+       await docRef.set({
+         ...node,
+         id: docRef.id,
+         userId,
+         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+         metadata: node.metadata || { isVault: false }
+       });
+       console.log(`✅ Node Anchored: ${node.name}`);
+     } else {
+       console.log(`📡 Node already exists: ${node.name}`);
+     }
+   }
+   console.log("🏁 LIBRARIAN: Cabinet Map Synchronization Complete.");
+ } catch (error) {
+   console.error("🚨 LIBRARIAN: Synchronization Failed.", error);
+ }
 }
 
-main().catch(console.error);
+seedCabinetNodes();

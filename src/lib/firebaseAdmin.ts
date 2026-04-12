@@ -1,53 +1,41 @@
+// Instructions: Update firebaseAdmin.ts to include explicit error reporting.
+// This prevents the 'Failed to Fetch' by identifying the root cause in the logs.
+
 import * as admin from 'firebase-admin';
 
-/**
- * @fileOverview The Librarian's Administrative Core.
- * Handles server-side Firebase Admin initialization and environment stabilization.
- */
-
 export const initAdmin = () => {
-  if (admin.apps.length > 0) return admin.app();
+ if (admin.apps.length > 0) return admin.app();
 
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
-  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.SERVICE_ACCOUNT_KEY;
+ const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
+ const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.SERVICE_ACCOUNT_KEY;
 
-  // #3 THE PURGE: Neutralize emulator signals in remote nodes
-  const isRemote = process.env.NODE_ENV === 'production' || !!process.env.FIREBASE_STUDIO; 
-                   
-  if (isRemote) {
-    const emulatorVars = [ 'FIRESTORE_EMULATOR_HOST', 'FIREBASE_AUTH_EMULATOR_HOST' ];
-    
-    emulatorVars.forEach( key => delete process.env[key] );
-    
-    if (process.env.FIREBASE_STUDIO) {
-      console.log("LIBRARIAN: Cloud synchronization established. Emulator signals neutralized.");
-    }
-  }
+ if (!serviceAccountKey && process.env.NODE_ENV === 'production') {
+   console.error("🚨 LIBRARIAN: Service Account Key is missing from Environment.");
+   return null; 
+ }
 
-  if (serviceAccountKey) {
-    try {
-      const serviceAccount = JSON.parse(serviceAccountKey);
-      return admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        projectId: projectId,
-      });
-    } catch (e) {
-      console.error("🚨 Librarian_Auth_Error", e);
-    }
-  }
+ try {
+   if (serviceAccountKey) {
+     // Handle both stringified JSON and raw strings
+     const serviceAccount = typeof serviceAccountKey === 'string' 
+       ? JSON.parse(serviceAccountKey) 
+       : serviceAccountKey;
 
-  return admin.initializeApp({ projectId: projectId });
+     return admin.initializeApp({
+       credential: admin.credential.cert(serviceAccount),
+       projectId: projectId,
+     });
+   }
+ } catch (e) {
+   console.error("🚨 LIBRARIAN_AUTH_CRASH:", e);
+ }
+
+ // Fallback for local development using application default credentials
+ return admin.initializeApp({ projectId: projectId });
 };
 
 export const getAdminDb = () => {
-  const app = admin.apps.length > 0 ? admin.app() : initAdmin();
-  return app.firestore();
-};
-
-/**
- * NEW: Added verifySessionCookie to fix TS2305 error
- */
-export const verifySessionCookie = async (sessionCookie: string) => {
-  const app = admin.apps.length > 0 ? admin.app() : initAdmin();
-  return app.auth().verifySessionCookie(sessionCookie, true);
+ const app = initAdmin();
+ if (!app) throw new Error("Librarian could not initialize Admin SDK.");
+ return admin.firestore();
 };

@@ -24,33 +24,25 @@ studio/
 │   │   │       └── gems-logger.ts            (Gems Ledger)
 │   │   ├── storage/             # AI Persistent Memory
 │   │   │   └── virtual-file-system.ts    (Firestore AI File Manager)
-│   │   ├── flows/               # Core Orchestration
-│   │   │   └── userBrain.ts     (Adaptive Node)
 │   │   └── genkit.ts            # Genkit Configuration (Gemini 2.5 Pro)
 │   │
 │   ├── app/                     # THE PORTAL (Next.js Routes)
-│   │   ├── (auth)/              # Authentication
-│   │   │   └── login/           # Access Terminal
-│   │   ├── architect/           # Full-screen Construction Terminal
-│   │   ├── code-analyzer/       # Security Audit HUD
-│   │   ├── flux-echo/           # Research Drawer UI
+│   │   ├── architect/           # Construction Terminal
 │   │   ├── sandbox/             # Autonomous Previewer
-│   │   ├── testing-area/        # Multi-Agent Testing Chamber
+│   │   ├── testing-area/        # Parallel Execution Chamber
+│   │   ├── flux-echo/           # Research Drawer UI
 │   │   ├── actions.ts           # The Cabinet Switchboard
 │   │   └── page.tsx             # The Interior Dashboard
 │   │
 │   ├── components/              # UI COMPONENTS
-│   │   ├── ui/                  # ShadCN & HUD Elements
-│   │   ├── app-shell.tsx        # Navigation & Sidebar
 │   │   ├── storage-drawer.tsx   # High-Fidelity VFS UI
 │   │   ├── gems-drawer.tsx      # Safety Ledger Visualizer
-│   │   ├── laboratory-drawer.tsx# Parameter Tuner
-│   │   ├── neural-graph.tsx     # XAI Context Map
 │   │   └── portal-interface.tsx # The Tool Switchboard
 │   │
-│   ├── lib/                     # SHARED LIBRARIES
-│   │   ├── firebase.ts          # Client SDK (Gemini 2.5 Pro)
-│   │   └── firebaseAdmin.ts     # Admin SDK (The Purge Protocol)
+│   ├── scripts/                 # SYSTEM UTILITIES
+│   │   ├── seed-etiquette-lesson.ts  (New Module Integration)
+│   │   ├── feed-nodes.ts             (VFS Initialization)
+│   │   └── seed-home-base.ts         (Identity Initialization)
 │
 └── README.md                    # Project Overview
 
@@ -62,6 +54,6 @@ studio/
 - **Portal**: High-fidelity HUD interface for all domains.
 
 ### 📁 Operational Nodes:
+- `src/scripts/seed-etiquette-lesson.ts`: Integrates the Social Etiquette module.
 - `src/components/storage-drawer.tsx`: VFS browser with breadcrumbs and editing.
-- `src/app/testing-area/page.tsx`: Parallel execution and variation chamber.
-- `src/app/sandbox/page.tsx`: Intent-driven code execution environment.
+- `src/app/sandbox/page.tsx`: Neural Link grounded code execution.

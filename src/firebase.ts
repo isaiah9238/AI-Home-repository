@@ -1,3 +1,4 @@
+
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -6,13 +7,18 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 import { getFunctions } from "firebase/functions";
-import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+
+/**
+ * @fileOverview Primary Firebase initialization.
+ * Switched AI engine to VertexAIBackend for enterprise reliability.
+ */
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "studio-3863072923-d4373.firebaseapp.com",
-  databaseURL: "https://studio-3863072923-d4373-default-rtdb.firebaseio.com", 
+  databaseURL: "https://studio-3863072923-default-rtdb.firebaseio.com", 
   projectId: "studio-3863072923-d4373",
   storageBucket: "studio-3863072923-d4373.firebasestorage.app",
   messagingSenderId: "1032380781554",
@@ -51,7 +57,8 @@ if (typeof window !== "undefined") {
   }
 }
 
-const ai = getAI(app, { backend: new GoogleAIBackend() });
+// Initializing AI with Vertex AI backend
+const ai = getAI(app, { backend: new VertexAIBackend() });
 
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 

@@ -1,33 +1,34 @@
+
 /**
- * @fileOverview The entry point for the Cabinet's Cloud Functions.
+ * @fileOverview The entry point for the Cabinet's Cloud Functions (Vertex Edition).
  *
  * This file initializes the Librarian's background processing unit
- * using Genkit.
+ * using Genkit and Vertex AI.
  */
 
 import { initializeApp } from "firebase-admin/app";
 import { genkit, z } from "genkit";
-import { googleAI } from "@genkit-ai/google-genai";
+import { vertexAI } from "@genkit-ai/vertexai";
 import { onCallGenkit } from "firebase-functions/https";
-import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
 
 // 1. Initialize Firebase Admin
 initializeApp();
 
-// 2. Define Secrets
-const apiKey = defineSecret("GOOGLE_GENAI_API_KEY");
-
-// 3. Global Configuration
+// 2. Global Configuration
 setGlobalOptions({ maxInstances: 10 });
 
-// 4. Initialize Genkit
+// 3. Initialize Genkit with Vertex AI
 const ai = genkit({
-  plugins: [googleAI()],
-  model: "googleai/gemini-2.5-flash",
+  plugins: [
+    vertexAI({ location: 'us-central1' })
+  ],
+  model: "vertexai/gemini-1.5-flash",
 });
+
 enableFirebaseTelemetry();
+
 /**
  * FLOW: Librarian Indexer
  *
@@ -90,7 +91,6 @@ const librarianIndexerFlow = ai.defineFlow(
  */
 export const librarianIndexer = onCallGenkit(
   {
-    secrets: [apiKey],
     cors: true,
     invoker: "public",
   },

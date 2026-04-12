@@ -1,6 +1,10 @@
+
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 
+/**
+ * @fileOverview Code Inspector Flow (Vertex Edition)
+ */
 const flow = ai.defineFlow(
   {
     name: 'analyzeCodeSnippet',
@@ -17,7 +21,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'vertexai/gemini-1.5-flash',
       prompt: `
         You are the "Code Inspector," a specialized security and performance auditor within the AI Home Cabinet.
         

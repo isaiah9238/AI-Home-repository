@@ -1,3 +1,4 @@
+
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -6,8 +7,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 import { getFunctions } from "firebase/functions";
-import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+
+/**
+ * @fileOverview Shared Firebase library.
+ * Switched AI engine to VertexAIBackend for enterprise reliability.
+ */
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -51,7 +57,8 @@ if (typeof window !== "undefined") {
   }
 }
 
-const ai = getAI(app, { backend: new GoogleAIBackend() });
+// Initializing AI with Vertex AI backend
+const ai = getAI(app, { backend: new VertexAIBackend() });
 
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 

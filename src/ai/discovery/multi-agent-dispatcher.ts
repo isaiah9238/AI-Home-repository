@@ -1,3 +1,4 @@
+
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
@@ -6,7 +7,7 @@ import { mentorAi } from '@/ai/discovery/mentor-ai';
 import { webIntel } from '@/ai/discovery/web-intel';
 
 /**
- * @fileOverview The Multi-Agent Dispatcher
+ * @fileOverview The Multi-Agent Dispatcher (Vertex Edition)
  * 
  * Classifies user intent and routes the request to the specialized domain agent.
  */
@@ -32,9 +33,9 @@ const flow = ai.defineFlow(
     try {
       const agenticCtx = input.agenticContext || "No recent agentic signals.";
 
-      // 1. Generate the classification
+      // 1. Generate the classification using Vertex
       const response = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
+        model: 'vertexai/gemini-1.5-flash',
         prompt: `
           You are a multi-agent dispatcher for the AI Home Cabinet. 
           Analyze the request and route it to the best agent:

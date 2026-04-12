@@ -1,6 +1,10 @@
+
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 
+/**
+ * @fileOverview Epitomizer Flow (Vertex Edition)
+ */
 const flow = ai.defineFlow(
   {
     name: 'epitomizeFetchedContent',
@@ -31,7 +35,7 @@ const flow = ai.defineFlow(
         .slice(0, 30000);
 
       const { output } = await ai.generate({
-        model: 'googleai/gemini-2.5-flash',
+        model: 'vertexai/gemini-1.5-flash',
         prompt: `
           You are the Librarian's expert Epitomizer. 
           Deep read the following content from ${input.url} and transform it into high-quality, epitomized notes.

@@ -1,9 +1,11 @@
+
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 import { filterAIOutput } from '../safety/filter-ai-output';
 
 /**
- * SearchGenie: Simulates a scouting mission for general topics.
+ * @fileOverview SearchGenie Flow (Vertex Edition)
+ * Simulates a scouting mission for general topics using Vertex AI.
  */
 const flow = ai.defineFlow(
   {
@@ -18,7 +20,7 @@ const flow = ai.defineFlow(
   async (input) => {
     try {
       const { output } = await ai.generate({
-        model: 'googleai/gemini-2.5-flash',
+        model: 'vertexai/gemini-1.5-flash',
         prompt: `
           You are Flux Echo, conducting a "General Reconnaissance" mission.
           The user is scouting for intelligence on: "${input.query}".

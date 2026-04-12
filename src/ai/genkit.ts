@@ -1,17 +1,18 @@
+
 import 'dotenv/config';
-import { googleAI } from '@genkit-ai/google-genai';
+import { vertexAI } from '@genkit-ai/vertexai';
 import { genkit } from 'genkit';
 
-// 1. Explicitly pull the key to verify it exists
-const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-  console.warn("⚠️ CABINET_OFFLINE: No API Key found. Gemini will fail.");
-}
+/**
+ * @fileOverview Global Genkit configuration.
+ * Switched to Vertex AI for enterprise-grade production readiness.
+ */
 
 export const ai = genkit({
   plugins: [
-    googleAI({ apiKey: apiKey })
+    vertexAI({
+      location: 'us-central1', // Standard production region
+    })
   ],
-  model: 'googleai/gemini-1.5-flash', // High-speed Flash model for multi-agent reasoning
+  model: 'vertexai/gemini-1.5-flash', // Production coordinate for high-speed multi-agent reasoning
 });

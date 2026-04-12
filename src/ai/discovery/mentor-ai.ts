@@ -1,3 +1,4 @@
+
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
 import { filterUserInput } from '../domains/safety/filter-user-input';
@@ -5,7 +6,7 @@ import { filterAIOutput } from '../domains/safety/filter-ai-output';
 import { establishHomeBase } from './establish-home-base';
 
 /**
- * @fileOverview The Web Intel Mentor Flow.
+ * @fileOverview The Web Intel Mentor Flow (Vertex Edition).
  * High-fidelity briefings that adapt to user progress and system state.
  */
 
@@ -52,9 +53,9 @@ const flow = ai.defineFlow(
       ${agenticCtx}
     `;
 
-    // 5. Generate the response
+    // 5. Generate the response using Vertex
     const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
+      model: 'vertexai/gemini-1.5-flash',
       prompt: `
         ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor residing in the Cabinet.
         CONTEXT: ${aiContext}

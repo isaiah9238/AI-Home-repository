@@ -33,7 +33,7 @@ const flow = ai.defineFlow(
         .slice(0, 20000);
 
       const { output } = await ai.generate({
-        model: 'vertexai/gemini-2.5-pro',
+        model: 'vertexai/gemini-2.5-flash',
         prompt: `
           You are Flux Echo, a high-speed research scout. 
           Analyze the following web page content from ${input.url}.

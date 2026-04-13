@@ -35,7 +35,7 @@ const flow = ai.defineFlow(
 
       // 1. Generate the classification using Vertex
       const response = await ai.generate({
-        model: 'vertexai/gemini-1.5-flash',
+        model: 'vertexai/gemini-2.5-pro',
         prompt: `
           You are a multi-agent dispatcher for the AI Home Cabinet. 
           Analyze the request and route it to the best agent:

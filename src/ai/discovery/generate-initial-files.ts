@@ -19,7 +19,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'vertexai/gemini-1.5-flash',
+      model: 'vertexai/gemini-2.5-pro',
       prompt: `
         You are The Architect, a high-fidelity 3D printer for software architecture residing in the AI Home Cabinet.
         Your task is to transform a conceptual blueprint into a production-ready file system structure.

@@ -24,7 +24,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'vertexai/gemini-1.5-flash',
+      model: 'vertexai/gemini-2.5-pro',
       prompt: `
         You are the "Execution Intent Agent," the core of the Cabinet's Neural Link.
         

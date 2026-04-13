@@ -24,7 +24,7 @@ const ai = genkit({
   plugins: [
     vertexAI({ location: 'us-central1' })
   ],
-  model: "vertexai/gemini-1.5-flash",
+  model: "vertexai/gemini-2.5-pro",
 });
 
 enableFirebaseTelemetry();

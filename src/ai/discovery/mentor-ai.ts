@@ -55,7 +55,7 @@ const flow = ai.defineFlow(
 
     // 5. Generate the response using Vertex
     const { text } = await ai.generate({
-      model: 'vertexai/gemini-1.5-flash',
+      model: 'vertexai/gemini-2.5-pro',
       prompt: `
         ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor residing in the Cabinet.
         CONTEXT: ${aiContext}

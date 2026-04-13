@@ -20,7 +20,7 @@ const flow = ai.defineFlow(
   async (input) => {
     try {
       const { output } = await ai.generate({
-        model: 'vertexai/gemini-1.5-flash',
+        model: 'vertexai/gemini-2.5-pro',
         prompt: `
           You are Flux Echo, conducting a "General Reconnaissance" mission.
           The user is scouting for intelligence on: "${input.query}".

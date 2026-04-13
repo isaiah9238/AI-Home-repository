@@ -14,5 +14,5 @@ export const ai = genkit({
       location: 'us-central1', // Standard production region
     })
   ],
-  model: 'vertexai/gemini-1.5-flash', // Production coordinate for high-speed multi-agent reasoning
+  model: 'vertexai/gemini-2.5-pro', // Production coordinate for high-speed multi-agent reasoning
 });

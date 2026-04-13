@@ -21,7 +21,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'vertexai/gemini-1.5-flash',
+      model: 'vertexai/gemini-2.5-pro',
       prompt: `
         You are the "Code Inspector," a specialized security and performance auditor within the AI Home Cabinet.
         

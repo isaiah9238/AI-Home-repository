@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Network, Share2, Info, X, Zap, Database, Brain, Rocket, BookOpen, MessageSquareCode, ShieldCheck, Activity } from 'lucide-react';
+import { Network, Share2, Info, X, Zap, Database, Brain, Rocket, BookOpen, MessageSquareCode, ShieldCheck, Activity, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from 'react';
+import Link from 'next/link';
 
 interface Node {
   id: string;
@@ -20,7 +21,7 @@ interface Node {
   data?: any;
 }
 
-interface Link {
+interface LinkType {
   source: string;
   target: string;
   speed: number;
@@ -45,7 +46,7 @@ export function NeuralGraph({
 
   const graphData = useMemo(() => {
     const nodes: Node[] = [];
-    const links: Link[] = [];
+    const links: LinkType[] = [];
     const coreX = 400;
     const coreY = 300;
 
@@ -129,7 +130,15 @@ export function NeuralGraph({
           <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
             <Share2 className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Context_Evolution</h2>
+          <div className="flex flex-col">
+            <h2 className="text-xl font-light tracking-[0.3em] uppercase">Neural_Context_Evolution</h2>
+            <Link 
+              href="/neural-map" 
+              className="flex items-center gap-2 text-[8px] text-blue-400/40 hover:text-blue-400 transition-colors uppercase tracking-[0.2em] mt-1"
+            >
+              <ExternalLink className="w-2.5 h-2.5" /> Launch_Full_Terminal
+            </Link>
+          </div>
           <DynamicInstructions 
             variant="blue"
             title="Advanced Neural Mapping" 

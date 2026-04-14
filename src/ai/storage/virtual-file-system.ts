@@ -1,7 +1,3 @@
-// 1. Instructions: Replace existing file with this enhanced version.
-// 2. Added: Recursive sub-node fetching for bulk movement or deletion.
-// 3. Added: Vault isolation metadata for Privacy Domain nodes.
-
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import * as admin from 'firebase-admin';
 
@@ -16,51 +12,71 @@ export interface VFSNode {
   updatedAt: string;
   mimeType?: string;
   metadata?: {
-    isVault?: boolean;      // Flag for Sovereign Vault access
-    agentOrigin?: string;  // Which agent (Architect/Scout) created this?
-    neuralWeight?: number; // Importance to the Adaptive Brain
+    isVault?: boolean;
+    agentOrigin?: string;
+    neuralWeight?: number;
+    disappearanceMarker?: boolean; // Required for 'Silver Memory'
   };
 }
 
 const COLLECTION_NAME = 'ai_vfs';
 
-/**
- * Persist or Update a Node.
- */
+// --- THE TRINITY OF EXPORTS ---
+
+// 1. PERSIST (The Writer)
 export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   const db = getAdminDb();
-  // Check if ID exists in metadata or props to allow updates
   const docRef = db.collection(COLLECTION_NAME).doc();
-  
   const newNode = {
     ...node,
     id: docRef.id,
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   };
-
   await docRef.set(newNode);
   return { ...newNode, updatedAt: new Date().toISOString() } as VFSNode;
 }
 
-/**
- * Recursive Purge: Ensures directories don't leave "ghost" children.
- */
+// 2. PURGE (The Eraser)
 export async function purgeVFSNode(nodeId: string) {
   const db = getAdminDb();
   const batch = db.batch();
-  
-  // Find all descendants
   const findChildren = async (pid: string) => {
     const snapshot = await db.collection(COLLECTION_NAME).where('parentId', '==', pid).get();
     for (const doc of snapshot.docs) {
       batch.delete(doc.ref);
-      await findChildren(doc.id); // Recurse
+      await findChildren(doc.id);
     }
   };
-
   await findChildren(nodeId);
   batch.delete(db.collection(COLLECTION_NAME).doc(nodeId));
-  
   await batch.commit();
   return { success: true };
+}
+
+// 3. GET (The Reader)
+export async function getNodesByParent(userId: string, parentId: string | null = null) {
+  const db = getAdminDb();
+  
+  const snapshot = await db.collection(COLLECTION_NAME)
+    .where('userId', '==', userId)
+    .where('parentId', '==', parentId)
+    .get();
+
+  if (snapshot.empty) return [];
+
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    
+    // THE SANITIZER: Convert everything to plain text/numbers
+    return {
+      ...data,
+      id: doc.id,
+      // Convert 'createdAt' timestamp to string
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+      // Convert 'updatedAt' timestamp to string
+      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
+      // Force parentId to be a string or null (no hidden prototypes)
+      parentId: data.parentId || null
+    };
+  });
 }

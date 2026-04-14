@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DynamicInstructions } from '@/components/dynamic-instructions';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import React from 'react';
 
 interface Node {
   id: string;
@@ -27,11 +28,18 @@ interface Link {
 
 interface NeuralGraphProps {
   lessons: any[];
+  nodes?: any[];
   neuralComplexity: number;
   knowledgeIntegration: number;
 }
 
-export function NeuralGraph({ lessons, neuralComplexity, knowledgeIntegration }: NeuralGraphProps) {
+export function NeuralGraph({
+  lessons, 
+  neuralComplexity, 
+  knowledgeIntegration, 
+  nodes 
+  }: NeuralGraphProps) {
+    
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [activeHelpTerm, setActiveHelpTerm] = useState<string | null>(null);
 

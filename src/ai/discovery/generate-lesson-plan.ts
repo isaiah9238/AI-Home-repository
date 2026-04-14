@@ -1,4 +1,3 @@
-
 import { ai } from '../genkit';
 import { z } from 'genkit';
 
@@ -16,7 +15,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-      model: 'googleAI/gemini-2.5-flash',
+      model: 'vertexai/gemini-2.5-flash',
       prompt: `
         ROLE: You are the "Discovery Tutor," a high-fidelity educator residing in the AI Home Cabinet.
         TASK: Create a detailed, structured, and technical lesson plan for the coordinate: "${input.subject}".

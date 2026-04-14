@@ -1,4 +1,3 @@
-
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
@@ -15,6 +14,7 @@ import { webIntel } from '@/ai/discovery/web-intel';
 const DispatcherInputSchema = z.object({
   request: z.string(),
   agenticContext: z.string().optional().describe("Collective memory fragments from other agents"),
+  userProfile: z.any().optional(),
 });
 
 const AgentChoiceSchema = z.object({
@@ -35,7 +35,7 @@ const flow = ai.defineFlow(
 
       // 1. Generate the classification using Vertex
       const response = await ai.generate({
-        model: 'googleAI/gemini-2.5-flash',
+        model: 'vertexai/gemini-2.5-flash',
         prompt: `
           You are a multi-agent dispatcher for the AI Home Cabinet. 
           Analyze the request and route it to the best agent:
@@ -67,7 +67,7 @@ const flow = ai.defineFlow(
           return await webIntel({ url: isUrl ? input.request : 'https://google.com' });
         case 'general_mentor':
         default:
-          return await mentorAi({ request: input.request, agenticContext: input.agenticContext });
+          return await mentorAi({ request: input.request, agenticContext: input.agenticContext, userProfile: input.userProfile });
       }
     } catch (error: any) {
       console.error("Dispatcher Flow Error:", error.message);

@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview The entry point for the Cabinet's Cloud Functions (Vertex Edition).
  *
@@ -8,7 +7,7 @@
 
 import { initializeApp } from "firebase-admin/app";
 import { genkit, z } from "genkit";
-import { googleAI } from '@genkit-ai/google-genai';
+import { vertexAI } from '@genkit-ai/vertexai';
 import { onCallGenkit } from "firebase-functions/https";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
@@ -22,9 +21,9 @@ setGlobalOptions({ maxInstances: 10 });
 // 3. Initialize Genkit with Vertex AI
 const ai = genkit({
   plugins: [
-    googleAI({ location: 'us-central1' })
+    vertexAI({ location: 'us-central1' })
   ],
-  model: "googleAI/gemini-2.5-flash",
+  model: "vertexai/gemini-2.5-flash",
 });
 
 enableFirebaseTelemetry();

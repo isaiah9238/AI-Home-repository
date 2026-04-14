@@ -1,4 +1,3 @@
-
 import { ai } from '../../genkit';
 import { z } from 'genkit';
 
@@ -24,7 +23,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'googleAI/gemini-2.5-flash',
+      model: 'vertexai/gemini-2.5-flash',
       prompt: `
         You are the "Execution Intent Agent," the core of the Cabinet's Neural Link.
         

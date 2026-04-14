@@ -1,9 +1,7 @@
-
 import { z } from 'genkit';
 import { ai } from '@/ai/genkit';
 import { filterUserInput } from '../domains/safety/filter-user-input';
 import { filterAIOutput } from '../domains/safety/filter-ai-output';
-import { establishHomeBase } from './establish-home-base';
 
 /**
  * @fileOverview The Web Intel Mentor Flow (Vertex Edition).
@@ -28,14 +26,13 @@ const flow = ai.defineFlow(
       return { response: "SIGNAL_INTERRUPTED: Your request triggered a safety flag. Please refine your query." };
     }
 
-    // 2. Fetch High-Fidelity Context from Home Base
-    const userId = 'primary_user';
-    const { userContext } = await establishHomeBase({ userId });
+    // 2. Build the Adaptive Persona using provided Profile Context
+    const userContext = input.userProfile || { name: 'Primary User', role: 'Architect', neuralComplexity: 64, knowledgeIntegration: 82, recentKnowledge: [], isSystemClean: true, pendingIssues: 0 };
     
     // 3. Use provided Agentic Context
     const agenticCtx = input.agenticContext || "No recent agentic signals detected.";
 
-    // 4. Build the Adaptive Persona
+    // 4. Build the Prompt Context
     const recentKnowledgeCtx = userContext.recentKnowledge?.length > 0 
       ? `RECENT_KNOWLEDGE_FRAGMENTS: ${userContext.recentKnowledge.join(', ')}.`
       : "RECENT_KNOWLEDGE_FRAGMENTS: System Initialization Only.";
@@ -55,7 +52,7 @@ const flow = ai.defineFlow(
 
     // 5. Generate the response using Vertex
     const { text } = await ai.generate({
-      model: 'googleAI/gemini-2.5-flash',
+      model: 'vertexai/gemini-2.5-flash',
       prompt: `
         ROLE: You are the "Web Intel Mentor," a high-energy, technical, yet supportive AI mentor residing in the Cabinet.
         CONTEXT: ${aiContext}

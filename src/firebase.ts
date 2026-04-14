@@ -1,4 +1,3 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -12,7 +11,7 @@ import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-ch
 
 /**
  * @fileOverview Primary Firebase initialization.
- * Switched AI engine to googleAIBackend for enterprise reliability.
+ * Switched AI engine to Vertex AI via googleAIBackend for enterprise reliability.
  */
 
 const firebaseConfig = {
@@ -63,10 +62,10 @@ const ai = getAI(app, { backend: new googleAIBackend() });
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
-  model: "gemini-2.5-pro" 
+  model: "vertexai/gemini-2.5-flash" 
 });
 
 export const lessonModel = getGenerativeModel(ai, {
-  model: "gemini-2.5-pro",
+  model: "vertexai/gemini-2.5-flash",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });

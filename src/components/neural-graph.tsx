@@ -68,7 +68,7 @@ export function NeuralGraph({
 
       nodes.push({
         id: lessonId,
-        label: lesson.title || 'FRAGMENT_PENDING',
+        label: lesson.title || lesson.name || 'FRAGMENT_PENDING',
         group: 'Curriculum',
         complexity: lesson.status === 'completed' ? 70 + (i % 10) : 40 + (i % 5),
         status: lesson.status,

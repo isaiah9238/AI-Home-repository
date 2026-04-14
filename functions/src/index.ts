@@ -8,7 +8,7 @@
 
 import { initializeApp } from "firebase-admin/app";
 import { genkit, z } from "genkit";
-import { vertexAI } from "@genkit-ai/vertexai";
+import { googleAI } from '@genkit-ai/google-genai';
 import { onCallGenkit } from "firebase-functions/https";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
@@ -22,9 +22,9 @@ setGlobalOptions({ maxInstances: 10 });
 // 3. Initialize Genkit with Vertex AI
 const ai = genkit({
   plugins: [
-    vertexAI({ location: 'us-central1' })
+    googleAI({ location: 'us-central1' })
   ],
-  model: "vertexai/gemini-2.5-flash",
+  model: "googleAI/gemini-2.5-flash",
 });
 
 enableFirebaseTelemetry();

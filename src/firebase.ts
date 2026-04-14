@@ -7,12 +7,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 import { getFunctions } from "firebase/functions";
-import { getAI, getGenerativeModel, VertexAIBackend } from "firebase/ai";
+import { getAI, getGenerativeModel, googleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 /**
  * @fileOverview Primary Firebase initialization.
- * Switched AI engine to VertexAIBackend for enterprise reliability.
+ * Switched AI engine to googleAIBackend for enterprise reliability.
  */
 
 const firebaseConfig = {
@@ -58,7 +58,7 @@ if (typeof window !== "undefined") {
 }
 
 // Initializing AI with Vertex AI backend
-const ai = getAI(app, { backend: new VertexAIBackend() });
+const ai = getAI(app, { backend: new googleAIBackend() });
 
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 

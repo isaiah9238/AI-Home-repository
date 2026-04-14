@@ -61,10 +61,8 @@ export function NeuralGraph({
 
     // 2. CURRICULUM NODES (Iterating through lessons)
     lessons.forEach((lesson, i) => {
-      const angle = (i / Math.max(1, lessons.length)) * 2 * Math.PI;
-      const radius = 180 + (i % 2 === 0 ? 20 : -20);
-      const x = coreX + Math.cos(angle) * radius;
-      const y = coreY + Math.sin(angle) * radius;
+      const x = Math.round(coreX + Math.cos((i / Math.max(1, lessons.length)) * 2 * Math.PI) * (180 + (i % 2 === 0 ? 20 : -20)));
+      const y = Math.round(coreY + Math.sin((i / Math.max(1, lessons.length)) * 2 * Math.PI) * (180 + (i % 2 === 0 ? 20 : -20))); 
       
       const lessonId = lesson.id || `lesson-${i}`;
 
@@ -94,8 +92,8 @@ export function NeuralGraph({
     ];
 
     sectors.forEach(sector => {
-      const x = coreX + Math.cos(sector.angle) * 260;
-      const y = coreY + Math.sin(sector.angle) * 260;
+      const x = Math.round(coreX + Math.cos(sector.angle) * 260);
+      const y = Math.round(coreY + Math.sin(sector.angle) * 260);
       nodes.push({
         id: sector.id,
         label: sector.label,

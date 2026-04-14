@@ -2,8 +2,8 @@ import { ai } from '../../genkit';
 import { z } from 'genkit';
 
 /**
- * @fileOverview The Variation Agent (Vertex Edition).
- * Generates multiple variations of a base code snippet using Vertex AI.
+ * @fileOverview The Variation Agent (Google AI Edition).
+ * Generates multiple variations of a base code snippet using Google AI.
  */
 
 const flow = ai.defineFlow(
@@ -23,7 +23,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'vertexai/gemini-2.5-flash',
+      model: 'googleai/gemini-2.5-flash',
       prompt: `
         You are the "Variation Agent," a specialist in exploratory code branching within the AI Home Cabinet.
         

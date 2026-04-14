@@ -3,7 +3,7 @@ import { z } from 'genkit';
 import { filterAIOutput } from '../safety/filter-ai-output';
 
 /**
- * @fileOverview Flux Echo Flow (Vertex Edition)
+ * @fileOverview Flux Echo Flow (Google AI Edition)
  */
 const flow = ai.defineFlow(
   {
@@ -32,7 +32,7 @@ const flow = ai.defineFlow(
         .slice(0, 20000);
 
       const { output } = await ai.generate({
-        model: 'vertexai/gemini-2.5-flash',
+        model: 'googleai/gemini-2.5-flash',
         prompt: `
           You are Flux Echo, a high-speed research scout. 
           Analyze the following web page content from ${input.url}.

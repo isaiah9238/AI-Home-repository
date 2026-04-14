@@ -1,16 +1,16 @@
 import 'dotenv/config';
-import { vertexAI } from '@genkit-ai/vertexai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { genkit } from 'genkit';
 
 /**
  * @fileOverview Global Genkit configuration.
- * Switched to Vertex AI for enterprise-grade performance and reliability.
+ * Retired @genkit-ai/vertexai in favor of @genkit-ai/google-genai for enhanced latency and Gemini 2.5 access.
  */
 
 export const ai = genkit({
   plugins: [
-    vertexAI({ location: 'us-central1' }),
+    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY }),
   ],
-  // Defaulting to the high-speed Gemini 2.5 Flash model
-  model: 'vertexai/gemini-2.5-flash', 
+  // Defaulting to the high-speed Gemini 2.5 Flash model via Google AI
+  model: 'googleai/gemini-2.5-flash', 
 });

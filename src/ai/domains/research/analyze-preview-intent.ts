@@ -2,7 +2,7 @@ import { ai } from '../../genkit';
 import { z } from 'genkit';
 
 /**
- * @fileOverview The Execution Intent Agent (Vertex Edition).
+ * @fileOverview The Execution Intent Agent (Google AI Edition).
  * Analyzes code snippets through the lens of the Cabinet's collective agentic memory.
  */
 
@@ -23,7 +23,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await ai.generate({
-      model: 'vertexai/gemini-2.5-flash',
+      model: 'googleai/gemini-2.5-flash',
       prompt: `
         You are the "Execution Intent Agent," the core of the Cabinet's Neural Link.
         

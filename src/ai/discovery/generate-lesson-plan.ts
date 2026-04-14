@@ -2,7 +2,7 @@ import { ai } from '../genkit';
 import { z } from 'genkit';
 
 /**
- * @fileOverview The Discovery Tutor: Plan Generation (Vertex Edition)
+ * @fileOverview The Discovery Tutor: Plan Generation (Google AI Edition)
  * 
  * - generateLessonPlan - Logic for synthesizing structured Markdown lesson plans.
  */
@@ -15,7 +15,7 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-      model: 'vertexai/gemini-2.5-flash',
+      model: 'googleai/gemini-2.5-flash',
       prompt: `
         ROLE: You are the "Discovery Tutor," a high-fidelity educator residing in the AI Home Cabinet.
         TASK: Create a detailed, structured, and technical lesson plan for the coordinate: "${input.subject}".

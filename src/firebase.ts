@@ -6,12 +6,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 import { getFunctions } from "firebase/functions";
-import { getAI, getGenerativeModel, googleAIBackend } from "firebase/ai";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 /**
  * @fileOverview Primary Firebase initialization.
- * Switched AI engine to Vertex AI via googleAIBackend for enterprise reliability.
+ * Switched AI engine to Google AI via GoogleAIBackend for enhanced model access.
  */
 
 const firebaseConfig = {
@@ -56,16 +56,16 @@ if (typeof window !== "undefined") {
   }
 }
 
-// Initializing AI with Vertex AI backend
-const ai = getAI(app, { backend: new googleAIBackend() });
+// Initializing AI with Google AI backend
+const ai = getAI(app, { backend: new GoogleAIBackend() });
 
 export { ai, app, auth, db, rtdb, storage, functions, firebaseConfig };
 
 export const model = getGenerativeModel(ai, { 
-  model: "vertexai/gemini-2.5-flash" 
+  model: "gemini-2.5-flash" 
 });
 
 export const lessonModel = getGenerativeModel(ai, {
-  model: "vertexai/gemini-2.5-flash",
+  model: "gemini-2.5-flash",
   systemInstruction: "You are an expert educator. Create structured, clear lesson plans."
 });

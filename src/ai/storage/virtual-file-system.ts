@@ -68,21 +68,15 @@ export async function getNodesByParent(userId: string, parentId: string | null =
 
   if (snapshot.empty) return [];
 
+  // THE SANITIZER: Convert everything to plain text/numbers for serializability
   return snapshot.docs.map(doc => {
     const data = doc.data();
-    
-    // THE SANITIZER: Convert everything to plain text/numbers
-    return snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        ...data,
-        id: doc.id,
-        createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
-        parentId: data.parentId || null,
-        // ADD THIS LINE: Ensures metadata isn't lost during the "Sanitization"
-        metadata: data.metadata || {} 
-      };
-    });
+    return {
+      ...data,
+      id: doc.id,
+      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
+      parentId: data.parentId || null,
+      metadata: data.metadata || {} 
+    } as VFSNode;
   });  
 }

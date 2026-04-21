@@ -1,6 +1,4 @@
-// Instructions: Create a new route at src/app/neural-map/page.tsx
-// This creates a dedicated full-screen HUD for the nodes in your screenshot.
-
+// src/app/neural-map/page.tsx
 import { getVFSNodesAction } from '@/app/actions';
 import { NeuralGraph } from '@/components/neural-graph';
 
@@ -29,8 +27,11 @@ export default async function NeuralMapPage() {
         </div>
       </div>
       <div className="mt-8 grid grid-cols-2 gap-4 w-full max-w-4xl">
-        {nodes.map((node: any) => (
-          <div key={node.id} className="p-3 border border-cyan-900/30 bg-black/40 rounded text-cyan-500 font-mono text-xs">
+        {nodes.map((node: any, idx: number) => (
+          <div 
+            key={node.id || `vfs-node-${idx}`} 
+            className="p-3 border border-cyan-900/30 bg-black/40 rounded text-cyan-500 font-mono text-xs"
+          >
              NODE_ID: {node.name}
           </div>
         ))}

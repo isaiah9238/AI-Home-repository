@@ -83,6 +83,7 @@ export function CurriculumDrawer({ progress: initialProgress }: { progress: Curr
     const res = await integrateLessonAction({
       title: plan.title,
       subject: plan.subject,
+      content: plan.content,
       complexityGain: 5
     });
 

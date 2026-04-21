@@ -7,7 +7,7 @@ import { NeuralGraph } from '@/components/neural-graph';
 export default async function NeuralMapPage() {
   // 1. Fetch the primary nodes from the Cabinet
   const response = await getVFSNodesAction(null); 
-  const nodes = response.success ? response.data : [];
+  const nodes = (response.success && response.data) ? response.data : []; // Force empty array if fail
 
   return (
     <main className="min-h-screen bg-[#050505] p-8 flex flex-col items-center">

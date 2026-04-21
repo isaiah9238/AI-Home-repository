@@ -13,9 +13,13 @@ export interface VFSNode {
   mimeType?: string;
   metadata?: {
     isVault?: boolean;
+    owner_agent?: string;
     agentOrigin?: string;
+    source_blueprint?: string;
     neuralWeight?: number;
-    disappearanceMarker?: boolean; // Required for 'Silver Memory'
+    intent_vector?: string;
+    disappearanceMarker?: boolean;
+    type?: string;
   };
 }
 
@@ -68,15 +72,17 @@ export async function getNodesByParent(userId: string, parentId: string | null =
     const data = doc.data();
     
     // THE SANITIZER: Convert everything to plain text/numbers
-    return {
-      ...data,
-      id: doc.id,
-      // Convert 'createdAt' timestamp to string
-      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-      // Convert 'updatedAt' timestamp to string
-      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
-      // Force parentId to be a string or null (no hidden prototypes)
-      parentId: data.parentId || null
-    };
-  });
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: doc.id,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
+        parentId: data.parentId || null,
+        // ADD THIS LINE: Ensures metadata isn't lost during the "Sanitization"
+        metadata: data.metadata || {} 
+      };
+    });
+  });  
 }

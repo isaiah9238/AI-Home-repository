@@ -546,7 +546,12 @@ export async function getCurriculumProgress() {
   }
 }
 
-export async function integrateLessonAction(data: { title: string; subject: string; complexityGain: number }) {
+export async function integrateLessonAction(data: { 
+  title: string;
+  subject: string;
+  content: string; 
+  complexityGain: number 
+}) {
   try {
     await verifyAuth();
     const result = await migrateLessonToDb(data);

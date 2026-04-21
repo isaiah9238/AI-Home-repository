@@ -14,21 +14,22 @@ export async function createVaultEntry(
   encryptedContent: string, 
   agentOrigin: 'inspector' | 'safety' | 'flux-echo'
 ) {
+  // 1. Just define the Constant with the values
   const vaultNode: Omit<VFSNode, 'id' | 'updatedAt'> = {
-    name,
-    path: `/vault/${name}`,
-    type: 'file',
-    content: encryptedContent, // AES-256 string from Node_Active
-    parentId: 'vault-root',    // Reserved ID for the Secret Enclave
     userId,
-    mimeType: 'application/octet-stream',
+    name,
+    path: `/Vault/${name}`,
+    type: 'file',
+    content: encryptedContent,
+    parentId: 'vault_root', 
     metadata: {
-      isVault: true,
-      agentOrigin,
-      neuralWeight: 1.0,
-      disappearanceMarker: false // Set to true if this recovers 'Silver Memory'
+      isVault: true,        // The Sanitizer will now pass this flag
+      agentOrigin: agentOrigin,
+      owner_agent: 'Librarian_Vault_Manager',
+      intent_vector: 'secure_storage'
     }
   };
 
+  // 2. Send it to the Writer
   return await persistVFSNode(vaultNode);
 }

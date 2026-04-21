@@ -10,6 +10,7 @@ export interface VFSNode {
   parentId: string | null;
   userId: string;
   updatedAt: string;
+  createdAt?: string; // Added to match your new sanitizer logic
   mimeType?: string;
   metadata?: {
     isVault?: boolean;
@@ -68,15 +69,16 @@ export async function getNodesByParent(userId: string, parentId: string | null =
 
   if (snapshot.empty) return [];
 
-  // THE SANITIZER: Convert everything to plain text/numbers for serializability
+  // THE SANITIZER: Ensuring the Serialization Gate remains open
   return snapshot.docs.map(doc => {
     const data = doc.data();
-    return {
-      ...data,
-      id: doc.id,
+    return { 
+      ...data, // Pulls in name, path, type, userId
+      id: doc.id, 
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
       updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
       parentId: data.parentId || null,
       metadata: data.metadata || {} 
     } as VFSNode;
-  });  
-}
+  }); // <--- Closes the .map
+} // <--- Closes the function

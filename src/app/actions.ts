@@ -18,15 +18,37 @@ import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-inte
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 import { type ResearchMode } from './types';
 
-// --- UTILS ---
-const sanitizeDate = (val: any): string | null => {
-  if (!val) return null;
-  if (typeof val.toDate === 'function') return val.toDate().toISOString();
-  if (typeof val._seconds === 'number') return new Date(val._seconds * 1000).toISOString();
-  if (val instanceof Date) return val.toISOString();
-  if (typeof val === 'string') return val;
-  return null;
-};
+// --- SERIALIZATION PROTOCOL ---
+
+/**
+ * Recursive utility to ensure all server action responses are plain objects.
+ * Purges Firestore Timestamps, FieldValues, and Genkit response methods.
+ */
+function deepSanitize(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj !== 'object') return obj;
+  
+  // Convert Dates or Firestore Timestamps to ISO Strings
+  if (obj instanceof Date) return obj.toISOString();
+  if (typeof obj.toDate === 'function') return obj.toDate().toISOString();
+  if (typeof obj._seconds === 'number' && typeof obj._nanoseconds === 'number') {
+    return new Date(obj._seconds * 1000).toISOString();
+  }
+
+  // Handle Arrays
+  if (Array.isArray(obj)) {
+    return obj.map(deepSanitize);
+  }
+
+  // Handle Objects
+  const cleaned: any = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      cleaned[key] = deepSanitize(obj[key]);
+    }
+  }
+  return cleaned;
+}
 
 // --- THE BLUEPRINT ---
 const MOCK_USER_CONTEXT = {
@@ -64,7 +86,6 @@ async function verifyAuth() {
 /**
  * internalGetAgenticContext
  * decodes recent VFS signals for agent grounding.
- * (Not exported to prevent circular loops in AI flows)
  */
 async function internalGetAgenticContext() {
   try {
@@ -89,7 +110,8 @@ async function internalGetAgenticContext() {
   }
 }
 
-// --- THE HOME BASE ACTION ---
+// --- ACTIONS ---
+
 export async function getHomeBase() {
   try {
     const session = await verifyAuth();
@@ -100,16 +122,15 @@ export async function getHomeBase() {
 
     const context = result?.userContext || {};
 
-    return { 
+    return deepSanitize({ 
       success: true, 
       data: {
         ...MOCK_USER_CONTEXT,
         ...context,
         uid: session.user?.id || 'primary_user'
       } 
-    };
+    });
   } catch (error) {
-    console.error("CABINET_SYNC_ERROR:", error);
     return { 
       success: true, 
       data: { ...MOCK_USER_CONTEXT, uid: "BYPASS_ACTIVE" } 
@@ -117,10 +138,6 @@ export async function getHomeBase() {
   }
 }
 
-/**
- * helper: callLibrarianIndexer
- * Calls the background Cloud Function to analyze content.
- */
 async function callLibrarianIndexer(content: string, context: string = "General_Sync") {
   try {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'studio-3863072923-d4373';
@@ -144,7 +161,7 @@ async function callLibrarianIndexer(content: string, context: string = "General_
     }
 
     const result = await response.json();
-    return result.result;
+    return deepSanitize(result.result);
   } catch (error) {
     return {
       tags: ["Fallback"],
@@ -188,9 +205,8 @@ export async function sendTerminalMessage(message: string) {
       else responseText = JSON.stringify(result, null, 2);
     }
 
-    return { success: true, response: responseText };
+    return deepSanitize({ success: true, response: responseText });
   } catch (error: any) {
-    console.error("Terminal Action Error:", error?.message || "Unknown");
     return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
   }
 }
@@ -223,9 +239,8 @@ export async function getMorningBriefing(userContext?: any) {
       }
     });
     
-    return result.response;
+    return deepSanitize(result.response);
   } catch (error) {
-    console.error("Mentor Action Error:", error instanceof Error ? error.message : "Sync error");
     return "SYSTEM_OFFLINE: Could not sync with Mentor AI.";
   }
 }
@@ -310,7 +325,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       `Research_${input.mode}`
     );
 
-    return { success: true, mode: input.mode, data: result, node };
+    return deepSanitize({ success: true, mode: input.mode, data: result, node });
   } catch (error: any) {
     return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
   }
@@ -374,12 +389,11 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
         );
       }
 
-      return { success: true, data: result, id: docRef.id, vfsCommitted: commitToVFS };
+      return deepSanitize({ success: true, data: result, id: docRef.id, vfsCommitted: commitToVFS });
     }
 
-    return { success: true, data: result };
+    return deepSanitize({ success: true, data: result });
   } catch (error: any) {
-    console.error("Architect Action Error:", error);
     return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
   }
 }
@@ -395,16 +409,14 @@ export async function getSavedBlueprints() {
 
     const blueprints = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
-      timestamp: sanitizeDate(doc.data().timestamp)
+      ...doc.data()
     }));
 
-    return { success: true, data: blueprints };
+    return deepSanitize({ success: true, data: blueprints });
   } catch (error) {
     return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
   }
 }
-
 
 export async function deleteBlueprint(id: string) {
   try {
@@ -435,9 +447,8 @@ export async function generateLessonPlan(subject: string) {
       timestamp: new Date().toISOString()
     });
 
-    return { success: true, plan: text, id: planRef.id };
+    return deepSanitize({ success: true, plan: text, id: planRef.id });
   } catch (error: any) {
-    console.error("TUTOR_GEN_ERROR:", error.message);
     return { success: false, error: `SIGNAL_LOST: The Tutor could not generate the plan. [${error.message}]` };
   }
 }
@@ -454,11 +465,10 @@ export async function getPendingLessonPlans() {
 
     const plans = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
-      timestamp: sanitizeDate(doc.data().timestamp)
+      ...doc.data()
     }));
 
-    return { success: true, data: plans };
+    return deepSanitize({ success: true, data: plans });
   } catch (error) {
     return { success: false, error: "SIGNAL_LOST: Lesson plans inaccessible." };
   }
@@ -494,17 +504,17 @@ export async function getSystemEvolution() {
     await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').get();
     const data = doc.data();
-    const establishedDate = sanitizeDate(data?.establishedDate) || MOCK_USER_CONTEXT.establishedDate;
-    const start = new Date(establishedDate);
+    const establishedStr = data?.establishedDate || MOCK_USER_CONTEXT.establishedDate;
+    const start = new Date(establishedStr);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return { 
+    return deepSanitize({ 
       success: true, 
       daysOld: diffDays, 
       isAnniversary: now.getMonth() === start.getMonth() && now.getDate() === start.getDate() 
-    };
+    });
   } catch (error) {
     return { success: false, daysOld: 0 };
   }
@@ -529,18 +539,18 @@ export async function getCurriculumProgress() {
         title: l.title,
         subject: l.subject,
         status: l.status,
-        completedAt: sanitizeDate(l.completedAt) || new Date().toISOString()
+        completedAt: l.completedAt
       };
     });
 
-    return {
+    return deepSanitize({
       success: true,
       integratedPlans: lessons.length,
       neuralComplexity: Math.min(lessons.length * 5 + 64, 100),
       knowledgeIntegration: Math.min(lessons.length * 2 + 82, 100),
       lastTopic: data?.lastLesson || "System Initialization",
       lessons: lessons
-    };
+    });
   } catch (error) {
     return { success: false, integratedPlans: 0, neuralComplexity: 64, knowledgeIntegration: 82, lessons: [] };
   }
@@ -555,7 +565,7 @@ export async function integrateLessonAction(data: {
   try {
     await verifyAuth();
     const result = await migrateLessonToDb(data);
-    return { success: true, planId: result.success ? 'GENERATED_ID' : null };
+    return deepSanitize({ success: true, planId: result.success ? 'GENERATED_ID' : null });
   } catch (error: any) {
     return { success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." };
   }
@@ -569,11 +579,11 @@ export async function getSystemIntegrity() {
       .where('severity', 'in', ['high', 'critical'])
       .get();
 
-    return {
+    return deepSanitize({
       success: true,
       isClean: criticalGems.empty,
       issueCount: criticalGems.size
-    };
+    });
   } catch (error) {
     return { success: false, isClean: true, issueCount: 0 };
   }
@@ -583,19 +593,11 @@ export async function getGems() {
   try {
     await verifyAuth();
     const snapshot = await getAdminDb().collection('gems').orderBy('time', 'desc').get();
-    const gems = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        type: data.type,
-        reason: data.reason,
-        severity: data.severity,
-        content: data.content,
-        resolution: data.resolution || 'pending',
-        time: sanitizeDate(data.time) || new Date().toISOString()
-      };
-    });
-    return { success: true, data: gems };
+    const gems = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return deepSanitize({ success: true, data: gems });
   } catch (error) {
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
@@ -654,14 +656,12 @@ export async function getInternalComms() {
       .limit(50)
       .get();
       
-    return { 
-      success: true, 
-      data: snapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data(),
-        timestamp: sanitizeDate(doc.data().timestamp)
-      })) 
-    };
+    const data = snapshot.docs.map(doc => ({ 
+      id: doc.id, 
+      ...doc.data()
+    }));
+
+    return deepSanitize({ success: true, data });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -671,7 +671,8 @@ export async function getMilestones() {
   try {
     await verifyAuth();
     const snapshot = await getAdminDb().collection('milestones').orderBy('date', 'desc').get();
-    return { success: true, data: snapshot.docs.map(d => ({ id: d.id, ...d.data(), timestamp: sanitizeDate(d.data().timestamp) })) };
+    const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    return deepSanitize({ success: true, data });
   } catch (error) {
     return { success: false, error: "LIBRARIAN_READ_ERROR" };
   }
@@ -695,7 +696,7 @@ export async function getNeuralWeights() {
   try {
     await verifyAuth();
     const doc = await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').get();
-    return { success: true, data: doc.exists ? doc.data() : null };
+    return deepSanitize({ success: true, data: doc.exists ? doc.data() : null });
   } catch (error) {
     return { success: false };
   }
@@ -714,19 +715,19 @@ export async function exportVaultData() {
       db.collection('users').doc(userId).get()
     ]);
 
-    return {
+    return deepSanitize({
       success: true,
       bundle: {
         exportedAt: new Date().toISOString(),
         identity: user.data() || MOCK_USER_CONTEXT,
         archives: {
-          blueprints: blueprints.docs.map(d => ({ ...d.data(), timestamp: sanitizeDate(d.data().timestamp) })),
-          curriculum: curriculum.docs.map(d => ({ ...d.data(), completedAt: sanitizeDate(d.data().completedAt) })),
-          gems: gems.docs.map(d => ({ ...d.data(), time: sanitizeDate(d.data().time) })),
-          milestones: milestones.docs.map(d => ({ ...d.data(), timestamp: sanitizeDate(d.data().timestamp) }))
+          blueprints: blueprints.docs.map(d => d.data()),
+          curriculum: curriculum.docs.map(d => d.data()),
+          gems: gems.docs.map(d => d.data()),
+          milestones: milestones.docs.map(d => d.data())
         }
       }
-    };
+    });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -775,21 +776,22 @@ export async function postAgenticNote(agentName: string, note: string, intentVec
       }
     });
 
-    return { success: true, data: node };
+    return deepSanitize({ success: true, data: node });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
 export async function getAgenticContext() {
-  return internalGetAgenticContext();
+  const result = await internalGetAgenticContext();
+  return deepSanitize(result);
 }
 
 export async function getVFSNodesAction(parentId: string | null = null) {
   try {
     await verifyAuth();
     const nodes = await getNodesByParent('primary_user', parentId);
-    return { success: true, data: nodes };
+    return deepSanitize({ success: true, data: nodes });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -876,7 +878,7 @@ export async function getPreviewAnalysis(code: string, context?: string) {
   try {
     await verifyAuth();
     const result = await analyzePreviewIntent({ code, context });
-    return { success: true, data: result };
+    return deepSanitize({ success: true, data: result });
   } catch (error: any) {
     return { success: false, error: error.message || "INTENT_ANALYSIS_FAILED" };
   }
@@ -886,7 +888,7 @@ export async function getVariationAnalysis(baseCode: string, instructions: strin
   try {
     await verifyAuth();
     const variations = await generateCodeVariations({ baseCode, instructions, count });
-    return { success: true, data: variations };
+    return deepSanitize({ success: true, data: variations });
   } catch (error: any) {
     return { success: false, error: error.message || "VARIATION_GENERATION_FAILED" };
   }
@@ -931,7 +933,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
       }
     });
 
-    return { success: true, data: node };
+    return deepSanitize({ success: true, data: node });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -946,17 +948,12 @@ export async function getTestingWorkspaces() {
       .where('metadata.owner_agent', '==', 'Testing_Chamber')
       .get();
       
-    return { 
-      success: true, 
-      data: snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          updatedAt: sanitizeDate(data.updatedAt) || new Date().toISOString()
-        };
-      }) || []
-    };
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return deepSanitize({ success: true, data });
   } catch (error: any) {
     return { success: false, error: error.message, data: [] };
   }
@@ -969,7 +966,7 @@ export async function createVFSDirectory(name: string, parentId: string | null) 
     
     const node = await persistVFSNode({
       name,
-      path: `/manual/${name}`, // Simplified path logic for VFS
+      path: `/manual/${name}`,
       type: 'directory',
       parentId,
       userId,
@@ -979,7 +976,7 @@ export async function createVFSDirectory(name: string, parentId: string | null) 
       }
     });
     
-    return { success: true, data: node };
+    return deepSanitize({ success: true, data: node });
   } catch (error: any) {
     return { success: false, error: error.message };
   }

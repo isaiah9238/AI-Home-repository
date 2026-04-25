@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -104,7 +105,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
   };
 
   return (
-    <div className="flex flex-col w-full gap-4 relative pb-12 animate-in fade-in duration-1000">
+    <div className="flex flex-col w-full gap-4 relative pb-12 animate-in fade-in duration-1000 px-4 md:px-8">
       
       {/* Welcome Overlay */}
       {isWelcomeActive && (
@@ -169,11 +170,11 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
         </div>
       </header>
 
-      {/* Main Operational Grid */}
+      {/* Main Operational Grid - Reconfigured to 2-8-2 for better visual space */}
       <div className="grid grid-cols-12 gap-4 z-20">
         
         {/* Left Column: Stats & Identity */}
-        <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+        <div className="col-span-12 lg:col-span-2 flex flex-col gap-4">
           <Card className="bg-black/60 border-white/5 backdrop-blur-md relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
               <Cpu className="w-20 h-20 text-blue-500" />
@@ -188,18 +189,18 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                 <div className="w-14 h-14 rounded-xl border border-blue-500/20 bg-blue-500/5 flex items-center justify-center text-blue-400 shadow-[0_0_20px_rgba(0,168,232,0.1)] group-hover:scale-105 transition-transform">
                   <Activity className="w-7 h-7" />
                 </div>
-                <div>
-                  <div className="text-xl font-mono text-white font-bold tracking-tighter">
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg font-mono text-white font-bold tracking-tighter truncate">
                     {profile?.name || "Isaiah Smith"}
                   </div>
-                  <div className="text-[9px] text-blue-500/40 font-mono uppercase tracking-[0.2em]">{profile?.role || "Primary User"}</div>
+                  <div className="text-[9px] text-blue-500/40 font-mono uppercase tracking-[0.2em] truncate">{profile?.role || "Primary User"}</div>
                 </div>
               </div>
               
               <div className="space-y-3">
                 <div className="space-y-1">
                   <div className="flex justify-between text-[8px] font-mono uppercase tracking-widest text-white/40">
-                    <span>Neural_Complexity</span>
+                    <span>Complexity</span>
                     <span className="text-blue-400">{curriculum?.neuralComplexity || 64}%</span>
                   </div>
                   <div className="h-1 bg-white/5 rounded-full overflow-hidden">
@@ -211,7 +212,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-[8px] font-mono uppercase tracking-widest text-white/40">
-                    <span>Knowledge_Integration</span>
+                    <span>Integration</span>
                     <span className="text-green-400">{curriculum?.knowledgeIntegration || 82}%</span>
                   </div>
                   <div className="h-1 bg-white/5 rounded-full overflow-hidden">
@@ -223,34 +224,34 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
                   <button 
                     onClick={handleManualSync}
                     disabled={syncing}
-                    className="w-full mt-4 bg-blue-600/20 border border-blue-500/50 p-2 text-[10px] font-mono text-blue-400 hover:bg-blue-600/40 transition-all uppercase tracking-widest rounded-sm"
+                    className="w-full mt-4 bg-blue-600/20 border border-blue-500/50 p-2 text-[8px] font-mono text-blue-400 hover:bg-blue-600/40 transition-all uppercase tracking-widest rounded-sm"
                   >
-                    {syncing ? "SYNCING..." : "EXEC: SYNC_STORAGE_FILES"}
+                    {syncing ? "SYNCING..." : "EXEC: SYNC_VFS"}
                   </button>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-widest flex items-center gap-2">
-                <Zap className="w-3 h-3 text-yellow-500" /> Active_Interests
+                <Zap className="w-3 h-3 text-yellow-500" /> Interests
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 font-mono">
+            <CardContent className="space-y-2 font-mono p-4">
               {(profile?.interests || ["Next.js", "AI Engineering", "UI/UX", "Land Surveying"]).map((interest: string) => (
-                <div key={interest} className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 group hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-default">
-                  <span className="text-[10px] text-white/50 group-hover:text-blue-400 uppercase tracking-widest">{interest}</span>
-                  <div className="w-1 h-1 rounded-full bg-blue-500/20 group-hover:bg-blue-500 animate-pulse" />
+                <div key={interest} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-blue-500/30 hover:bg-blue-500/5 transition-all cursor-default overflow-hidden">
+                  <span className="text-[9px] text-white/50 group-hover:text-blue-400 uppercase tracking-widest truncate">{interest}</span>
+                  <div className="w-1 h-1 rounded-full bg-blue-500/20 group-hover:bg-blue-500 shrink-0" />
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
 
-        {/* Center Column: The Visualizer (Portal) */}
-        <div className="col-span-12 lg:col-span-6 flex flex-col relative min-h-[600px] bg-black/40 rounded-2xl border border-white/5 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] backdrop-blur-sm group overflow-hidden">
+        {/* Center Column: The Visualizer (Portal) - Expanded to col-span-8 */}
+        <div className="col-span-12 lg:col-span-8 flex flex-col relative min-h-[650px] bg-black/40 rounded-2xl border border-white/5 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] backdrop-blur-sm group overflow-hidden">
           <div className="absolute top-6 left-6 z-30 opacity-20 group-hover:opacity-100 transition-opacity">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
@@ -264,54 +265,54 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
         </div>
 
         {/* Right Column: Feeds & Security */}
-        <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col">
+        <div className="col-span-12 lg:col-span-2 flex flex-col gap-4">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-widest flex items-center gap-2">
-                <Database className="w-3 h-3 text-purple-500" /> Librarian_Stream
+                <Database className="w-3 h-3 text-purple-500" /> Librarian
               </CardTitle>
             </CardHeader>
-            <CardContent className="font-mono text-[9px] space-y-5 px-4 overflow-y-auto custom-scrollbar">
+            <CardContent className="font-mono text-[8px] space-y-4 px-4 overflow-y-auto custom-scrollbar flex-1 pb-4">
               <div className="space-y-1 group">
-                <div className="text-blue-400/70 group-hover:text-blue-400 transition-colors">[{time}] MENTOR_AI: BRIEFING_READY</div>
-                <div className="text-white/30 pl-3 leading-relaxed border-l border-blue-500/20 ml-1">Contextual briefing generated based on recent progress.</div>
+                <div className="text-blue-400/70 group-hover:text-blue-400 transition-colors">[{time}] MENTOR_AI: BRIEFING</div>
+                <div className="text-white/20 pl-3 leading-relaxed border-l border-blue-500/10 ml-1">Contextual briefing ready.</div>
               </div>
               <div className="space-y-1 group">
-                <div className="text-purple-400/70 group-hover:text-purple-400 transition-colors">[{evolution?.daysOld || 0}D] EVOLUTION: MILESTONE_SYNC</div>
-                <div className="text-white/30 pl-3 leading-relaxed border-l border-purple-500/20 ml-1">System operational for {evolution?.daysOld || 0} cycles. Growth steady.</div>
+                <div className="text-purple-400/70 group-hover:text-purple-400 transition-colors">[{evolution?.daysOld || 0}D] EVOLUTION: SYNC</div>
+                <div className="text-white/20 pl-3 leading-relaxed border-l border-purple-500/10 ml-1">Growth phase stable.</div>
               </div>
               <div className="space-y-1 group">
-                <div className="text-green-400/70 group-hover:text-green-400 transition-colors">[GLOBAL] LIBRARIAN: MEMORY_SYNC</div>
-                <div className="text-white/30 pl-3 leading-relaxed border-l border-green-500/20 ml-1">Universal template initialized. Personal context mapped.</div>
+                <div className="text-green-400/70 group-hover:text-green-400 transition-colors">[GLOBAL] LIBRARIAN: MEMORY</div>
+                <div className="text-white/20 pl-3 leading-relaxed border-l border-green-500/10 ml-1">Universal template synced.</div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-black/60 border-white/5 backdrop-blur-md relative overflow-hidden">
+          <Card className="bg-black/60 border-white/5 backdrop-blur-md relative overflow-hidden shrink-0">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-widest flex items-center gap-2">
-                <Lock className="w-3 h-3 text-red-500" /> Security_HUD
+                <Lock className="w-3 h-3 text-red-500" /> Security
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5 flex flex-col gap-1 hover:bg-white/10 transition-all">
-                  <span className="text-[8px] text-white/20 uppercase font-mono tracking-widest">Input</span>
-                  <span className="text-[10px] text-green-500 font-mono font-bold tracking-widest">CLEAN</span>
+            <CardContent className="space-y-4 p-4">
+              <div className="grid grid-cols-1 gap-2">
+                <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex flex-col gap-0.5 hover:bg-white/10 transition-all">
+                  <span className="text-[7px] text-white/20 uppercase font-mono tracking-widest">Neural_Input</span>
+                  <span className="text-[9px] text-green-500 font-mono font-bold tracking-widest">CLEAN</span>
                 </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5 flex flex-col gap-1 hover:bg-white/10 transition-all">
-                  <span className="text-[8px] text-white/20 uppercase font-mono tracking-widest">Output</span>
-                  <span className="text-[10px] text-green-500 font-mono font-bold tracking-widest">SAFE</span>
+                <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex flex-col gap-0.5 hover:bg-white/10 transition-all">
+                  <span className="text-[7px] text-white/20 uppercase font-mono tracking-widest">Neural_Output</span>
+                  <span className="text-[9px] text-green-500 font-mono font-bold tracking-widest">SAFE</span>
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 flex items-center justify-between group">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[8px] text-white/20 uppercase font-mono tracking-widest">Integrity_Risk</span>
-                  <span className={`text-[10px] font-mono font-bold tracking-widest ${integrity?.isClean ? 'text-green-500' : 'text-red-500'}`}>
-                    {integrity?.isClean ? 'NULL_ISSUES' : `${integrity?.issueCount || 0}_PENDING`}
+              <div className="p-2 rounded-lg bg-red-500/5 border border-red-500/10 flex items-center justify-between group">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-[7px] text-white/20 uppercase font-mono tracking-widest truncate">Integrity_Risk</span>
+                  <span className={`text-[9px] font-mono font-bold tracking-widest truncate ${integrity?.isClean ? 'text-green-500' : 'text-red-400'}`}>
+                    {integrity?.isClean ? 'NULL' : `${integrity?.issueCount || 0}_FLAG`}
                   </span>
                 </div>
-                <ShieldCheck className={`w-5 h-5 ${integrity?.isClean ? 'text-green-500/40' : 'text-red-500/60 group-hover:animate-bounce'}`} />
+                <ShieldCheck className={`w-4 h-4 shrink-0 ${integrity?.isClean ? 'text-green-500/30' : 'text-red-500/40 group-hover:animate-bounce'}`} />
               </div>
             </CardContent>
           </Card>

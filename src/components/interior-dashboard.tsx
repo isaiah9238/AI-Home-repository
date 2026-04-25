@@ -170,7 +170,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
         </div>
       </header>
 
-      {/* Main Operational Grid - Reconfigured to 2-8-2 for better visual space */}
+      {/* Main Operational Grid - Reconfigured to 2-8-2 for optimal visual space */}
       <div className="grid grid-cols-12 gap-4 z-20">
         
         {/* Left Column: Stats & Identity */}
@@ -250,7 +250,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
           </Card>
         </div>
 
-        {/* Center Column: The Visualizer (Portal) - Expanded to col-span-8 */}
+        {/* Center Column: The Visualizer (Portal) - Expanded to 8 units */}
         <div className="col-span-12 lg:col-span-8 flex flex-col relative min-h-[650px] bg-black/40 rounded-2xl border border-white/5 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] backdrop-blur-sm group overflow-hidden">
           <div className="absolute top-6 left-6 z-30 opacity-20 group-hover:opacity-100 transition-opacity">
             <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
           <PortalInterface />
         </div>
 
-        {/* Right Column: Feeds & Security */}
+        {/* Right Column: Feeds & Security - Thinned to 2 units */}
         <div className="col-span-12 lg:col-span-2 flex flex-col gap-4">
           <Card className="bg-black/60 border-white/5 backdrop-blur-md flex-1 flex flex-col overflow-hidden">
             <CardHeader className="pb-2">
@@ -332,3 +332,4 @@ export function InteriorDashboard({ initialUserData }: InteriorDashboardProps) {
     </div>
   );
 }
+

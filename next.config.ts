@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Cache invalidation pulse: 2026-04-27T05:12:31Z
   images: {
     remotePatterns: [
       {
@@ -33,6 +34,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: [
         'localhost:3000',
+        'localhost:9002',
         '3000-firebase-studio-1770307012357.cluster-ux5mmlia3zhhask7riihruxydo.cloudworkstations.dev',
         '*.cloudworkstations.dev',
         '*.web.app',

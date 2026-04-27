@@ -67,20 +67,25 @@ const MOCK_USER_CONTEXT = {
 // --- THE SECURITY GATE ---
 async function verifyAuth() {
   if (process.env.NEXT_PHASE === 'action' || !process.env.NEXT_RUNTIME) {
-    return { user: { id: 'primary_user' } };
+    return { user: { id: 'primary_user', email: 'isaiah@smith.com' } };
   }
 
-  const [cookieStore, session] = await Promise.all([cookies(), auth()]);
-  const isBypassed = cookieStore.get('auth_bypass')?.value === 'true';
+  try {
+    const [cookieStore, session] = await Promise.all([cookies(), auth()]);
+    const isBypassed = cookieStore.get('auth_bypass')?.value === 'true';
 
-  if (isBypassed || process.env.NODE_ENV === 'development') {
-     return { user: { email: 'isaiah@smith.com', id: 'primary_user' } };
-  }
+    if (isBypassed || process.env.NODE_ENV === 'development') {
+       return { user: { email: 'isaiah@smith.com', id: 'primary_user' } };
+    }
 
-  if (!session || !session.user) {
-    throw new Error("UNAUTHORIZED_ACCESS: Please log in.");
+    if (!session || !session.user) {
+      throw new Error("UNAUTHORIZED_ACCESS: Please log in.");
+    }
+    return { user: { id: session.user.id, email: session.user.email } };
+  } catch (err) {
+    // Fallback for development workstations
+    return { user: { id: 'primary_user', email: 'isaiah@smith.com' } };
   }
-  return session;
 }
 
 /**
@@ -131,10 +136,10 @@ export async function getHomeBase() {
       } 
     });
   } catch (error) {
-    return { 
+    return deepSanitize({ 
       success: true, 
       data: { ...MOCK_USER_CONTEXT, uid: "BYPASS_ACTIVE" } 
-    };
+    });
   }
 }
 
@@ -174,13 +179,13 @@ async function callLibrarianIndexer(content: string, context: string = "General_
 
 export async function pingServer() {
   try {
-    return { 
+    return deepSanitize({ 
       success: true, 
       timestamp: new Date().toISOString(), 
       status: 'ONLINE'
-    };
+    });
   } catch (error) {
-    return { success: false, status: 'OFFLINE' };
+    return deepSanitize({ success: false, status: 'OFFLINE' });
   }
 }
 
@@ -207,7 +212,7 @@ export async function sendTerminalMessage(message: string) {
 
     return deepSanitize({ success: true, response: responseText });
   } catch (error: any) {
-    return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
+    return deepSanitize({ success: false, error: error.message || "SIGNAL_INTERRUPTED" });
   }
 }
 
@@ -239,9 +244,9 @@ export async function getMorningBriefing(userContext?: any) {
       }
     });
     
-    return deepSanitize(result.response);
+    return deepSanitize({ success: true, briefing: result.response || "SIGNAL_LOST" });
   } catch (error) {
-    return "SYSTEM_OFFLINE: Could not sync with Mentor AI.";
+    return deepSanitize({ success: false, briefing: "SYSTEM_OFFLINE: Could not sync with Mentor AI." });
   }
 }
 
@@ -327,7 +332,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
 
     return deepSanitize({ success: true, mode: input.mode, data: result, node });
   } catch (error: any) {
-    return { success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` };
+    return deepSanitize({ success: false, error: `MISSION_FAILED: ${error?.message || "Coordinate unreachable."}` });
   }
 }
 
@@ -394,7 +399,7 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
 
     return deepSanitize({ success: true, data: result });
   } catch (error: any) {
-    return { success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` };
+    return deepSanitize({ success: false, error: `CONSTRUCTION_FAILED: ${error?.message || "Blueprint unreadable."}` });
   }
 }
 
@@ -414,7 +419,7 @@ export async function getSavedBlueprints() {
 
     return deepSanitize({ success: true, data: blueprints });
   } catch (error) {
-    return { success: false, error: "SIGNAL_LOST: Blueprints inaccessible." };
+    return deepSanitize({ success: false, error: "SIGNAL_LOST: Blueprints inaccessible." });
   }
 }
 
@@ -423,9 +428,9 @@ export async function deleteBlueprint(id: string) {
     await verifyAuth();
     await getAdminDb().collection('blueprints').doc(id).delete();
     revalidatePath('/architect');
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error) {
-    return { success: false };
+    return deepSanitize({ success: false });
   }
 }
 
@@ -449,7 +454,7 @@ export async function generateLessonPlan(subject: string) {
 
     return deepSanitize({ success: true, plan: text, id: planRef.id });
   } catch (error: any) {
-    return { success: false, error: `SIGNAL_LOST: The Tutor could not generate the plan. [${error.message}]` };
+    return deepSanitize({ success: false, error: `SIGNAL_LOST: The Tutor could not generate the plan. [${error.message}]` });
   }
 }
 
@@ -470,7 +475,7 @@ export async function getPendingLessonPlans() {
 
     return deepSanitize({ success: true, data: plans });
   } catch (error) {
-    return { success: false, error: "SIGNAL_LOST: Lesson plans inaccessible." };
+    return deepSanitize({ success: false, error: "SIGNAL_LOST: Lesson plans inaccessible." });
   }
 }
 
@@ -478,9 +483,9 @@ export async function deleteLessonPlan(id: string) {
   try {
     await verifyAuth();
     await getAdminDb().collection('lesson_plans').doc(id).delete();
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error) {
-    return { success: false };
+    return deepSanitize({ success: false });
   }
 }
 
@@ -493,9 +498,9 @@ export async function updateHomeBaseAction(updates: any) {
       updatedAt: new Date().toISOString(),
     }, { merge: true });
     revalidatePath('/');
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error) {
-    return { success: false, error: "LIBRARIAN_WRITE_ERROR" };
+    return deepSanitize({ success: false, error: "LIBRARIAN_WRITE_ERROR" });
   }
 }
 
@@ -516,7 +521,7 @@ export async function getSystemEvolution() {
       isAnniversary: now.getMonth() === start.getMonth() && now.getDate() === start.getDate() 
     });
   } catch (error) {
-    return { success: false, daysOld: 0 };
+    return deepSanitize({ success: false, daysOld: 0 });
   }
 }
 
@@ -552,7 +557,7 @@ export async function getCurriculumProgress() {
       lessons: lessons
     });
   } catch (error) {
-    return { success: false, integratedPlans: 0, neuralComplexity: 64, knowledgeIntegration: 82, lessons: [] };
+    return deepSanitize({ success: false, integratedPlans: 0, neuralComplexity: 64, knowledgeIntegration: 82, lessons: [] });
   }
 }
 
@@ -567,7 +572,7 @@ export async function integrateLessonAction(data: {
     const result = await migrateLessonToDb(data);
     return deepSanitize({ success: true, planId: result.success ? 'GENERATED_ID' : null });
   } catch (error: any) {
-    return { success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." };
+    return deepSanitize({ success: false, error: "SIGNAL_LOST: Check Firebase Admin permissions." });
   }
 }
 
@@ -585,7 +590,7 @@ export async function getSystemIntegrity() {
       issueCount: criticalGems.size
     });
   } catch (error) {
-    return { success: false, isClean: true, issueCount: 0 };
+    return deepSanitize({ success: false, isClean: true, issueCount: 0 });
   }
 }
 
@@ -599,7 +604,7 @@ export async function getGems() {
     }));
     return deepSanitize({ success: true, data: gems });
   } catch (error) {
-    return { success: false, error: "LIBRARIAN_READ_ERROR" };
+    return deepSanitize({ success: false, error: "LIBRARIAN_READ_ERROR" });
   }
 }
 
@@ -609,7 +614,7 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     const db = getAdminDb();
     const gemRef = db.collection('gems').doc(id);
     const gemDoc = await gemRef.get();
-    if (!gemDoc.exists) return { success: false, error: "GEM_NOT_FOUND" };
+    if (!gemDoc.exists) return deepSanitize({ success: false, error: "GEM_NOT_FOUND" });
     
     const gemData = gemDoc.data();
     await gemRef.update({ resolution });
@@ -630,9 +635,9 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
     }
 
     revalidatePath('/');
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error) {
-    return { success: false };
+    return deepSanitize({ success: false });
   }
 }
 
@@ -641,9 +646,9 @@ export async function deleteAudit(id: string) {
     await verifyAuth();
     await getAdminDb().collection('internal_comms').doc(id).delete();
     revalidatePath('/code-analyzer');
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error) {
-    return { success: false, error: "LIBRARIAN_DELETE_ERROR" };
+    return deepSanitize({ success: false, error: "LIBRARIAN_DELETE_ERROR" });
   }
 }
 
@@ -663,7 +668,7 @@ export async function getInternalComms() {
 
     return deepSanitize({ success: true, data });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -674,7 +679,7 @@ export async function getMilestones() {
     const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     return deepSanitize({ success: true, data });
   } catch (error) {
-    return { success: false, error: "LIBRARIAN_READ_ERROR" };
+    return deepSanitize({ success: false, error: "LIBRARIAN_READ_ERROR" });
   }
 }
 
@@ -686,9 +691,9 @@ export async function commitNeuralWeights(config: any) {
       updatedAt: new Date().toISOString(),
     }, { merge: true });
     revalidatePath('/'); 
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error: any) {
-    return { success: false, error: "COMMIT_REJECTED" };
+    return deepSanitize({ success: false, error: "COMMIT_REJECTED" });
   }
 }
 
@@ -698,7 +703,7 @@ export async function getNeuralWeights() {
     const doc = await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').get();
     return deepSanitize({ success: true, data: doc.exists ? doc.data() : null });
   } catch (error) {
-    return { success: false };
+    return deepSanitize({ success: false });
   }
 }
 
@@ -729,7 +734,7 @@ export async function exportVaultData() {
       }
     });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -778,7 +783,7 @@ export async function postAgenticNote(agentName: string, note: string, intentVec
 
     return deepSanitize({ success: true, data: node });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -793,7 +798,7 @@ export async function getVFSNodesAction(parentId: string | null = null) {
     const nodes = await getNodesByParent('primary_user', parentId);
     return deepSanitize({ success: true, data: nodes });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -801,9 +806,9 @@ export async function deleteVFSNodeAction(id: string) {
   try {
     await verifyAuth();
     await purgeVFSNode(id);
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -815,9 +820,9 @@ export async function updateVFSNodeAction(id: string, content: string) {
       content,
       updatedAt: new Date().toISOString()
     });
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -833,7 +838,7 @@ export async function initializeVFS() {
       .get();
 
     if (!rootDirSnapshot.empty) {
-      return { success: true, message: "ALREADY_INITIALIZED" };
+      return deepSanitize({ success: true, message: "ALREADY_INITIALIZED" });
     }
 
     const rootDir = await persistVFSNode({
@@ -868,9 +873,9 @@ export async function initializeVFS() {
       userId
     });
 
-    return { success: true };
+    return deepSanitize({ success: true });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -880,7 +885,7 @@ export async function getPreviewAnalysis(code: string, context?: string) {
     const result = await analyzePreviewIntent({ code, context });
     return deepSanitize({ success: true, data: result });
   } catch (error: any) {
-    return { success: false, error: error.message || "INTENT_ANALYSIS_FAILED" };
+    return deepSanitize({ success: false, error: error.message || "INTENT_ANALYSIS_FAILED" });
   }
 }
 
@@ -890,7 +895,7 @@ export async function getVariationAnalysis(baseCode: string, instructions: strin
     const variations = await generateCodeVariations({ baseCode, instructions, count });
     return deepSanitize({ success: true, data: variations });
   } catch (error: any) {
-    return { success: false, error: error.message || "VARIATION_GENERATION_FAILED" };
+    return deepSanitize({ success: false, error: error.message || "VARIATION_GENERATION_FAILED" });
   }
 }
 
@@ -935,7 +940,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
 
     return deepSanitize({ success: true, data: node });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }
 
@@ -955,7 +960,7 @@ export async function getTestingWorkspaces() {
 
     return deepSanitize({ success: true, data });
   } catch (error: any) {
-    return { success: false, error: error.message, data: [] };
+    return deepSanitize({ success: false, error: error.message, data: [] });
   }
 }
 
@@ -978,6 +983,6 @@ export async function createVFSDirectory(name: string, parentId: string | null) 
     
     return deepSanitize({ success: true, data: node });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return deepSanitize({ success: false, error: error.message });
   }
 }

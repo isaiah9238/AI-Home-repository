@@ -66,25 +66,32 @@ const MOCK_USER_CONTEXT = {
 
 // --- THE SECURITY GATE ---
 async function verifyAuth() {
+  // If we're in build time or pre-rendering, return dummy
   if (process.env.NEXT_PHASE === 'action' || !process.env.NEXT_RUNTIME) {
     return { user: { id: 'primary_user', email: 'isaiah@smith.com' } };
   }
 
   try {
-    const [cookieStore, session] = await Promise.all([cookies(), auth()]);
-    const isBypassed = cookieStore.get('auth_bypass')?.value === 'true';
-
-    if (isBypassed || process.env.NODE_ENV === 'development') {
-       return { user: { email: 'isaiah@smith.com', id: 'primary_user' } };
+    const session = await auth();
+    
+    // In production, we require a real session
+    if (process.env.NODE_ENV === 'production' && (!session || !session.user)) {
+       throw new Error("UNAUTHORIZED_ACCESS: Cloud node requires valid session.");
     }
 
-    if (!session || !session.user) {
-      throw new Error("UNAUTHORIZED_ACCESS: Please log in.");
-    }
-    return { user: { id: session.user.id, email: session.user.email } };
+    // Fallback for local development or authenticated sessions
+    return { 
+      user: { 
+        id: session?.user?.id || 'primary_user', 
+        email: session?.user?.email || 'isaiah@smith.com' 
+      } 
+    };
   } catch (err) {
-    // Fallback for development workstations
-    return { user: { id: 'primary_user', email: 'isaiah@smith.com' } };
+    // If it's dev, allow fallback
+    if (process.env.NODE_ENV === 'development') {
+      return { user: { id: 'primary_user', email: 'isaiah@smith.com' } };
+    }
+    throw err;
   }
 }
 
@@ -94,7 +101,8 @@ async function verifyAuth() {
  */
 async function internalGetAgenticContext() {
   try {
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     const db = getAdminDb();
     
     const notesSnapshot = await db.collection('ai_vfs')
@@ -218,9 +226,9 @@ export async function sendTerminalMessage(message: string) {
 
 export async function getMorningBriefing(userContext?: any) {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const db = getAdminDb();
-    const userId = 'primary_user';
+    const userId = session.user.id;
     
     const [criticalGems, userDoc, agenticContextRes] = await Promise.all([
       db.collection('gems').where('resolution', '==', 'pending').where('severity', 'in', ['high', 'critical']).get(),
@@ -235,7 +243,7 @@ export async function getMorningBriefing(userContext?: any) {
         ...(userContext || MOCK_USER_CONTEXT),
         curriculum: userDoc.exists ? {
           integratedPlans: 0,
-          lastTopic: userDoc.data()?.lastLesson || "Initialization"
+          lastTopic: userDoc.data()?.lastTopic || userDoc.data()?.lastLesson || "Initialization"
         } : null,
         integrity: {
           isClean: criticalGems.empty,
@@ -252,7 +260,8 @@ export async function getMorningBriefing(userContext?: any) {
 
 export async function runResearchMode(input: { url: string, mode: ResearchMode }) {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
+    const userId = session.user.id;
     let result;
     const isUrl = input.url.startsWith('http');
 
@@ -299,7 +308,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
 
     const db = getAdminDb();
     const logsDirSnapshot = await db.collection('ai_vfs')
-      .where('userId', '==', 'primary_user')
+      .where('userId', '==', userId)
       .where('name', '==', 'Research_Logs')
       .limit(1)
       .get();
@@ -311,7 +320,7 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
       path: `/Research_Logs/Recon_${input.mode}_${Date.now()}.md`,
       type: 'file',
       parentId: targetFolderId, 
-      userId: 'primary_user',
+      userId: userId,
       content: markdownContent,
       mimeType: 'text/markdown',
       metadata: { 
@@ -338,12 +347,12 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
 
 export async function runArchitect(blueprint: string, commitToVFS: boolean = false) {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
+    const userId = session.user.id;
     const result = await generateInitialFiles({ blueprint });
     
     if (result && result.length > 0) {
       const db = getAdminDb();
-      const userId = 'primary_user';
 
       const docRef = await db.collection('blueprints').add({
         userId,
@@ -405,10 +414,10 @@ export async function runArchitect(blueprint: string, commitToVFS: boolean = fal
 
 export async function getSavedBlueprints() {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const snapshot = await getAdminDb()
       .collection('blueprints')
-      .where('userId', '==', 'primary_user')
+      .where('userId', '==', session.user.id)
       .orderBy('timestamp', 'desc')
       .get();
 
@@ -436,7 +445,7 @@ export async function deleteBlueprint(id: string) {
 
 export async function generateLessonPlan(subject: string) {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const text = await generateLessonPlanFlow({ subject });
 
     if (!text || text.includes("SIGNAL_LOST")) {
@@ -444,7 +453,7 @@ export async function generateLessonPlan(subject: string) {
     }
 
     const planRef = await getAdminDb().collection('lesson_plans').add({
-      userId: 'primary_user',
+      userId: session.user.id,
       title: `Lesson: ${subject}`,
       subject: subject,
       content: text,
@@ -460,10 +469,10 @@ export async function generateLessonPlan(subject: string) {
 
 export async function getPendingLessonPlans() {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const snapshot = await getAdminDb()
       .collection('lesson_plans')
-      .where('userId', '==', 'primary_user')
+      .where('userId', '==', session.user.id)
       .where('status', '==', 'PENDING')
       .orderBy('timestamp', 'desc')
       .get();
@@ -491,9 +500,9 @@ export async function deleteLessonPlan(id: string) {
 
 export async function updateHomeBaseAction(updates: any) {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const db = getAdminDb();
-    await db.collection('users').doc('primary_user').set({
+    await db.collection('users').doc(session.user.id).set({
       ...updates,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
@@ -506,8 +515,8 @@ export async function updateHomeBaseAction(updates: any) {
 
 export async function getSystemEvolution() {
   try {
-    await verifyAuth();
-    const doc = await getAdminDb().collection('users').doc('primary_user').get();
+    const session = await verifyAuth();
+    const doc = await getAdminDb().collection('users').doc(session.user.id).get();
     const data = doc.data();
     const establishedStr = data?.establishedDate || MOCK_USER_CONTEXT.establishedDate;
     const start = new Date(establishedStr);
@@ -527,8 +536,8 @@ export async function getSystemEvolution() {
 
 export async function getCurriculumProgress() {
   try {
-    await verifyAuth();
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     const userDoc = await getAdminDb().collection('users').doc(userId).get();
     const data = userDoc.data();
     
@@ -610,7 +619,7 @@ export async function getGems() {
 
 export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed') {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const db = getAdminDb();
     const gemRef = db.collection('gems').doc(id);
     const gemDoc = await gemRef.get();
@@ -626,7 +635,7 @@ export async function resolveGem(id: string, resolution: 'resolved' | 'dismissed
       else if (severity === 'high') reward = 50;
       else if (severity === 'low') reward = 10;
 
-      const userRef = db.collection('users').doc('primary_user');
+      const userRef = db.collection('users').doc(session.user.id);
       await db.runTransaction(async (transaction) => {
         const userDoc = await transaction.get(userRef);
         const currentBalance = userDoc.data()?.gemsBalance || 0;
@@ -674,8 +683,8 @@ export async function getInternalComms() {
 
 export async function getMilestones() {
   try {
-    await verifyAuth();
-    const snapshot = await getAdminDb().collection('milestones').orderBy('date', 'desc').get();
+    const session = await verifyAuth();
+    const snapshot = await getAdminDb().collection('milestones').where('userId', '==', session.user.id).orderBy('date', 'desc').get();
     const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     return deepSanitize({ success: true, data });
   } catch (error) {
@@ -685,8 +694,8 @@ export async function getMilestones() {
 
 export async function commitNeuralWeights(config: any) {
   try {
-    await verifyAuth();
-    await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').set({
+    const session = await verifyAuth();
+    await getAdminDb().collection('users').doc(session.user.id).collection('config').doc('neural-laboratory').set({
       ...config,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
@@ -699,8 +708,8 @@ export async function commitNeuralWeights(config: any) {
 
 export async function getNeuralWeights() {
   try {
-    await verifyAuth();
-    const doc = await getAdminDb().collection('users').doc('primary_user').collection('config').doc('neural-laboratory').get();
+    const session = await verifyAuth();
+    const doc = await getAdminDb().collection('users').doc(session.user.id).collection('config').doc('neural-laboratory').get();
     return deepSanitize({ success: true, data: doc.exists ? doc.data() : null });
   } catch (error) {
     return deepSanitize({ success: false });
@@ -709,9 +718,9 @@ export async function getNeuralWeights() {
 
 export async function exportVaultData() {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const db = getAdminDb();
-    const userId = 'primary_user';
+    const userId = session.user.id;
     const [blueprints, curriculum, gems, milestones, user] = await Promise.all([
       db.collection('blueprints').where('userId', '==', userId).get(),
       db.collection('curriculum').where('userId', '==', userId).get(),
@@ -740,8 +749,8 @@ export async function exportVaultData() {
 
 export async function postAgenticNote(agentName: string, note: string, intentVector: string) {
   try {
-    await verifyAuth();
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     const db = getAdminDb();
     
     const analysis = await callLibrarianIndexer(note, intentVector);
@@ -794,8 +803,8 @@ export async function getAgenticContext() {
 
 export async function getVFSNodesAction(parentId: string | null = null) {
   try {
-    await verifyAuth();
-    const nodes = await getNodesByParent('primary_user', parentId);
+    const session = await verifyAuth();
+    const nodes = await getNodesByParent(session.user.id, parentId);
     return deepSanitize({ success: true, data: nodes });
   } catch (error: any) {
     return deepSanitize({ success: false, error: error.message });
@@ -828,8 +837,8 @@ export async function updateVFSNodeAction(id: string, content: string) {
 
 export async function initializeVFS() {
   try {
-    await verifyAuth();
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     
     const rootDirSnapshot = await getAdminDb().collection('ai_vfs')
       .where('userId', '==', userId)
@@ -901,12 +910,12 @@ export async function getVariationAnalysis(baseCode: string, instructions: strin
 
 export async function saveTestingWorkspace(name: string, slots: any[]) {
   try {
-    await verifyAuth();
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     
     const db = getAdminDb();
     const folderSnapshot = await db.collection('ai_vfs')
-      .where('userId', '==', 'primary_user')
+      .where('userId', '==', userId)
       .where('name', '==', 'Testing_Chambers')
       .limit(1)
       .get();
@@ -919,7 +928,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
         path: '/Testing_Chambers',
         type: 'directory',
         parentId: null,
-        userId: 'primary_user'
+        userId: userId
       });
       folderId = folder.id;
     }
@@ -929,7 +938,7 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
       path: `/Testing_Chambers/${name}.chamber.json`,
       type: 'file',
       parentId: folderId,
-      userId: 'primary_user',
+      userId: userId,
       content: JSON.stringify(slots),
       mimeType: 'application/json',
       metadata: { 
@@ -946,10 +955,10 @@ export async function saveTestingWorkspace(name: string, slots: any[]) {
 
 export async function getTestingWorkspaces() {
   try {
-    await verifyAuth();
+    const session = await verifyAuth();
     const db = getAdminDb();
     const snapshot = await db.collection('ai_vfs')
-      .where('userId', '==', 'primary_user')
+      .where('userId', '==', session.user.id)
       .where('metadata.owner_agent', '==', 'Testing_Chamber')
       .get();
       
@@ -966,8 +975,8 @@ export async function getTestingWorkspaces() {
 
 export async function createVFSDirectory(name: string, parentId: string | null) {
   try {
-    await verifyAuth();
-    const userId = 'primary_user';
+    const session = await verifyAuth();
+    const userId = session.user.id;
     
     const node = await persistVFSNode({
       name,

@@ -2,9 +2,9 @@
 runConfig:
   cpu: 1
   memoryMiB: 512
-  minInstances: 0
+  minInstances: 1
   maxInstances: 10
-  concurrency: 80
+  concurrency: 40
 
 env:
   # General Project Info
@@ -21,7 +21,7 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: studio-3863072923-d4373.firebaseapp.com
   - variable: NEXT_PUBLIC_FIREBASE_DATABASE_URL
-    value: https://studio-3863072923-d4373-default-rtdb.firebaseio.com
+    value: https://studio-3863072923-default-rtdb.firebaseio.com
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: studio-3863072923-d4373.firebasestorage.app
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
@@ -42,3 +42,7 @@ env:
   # API Keys as Secrets
   - variable: GOOGLE_GENAI_API_KEY
     secret: GOOGLE_GENAI_API_KEY
+
+  # Sovereign Whitelist
+  - variable: ALLOWED_EMAILS
+    value: "isaiah@smith.com, admin@smith.com"

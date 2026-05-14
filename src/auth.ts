@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import authConfig from "./auth.config"; // Ensure this import exists
 
 // Telemetry for Sovereignty layer
 console.log("--- AUTH_ENV_TELEMETRY ---");

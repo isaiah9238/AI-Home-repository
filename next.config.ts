@@ -47,6 +47,16 @@ const nextConfig: NextConfig = {
     },
   },
   reactStrictMode: true,
+  // 🛠️ Webpack custom file watching configuration for Cloud Workstations
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.watchOptions = {
+        poll: 1000, // Check for file modifications every 1 second
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

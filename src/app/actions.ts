@@ -1,7 +1,7 @@
 'use server';
 
 import { mentorAi } from '@/ai/discovery/mentor-ai';
-import { multiAgentDispatcher } from '@/ai/discovery/multi-agent-dispatcher';
+import { handleAutonomousDispatch } from 'src/app/dispatcher-action';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
@@ -203,7 +203,8 @@ export async function sendTerminalMessage(message: string) {
     const agenticContextRes = await internalGetAgenticContext();
     const agenticCtx = agenticContextRes.success ? agenticContextRes.context : "";
 
-    const result = await multiAgentDispatcher({ 
+    // 🟢 SECURE CHANNEL: Routes payload through our new server file, hiding async_hooks from Webpack
+    const result = await handleAutonomousDispatch({ 
       request: message,
       agenticContext: agenticCtx
     });

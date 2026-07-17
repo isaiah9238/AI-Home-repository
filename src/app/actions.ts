@@ -1,7 +1,7 @@
 'use server';
 
 import { mentorAi } from '@/ai/discovery/mentor-ai';
-import { handleAutonomousDispatch } from 'src/app/dispatcher-action';
+import { handleAutonomousDispatch } from '@/app/dispatcher_action';
 import { linkGenie } from '@/ai/domains/research/link-genie';
 import { epitomizeFetchedContent } from '@/ai/domains/research/epitomize-fetched-content';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';

@@ -995,3 +995,44 @@ export async function createVFSDirectory(name: string, parentId: string | null) 
     return deepSanitize({ success: false, error: error.message });
   }
 }
+
+// ============================================================================
+// 🪐 PHASE 4.0: VECTOR EXTENSION SWITCHBOARD PROTOCOL
+// ============================================================================
+
+import { queryVFSContext, VectorMatchResult } from '@/ai/storage/vector-sync';
+
+interface ActionResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+/**
+ * Server Action: Query VFS Semantic Context
+ * Connects front-end HUD search or background agent routines to vector search indexes.
+ */
+export async function queryVFSSemanticContextAction(
+  queryText: string,
+  limitCount: number = 5
+): Promise<ActionResponse<VectorMatchResult[]>> {
+  if (!queryText || !queryText.trim()) {
+    return { success: true, data: [] };
+  }
+
+  try {
+    const session = await verifyAuth();
+    const matches = await queryVFSContext(session.user.id, queryText, limitCount);
+    
+    return {
+      success: true,
+      data: matches
+    };
+  } catch (error: any) {
+    console.error("🚨 SWITCHBOARD_VECTOR_QUERY_ERROR:", error);
+    return {
+      success: false,
+      error: error?.message || "INTERNAL_VECTOR_QUERY_FAILURE"
+    };
+  }
+}

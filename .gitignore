@@ -56,3 +56,9 @@ firestore-debug.log
 .vscode/
 
 keys.json
+
+# Ignore local Visual Studio tracking structures
+.vs/
+*.user
+*.suo
+*.json.user

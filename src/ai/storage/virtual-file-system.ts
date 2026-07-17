@@ -1,5 +1,6 @@
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import * as admin from 'firebase-admin';
+import { indexVFSNode } from './vector-sync'; // 👈 Import the newly updated sync tool
 
 export interface VFSNode {
   id: string;
@@ -22,14 +23,12 @@ export interface VFSNode {
     disappearanceMarker?: boolean;
     type?: string;
     analysis?: any;
+    [key: string]: any;
   };
 }
 
 const COLLECTION_NAME = 'ai_vfs';
 
-/**
- * Helper to ensure Firestore data is serializable for Client Components.
- */
 function sanitizeNode(docId: string, data: any): VFSNode {
   return {
     id: docId,
@@ -46,7 +45,7 @@ function sanitizeNode(docId: string, data: any): VFSNode {
   };
 }
 
-// 1. PERSIST (The Writer)
+// 1. PERSIST (The Writer - Now Connected to Vector Memory)
 export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   const db = getAdminDb();
   const docRef = db.collection(COLLECTION_NAME).doc();
@@ -58,10 +57,24 @@ export async function persistVFSNode(node: Omit<VFSNode, 'id' | 'updatedAt'>) {
   
   await docRef.set(writeData);
   
-  // Return a clean, serializable version
+  // 🚀 BACKGROUND SYNC DETECTED: If it's a file with readable text content, index it!
+  // Don't index secure Vault entries to respect the Sovereign Vault's privacy domain boundaries.
+  if (node.type === 'file' && node.content && !node.metadata?.isVault) {
+    // We execute this asynchronously so the VFS doesn't lag while generating embeddings
+    indexVFSNode({
+      nodeId: docRef.id,
+      path: node.path,
+      content: node.content,
+      userId: node.userId,
+      agentOrigin: node.metadata?.agentOrigin || node.metadata?.owner_agent
+    }).catch(err => {
+      console.error(`🚨 VFS_VECTOR_SYNC_FAILED for node ${docRef.id}:`, err);
+    });
+  }
+  
   return sanitizeNode(docRef.id, {
     ...node,
-    updatedAt: { toDate: () => new Date() } // Mock for immediate return
+    updatedAt: { toDate: () => new Date() }
   });
 }
 

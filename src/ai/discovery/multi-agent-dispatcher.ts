@@ -1,15 +1,11 @@
+'use client';
+
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { mentorAi } from '@/ai/discovery/mentor-ai';
 import { webIntel } from '@/ai/discovery/web-intel';
-
-/**
- * @fileOverview The Multi-Agent Dispatcher (Google AI Edition)
- * 
- * Classifies user intent and routes the request to the specialized domain agent.
- */
 
 const DispatcherInputSchema = z.object({
   request: z.string(),
@@ -18,9 +14,8 @@ const DispatcherInputSchema = z.object({
 });
 
 const AgentChoiceSchema = z.object({
-  agent: z
-    .enum(['architect', 'code_inspector', 'web_intel', 'general_mentor'])
-    .describe('The specialized agent to route the request to.'),
+  agent: z.enum(['architect', 'code_inspector', 'web_intel', 'general_mentor']),
+  detectedLanguage: z.string().optional().describe('Extracted language dimension if parsing a raw code segment.'),
 });
 
 const flow = ai.defineFlow(
@@ -33,12 +28,12 @@ const flow = ai.defineFlow(
     try {
       const agenticCtx = input.agenticContext || "No recent agentic signals.";
 
-      // 1. Generate the classification using Google AI
+      // 1. Generate classification using high-fidelity vector checks
       const response = await ai.generate({
         model: 'googleai/gemini-2.5-flash',
         prompt: `
-          You are a multi-agent dispatcher for the AI Home Cabinet. 
-          Analyze the request and route it to the best agent:
+          You are the central multi-agent dispatcher for the AI Home Cabinet. 
+          Analyze the request payload and isolate the objective destination node:
           - 'architect': used for creating new files, app architecture, or project scaffolding.
           - 'code_inspector': used to analyze, audit, find bugs, or review code snippets.
           - 'web_intel': used for fetching and summarizing content from a URL coordinate.
@@ -55,13 +50,15 @@ const flow = ai.defineFlow(
       });
 
       const agent = response.output?.agent || 'general_mentor';
+      const lang = response.output?.detectedLanguage || 'typescript';
 
       // 2. Direct routing to the selected flow wrapper
       switch (agent) {
         case 'architect':
           return await generateInitialFiles({ blueprint: input.request });
         case 'code_inspector':
-          return await analyzeCodeSnippet({ code: input.request, language: 'typescript' });
+          // Enhanced: Feeds extracted language dimensions directly down to the auditor
+          return await analyzeCodeSnippet({ code: input.request, language: lang });
         case 'web_intel':
           const isUrl = input.request.startsWith('http');
           return await webIntel({ url: isUrl ? input.request : 'https://google.com' });
@@ -76,9 +73,6 @@ const flow = ai.defineFlow(
   }
 );
 
-/**
- * multiAgentDispatcher - Standard function wrapper for the Dispatcher flow.
- */
 export async function multiAgentDispatcher(input: z.infer<typeof DispatcherInputSchema>) {
   return flow(input);
 }

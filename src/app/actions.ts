@@ -345,6 +345,35 @@ ${deepData.structuredNotes ? deepData.structuredNotes.map(n => `### ${n.heading}
   }
 }
 
+/**
+ * routeInspectorFixToArchitect
+ * Bridges the security audit refactor payload directly into a clean autonomous structure generation loop.
+ */
+export async function routeInspectorFixToArchitect(auditLogId: string, customDirectives?: string) {
+  try {
+    const session = await verifyAuth();
+    const db = getAdminDb();
+    
+    // 1. Fetch the code inspector's historical data log from the archive
+    const auditDoc = await db.collection('internal_comms').doc(auditLogId).get();
+    if (!auditDoc.exists) throw new Error("AUDIT_LOG_NOT_FOUND");
+    
+    const auditData = auditDoc.data();
+    
+    // 2. Synthesize a structural prompt appending optimization directives
+    const compositeBlueprint = `
+      REFACTOR_TARGET: ${auditData?.language || 'typescript'} Source Log
+      PROPOSED_FIXES: ${auditData?.suggestedFixes || ''}
+      EVOLUTION_DIRECTIVES: ${customDirectives || 'Standardize performance layers.'}
+    `;
+    
+    // 3. Chain directly into your existing print routine, committing straight to the VFS
+    return await runArchitect(compositeBlueprint, true);
+  } catch (error: any) {
+    return { success: false, error: `LOOP_ORCHESTRATION_FAILED: ${error.message}` };
+  }
+}
+
 export async function runArchitect(blueprint: string, commitToVFS: boolean = false) {
   try {
     const session = await verifyAuth();

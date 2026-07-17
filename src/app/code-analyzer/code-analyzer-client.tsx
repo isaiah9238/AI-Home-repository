@@ -32,10 +32,11 @@ function SubmitButton() {
   );
 }
 
-export function CodeAnalyzerClient() {
+export function CodeAnalyzerClient({ injectedHistoricalData }: { injectedHistoricalData?: any }) {
   const initialState: CodeAnalysisState = { message: null, errors: {}, data: null };
   const [state, formAction] = useActionState(performCodeAnalysis, initialState);
   const [copied, setCopied] = useState(false);
+  const displayData = state.data || injectedHistoricalData;
 
   const copyFix = async (text: string) => {
     try {
@@ -94,7 +95,7 @@ export function CodeAnalyzerClient() {
               <SubmitButton />
             </form>
 
-            {state.message && !state.data && (
+            {state.message && !displayData && (
               <div className="mt-6 p-4 bg-red-500/5 border border-red-500/20 rounded-lg">
                 <p className="text-[10px] text-red-400 font-mono uppercase tracking-widest text-center">
                   {state.message}
@@ -107,7 +108,7 @@ export function CodeAnalyzerClient() {
 
       {/* Results Section */}
       <div className="lg:col-span-7 space-y-6">
-        {state.data ? (
+        {displayData ? (
           <div className="space-y-6 animate-in fade-in zoom-in-95 duration-700">
             {/* Top Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -115,19 +116,19 @@ export function CodeAnalyzerClient() {
                 <div className="flex items-center gap-2 text-[9px] text-blue-400 font-mono uppercase tracking-widest">
                   <Code2 className="w-3 h-3" /> Complexity
                 </div>
-                <div className="text-xs text-white/80 font-mono">{state.data.complexity}</div>
+                <div className="text-xs text-white/80 font-mono">{displayData.complexity}</div>
               </Card>
               <Card className="bg-black/40 border-red-500/20 backdrop-blur-md p-4 space-y-2">
                 <div className="flex items-center gap-2 text-[9px] text-red-400 font-mono uppercase tracking-widest">
                   <Bug className="w-3 h-3" /> Logic_Bugs
                 </div>
-                <div className="text-xs text-white/80 font-mono">{state.data.bugs}</div>
+                <div className="text-xs text-white/80 font-mono">{displayData.bugs}</div>
               </Card>
               <Card className="bg-black/40 border-yellow-500/20 backdrop-blur-md p-4 space-y-2">
                 <div className="flex items-center gap-2 text-[9px] text-yellow-400 font-mono uppercase tracking-widest">
                   <ShieldAlert className="w-3 h-3" /> Security
                 </div>
-                <div className="text-xs text-white/80 font-mono">{state.data.vulnerabilities}</div>
+                <div className="text-xs text-white/80 font-mono">{displayData.vulnerabilities}</div>
               </Card>
             </div>
 
@@ -141,14 +142,14 @@ export function CodeAnalyzerClient() {
                   variant="ghost" 
                   size="icon" 
                   className="h-7 w-7 text-white/30 hover:text-purple-400 transition-colors"
-                  onClick={() => copyFix(state.data!.suggestedFixes)}
+                  onClick={() => copyFix(displayData!.suggestedFixes)}
                 >
                   {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
                 </Button>
               </CardHeader>
               <CardContent className="p-0 overflow-auto custom-scrollbar max-h-[500px]">
                 <pre className="p-6 text-[11px] font-mono text-blue-100/80 whitespace-pre leading-relaxed bg-black/20">
-                  {state.data.suggestedFixes}
+                  {displayData.suggestedFixes}
                 </pre>
               </CardContent>
             </Card>

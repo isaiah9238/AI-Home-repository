@@ -75,7 +75,6 @@ ${files.html}
     setLoading(true);
     setResult(null);
     try {
-      // Pass the flux context if linked, otherwise null
       const contextData = isLinked ? files.flux : undefined;
       const res = await getPreviewAnalysis(combinedCode, contextData);
       
@@ -106,9 +105,9 @@ ${files.html}
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 font-mono">
+    <div className="p-8 max-w-7xl mx-auto space-y-8 font-mono h-screen flex flex-col overflow-hidden">
       {/* HEADER HUD */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-blue-500 pl-6 bg-white/[0.02] p-4 rounded-r-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-blue-500 pl-6 bg-white/[0.02] p-4 rounded-r-xl shrink-0">
         <div>
           <h1 className="text-4xl font-light tracking-[0.2em] uppercase flex items-center gap-4 text-white">
             <Box className="w-8 h-8 text-blue-500" /> Autonomous_Previewer
@@ -138,20 +137,20 @@ ${files.html}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-250px)] min-h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 overflow-hidden min-h-[500px]">
         
         {/* INPUT PANEL */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="lg:col-span-5 flex flex-col overflow-hidden">
           <Card className="bg-black/40 border-white/5 backdrop-blur-xl flex-1 flex flex-col overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-            <CardHeader className="bg-white/5 border-b border-white/5 py-3">
+            <CardHeader className="bg-white/5 border-b border-white/5 py-3 shrink-0">
               <CardTitle className="text-[10px] font-mono text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
                 <Terminal className="w-3 h-3" /> Source_Logic_Stream
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 p-0 flex flex-col">
-              <Tabs defaultValue="html" className="w-full h-full flex flex-col">
-                <TabsList className="bg-transparent border-b border-white/5 w-full justify-start rounded-none h-10 p-0 px-2">
+            <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
+              <Tabs defaultValue="html" className="w-full h-full flex flex-col overflow-hidden">
+                <TabsList className="bg-transparent border-b border-white/5 w-full justify-start rounded-none h-10 p-0 px-2 shrink-0">
                   <TabsTrigger value="html" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">HTML</TabsTrigger>
                   <TabsTrigger value="css" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">CSS</TabsTrigger>
                   <TabsTrigger value="js" className="data-[state=active]:bg-white/5 data-[state=active]:text-blue-400 rounded-none h-full font-mono text-[10px] uppercase px-4">JS</TabsTrigger>
@@ -161,14 +160,14 @@ ${files.html}
                 </TabsList>
                 
                 {['html', 'css', 'js', 'flux'].map((tab) => (
-                  <TabsContent key={tab} value={tab} className="flex-1 m-0 p-0 outline-none data-[state=active]:flex flex-col">
+                  <TabsContent key={tab} value={tab} className="flex-1 m-0 p-0 outline-none data-[state=active]:flex flex-col overflow-hidden">
                     <Textarea
                       placeholder={`PASTE_OR_WRITE_${tab.toUpperCase()}_HERE...`}
                       value={files[tab as keyof typeof files]}
                       onChange={(e) => setFiles({ ...files, [tab]: e.target.value })}
                       readOnly={tab === 'flux' && isLinked}
                       className={cn(
-                        "w-full flex-1 min-h-[300px] bg-transparent border-0 text-blue-100 placeholder:text-white/5 font-mono text-[11px] leading-relaxed resize-none p-6 focus-visible:ring-0 custom-scrollbar",
+                        "w-full h-full bg-transparent border-0 text-blue-100 placeholder:text-white/5 font-mono text-[11px] leading-relaxed resize-none p-6 focus-visible:ring-0 custom-scrollbar flex-1",
                         tab === 'flux' && isLinked && "text-purple-400/70 italic"
                       )}
                     />
@@ -176,7 +175,7 @@ ${files.html}
                 ))}
               </Tabs>
             </CardContent>
-            <div className="p-4 bg-white/5 border-t border-white/5">
+            <div className="p-4 bg-white/5 border-t border-white/5 shrink-0">
               <Button 
                 onClick={handlePreview} 
                 disabled={loading} 
@@ -197,10 +196,10 @@ ${files.html}
         </div>
 
         {/* OUTPUT PANEL */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
+        <div className="lg:col-span-7 flex flex-col overflow-hidden h-full">
           {result ? (
-            <div className="flex-1 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-700">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex-1 flex flex-col gap-6 overflow-hidden animate-in fade-in zoom-in-95 duration-700 h-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
                 <Card className="bg-black/40 border-blue-500/20 p-4 space-y-3">
                   <div className="text-[9px] text-blue-400/60 uppercase tracking-widest flex items-center gap-2">
                     <Zap className="w-3 h-3" /> Intent_Vector
@@ -224,8 +223,8 @@ ${files.html}
                 </Card>
               </div>
 
-              <Card className="flex-1 bg-white/[0.02] border-white/5 backdrop-blur-md overflow-hidden flex flex-col">
-                <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between">
+              <Card className="flex-1 bg-white/[0.02] border-white/5 backdrop-blur-md overflow-hidden flex flex-col min-h-[300px]">
+                <CardHeader className="bg-white/5 border-b border-white/5 py-3 flex flex-row items-center justify-between shrink-0">
                   <CardTitle className="text-[10px] text-white/30 uppercase tracking-[0.3em]">Execution_Chamber</CardTitle>
                   <div className="flex items-center gap-2">
                     <Button 
@@ -247,7 +246,7 @@ ${files.html}
                     <Badge variant="outline" className="text-[8px] border-green-500/20 text-green-400/60 uppercase h-6">Live_Preview</Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 p-0 relative">
+                <CardContent className="flex-1 p-0 relative overflow-hidden">
                   <iframe
                     srcDoc={result.previewCode}
                     className="w-full h-full border-0 bg-white"
@@ -258,7 +257,7 @@ ${files.html}
               </Card>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 border border-dashed border-white/5 rounded-2xl bg-black/20 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center p-12 border border-dashed border-white/5 rounded-2xl bg-black/20 text-center h-full">
               <div className="relative mb-8">
                 <div className="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-full animate-pulse" />
                 <Code2 className="w-20 h-20 text-white/5 relative z-10" />

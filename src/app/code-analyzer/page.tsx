@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Cpu } from 'lucide-react';
 import { CodeAnalyzerClient } from '@/app/code-analyzer/code-analyzer-client';
 import { AuditSidebar } from '@/components/AuditSidebar';
+import { getAuditHistory } from './actions';
 
 interface Audit {
   id: string;
@@ -11,24 +12,46 @@ interface Audit {
   agent: string;
   status: 'SUCCESS' | 'FAILED' | 'PENDING';
   data?: any; 
+  language?: string;
 }
 
 export default function CodeAnalyzerPage() {
-  const [selectedAudit, setSelectedAudit] = useState<Audit | null>(null);
+  const [history, setHistory] = useState<Audit[]>([]);
+  const [activeAuditData, setActiveAuditData] = useState<any | null>(null);
+
+  // Sync historical audits directly from the Librarian's ledger
+  useEffect(() => {
+    async function syncArchives() {
+      const res = await getAuditHistory(15);
+      if (res.success && res.data) {
+        // Map fields explicitly to align with the Audit UI typing
+        const mappedHistory = res.data.map((doc: any) => ({
+          id: doc.id,
+          fileName: doc.language ? `SRC_LOG.${doc.language.toUpperCase()}` : 'SOURCE_LOG',
+          agent: doc.agent || 'Code Inspector',
+          status: doc.status || 'SUCCESS',
+          data: doc.data || null
+        }));
+        setHistory(mappedHistory);
+      }
+    }
+    syncArchives();
+  }, []);
 
   const handleSelect = (audit: Audit) => {
-    setSelectedAudit(audit);
-    // Integration: Pass this to the client or log it
-    console.log('Recalling:', audit);
+    if (audit.data) {
+      setActiveAuditData(audit.data);
+    }
+    console.log('Recalled neural logic vector:', audit.id);
   };
 
   return (
     <div className="flex w-full min-h-screen bg-[#050505] text-white font-mono overflow-hidden">
       
-      {/* 1. THE LIBRARIAN SIDEBAR */}
+      {/* 1. THE LIBRARIAN SIDEBAR (Reactive Track) */}
       <div className="hidden lg:block">
         <AuditSidebar 
-          history={[]} // Initialize with empty history to prevent errors
+          history={history} 
           onSelectAudit={handleSelect} 
         />
       </div>
@@ -53,7 +76,7 @@ export default function CodeAnalyzerPage() {
         
         {/* Main Content Area */}
         <div className="max-w-6xl">
-          <CodeAnalyzerClient />
+          <CodeAnalyzerClient injectedHistoricalData={activeAuditData} />
         </div>
       </div>
     </div>

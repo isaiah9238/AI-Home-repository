@@ -23,7 +23,10 @@ import {
   Send,
   Home,
   Save,
-  Edit2
+  Edit2,
+  Brain,
+  Cpu,
+  ShieldAlert
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +48,8 @@ import {
   initializeVFS,
   postAgenticNote,
   createVFSDirectory,
-  updateVFSNodeAction
+  updateVFSNodeAction,
+  queryVFSSemanticContextAction
 } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -167,6 +171,37 @@ export function StorageDrawer() {
     setIsPostingNote(false);
   };
 
+  const [semanticQuery, setSemanticQuery] = useState('');
+  const [isNeuralSearching, setIsNeuralSearching] = useState(false);
+  const [neuralMatches, setNeuralMatches] = useState<any[]>([]);
+
+  const handleNeuralSearch = async () => {
+    if (!semanticQuery.trim()) return;
+    setIsNeuralSearching(true);
+    try {
+      const res = await queryVFSSemanticContextAction(semanticQuery, 5);
+      if (res.success && res.data) {
+        setNeuralMatches(res.data);
+        toast({
+          title: "NEURAL_MATCH_COMPLETE",
+          description: `Retrieved ${res.data.length} high-density semantic contexts from the VFS.`,
+          className: "bg-black/80 border-purple-500/30 text-purple-400 font-mono text-[8px]",
+        });
+      } else {
+        throw new Error(res.error || "SIGNAL_INTERRUPTED");
+      }
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "NEURAL_SEARCH_FAILED",
+        description: err.message,
+        className: "bg-black/80 border-red-500/30 text-red-400 font-mono text-[8px]",
+      });
+    } finally {
+      setIsNeuralSearching(false);
+    }
+  };
+
   const filteredNodes = nodes.filter(n => n.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const agentNotes = nodes.filter(n => n.metadata?.type === 'agent_note' || n.metadata?.type === 'research_report');
 
@@ -197,8 +232,12 @@ export function StorageDrawer() {
           <TabsTrigger value="memory" className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 text-[10px] uppercase tracking-[0.2em] p-0 h-full border-b-2 border-transparent data-[state=active]:border-purple-400 rounded-none gap-2">
             <Sparkles className="w-3.5 h-3.5" /> Agentic_Memory
           </TabsTrigger>
+          <TabsTrigger value="neural_memory" className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 text-[10px] uppercase tracking-[0.2em] p-0 h-full border-b-2 border-transparent data-[state=active]:border-purple-400 rounded-none gap-2"> 
+            Neural_Search
+          </TabsTrigger>
         </TabsList>
 
+        {/* 📁 STANDARD FILE SYSTEM CONTAINER */}
         <TabsContent value="explorer" className="flex-1 m-0 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
             <div className="lg:col-span-7 flex flex-col gap-4 overflow-hidden">
@@ -389,6 +428,7 @@ export function StorageDrawer() {
           </div>
         </TabsContent>
 
+        {/* 🧠 CHRONOLOGICAL DATA FRAME */}
         <TabsContent value="memory" className="flex-1 m-0 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
             <div className="lg:col-span-8 flex flex-col gap-4 overflow-hidden">
@@ -453,6 +493,76 @@ export function StorageDrawer() {
             </div>
           </div>
         </TabsContent>
+
+        {/* 🌐 DEEP HIGH-DIMENSIONAL RETRIEVAL CANVAS */}
+        <TabsContent value="neural_memory" className="mt-4 space-y-4 outline-none">
+          <div className="space-y-4">
+            {/* Search Input Box Frame */}
+            <div className="flex gap-2 bg-white/5 border border-white/10 p-2 rounded-lg relative overflow-hidden">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                <Input
+                  value={semanticQuery}
+                  onChange={(e) => setSemanticQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleNeuralSearch()}
+                  placeholder="SEMANTIC_QUERY: (e.g., 'How do agents handle error rollbacks?')..."
+                  className="pl-9 bg-black/40 border-white/5 text-[11px] font-mono text-purple-200 placeholder:text-white/20 focus-visible:ring-purple-500/40 h-9"
+                />
+              </div>
+              <Button
+                onClick={handleNeuralSearch}
+                disabled={isNeuralSearching || !semanticQuery.trim()}
+                className="bg-purple-900/60 hover:bg-purple-800 border border-purple-500/30 text-purple-200 text-[10px] font-mono uppercase tracking-wider px-4 h-9 gap-2"
+              >
+                {isNeuralSearching ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                )} 
+                Query_Deep_Context
+              </Button>
+            </div>
+            
+            {/* Results Canvas */}
+            <ScrollArea className="h-[450px] pr-3 rounded-md">
+              <div className="space-y-3">
+                {neuralMatches.length === 0 ? (
+                  <div className="h-48 border border-dashed border-white/5 rounded-lg flex flex-col items-center justify-center text-center p-6 opacity-25">
+                    <Brain className="w-10 h-10 mb-2 text-purple-400 animate-pulse" />
+                    <p className="text-[10px] text-white/50 uppercase tracking-widest font-mono">Index Idle. Submit semantic vectors.</p>
+                  </div>
+                ) : (
+                  neuralMatches.map((match, idx) => {
+                    const proximityScore = Math.max(0, Math.min(100, Math.round((1 - match.distance) * 100)));
+                    return (
+                      <Card key={match.nodeId || idx} className="bg-black/30 border-white/5 hover:border-purple-500/20 transition-all font-mono">
+                        <CardHeader className="bg-white/5 border-b border-white/5 py-2 px-4 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2 truncate">
+                            <Cpu className="w-3 h-3 text-purple-400 shrink-0" />
+                            <span className="text-[10px] text-purple-300 font-bold tracking-tight truncate">{match.path}</span>
+                          </div>
+                          <Badge className="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[9px] px-2 py-0.5 shrink-0">
+                            Proximity: {proximityScore}%
+                          </Badge>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-3">
+                          <p className="text-[11px] text-white/70 bg-black/40 p-3 rounded border border-white/5 whitespace-pre-wrap leading-relaxed font-mono select-all">
+                            {match.contentPreview}
+                          </p>
+                          <div className="flex items-center justify-between text-[9px] text-white/30 uppercase tracking-tight">
+                            <span>Origin_Node: <b className="text-white/50">{match.agentOrigin}</b></span>
+                            <span>ID: <span className="text-white/40">{match.nodeId.slice(0, 8)}...</span></span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        </TabsContent>
+
       </Tabs>
     </div>
   );

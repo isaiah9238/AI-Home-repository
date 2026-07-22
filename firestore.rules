@@ -11,45 +11,53 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isDocOwner() {
+      return isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    function isCreatingOwnedDoc() {
+      return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+    }
+
     // --- 1. THE BLACK BOX (Sovereign Vault) ---
-    // Documents here MUST be named exactly your Firebase UID
     match /sovereign_vault/{vaultId} {
       allow read, write: if isOwner(vaultId);
     }
 
-    // --- 2. THE LIBRARIAN (Workspaces & Projects) ---
+    // --- 2. THE LIBRARIAN (Workspaces, Projects & VFS) ---
     match /workspaces/{workspaceId} {
-      allow read, update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isDocOwner();
+      allow create: if isCreatingOwnedDoc();
     }
 
     match /projects/{projectId} {
-      allow read, write: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if isDocOwner();
+      allow create: if isCreatingOwnedDoc();
       
       match /{allPaths=**} {
         allow read, write: if isSignedIn() && get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
       }
     }
 
-    // --- 3. EXISTING FEATURES (Loops & Comments) ---
+    // --- 3. LOOPS, CURRICULUM & COMMENTS (Hardened) ---
     match /loops/{loopId} {
-      allow read: if true;
-      allow write: if isSignedIn();
+      // Must be owner or signed-in depending on system access
+      allow read, update, delete: if isDocOwner();
+      allow create: if isCreatingOwnedDoc();
       
       match /lines/{lineId} {
-        allow read: if true;
-        allow write: if isSignedIn();
+        allow read, write: if isSignedIn();
       }
     }
 
     match /comments/{commentId} {
-      allow get, list, create: if true;
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
       allow update, delete: if false; 
     }
 
     match /derivatives/{derivativeId} {
-      allow create: if request.resource.size < 5 * 1024;
+      allow create: if isSignedIn() && request.resource.size < 5 * 1024;
       allow read, update, delete: if false;
     }
 
@@ -58,10 +66,9 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
 
-    match /users/primary_user {
-      // Warning: 'if true' allows anyone in the world to edit this. 
-      // Changed to 'isSignedIn()' for safety.
-      allow read, write: if isSignedIn();
+    // Lock down primary_user path to match the authenticated UID
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
     }
   }
 }

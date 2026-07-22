@@ -17,6 +17,7 @@ import { persistVFSNode, getNodesByParent, purgeVFSNode } from '@/ai/storage/vir
 import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-intent';
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 import { type ResearchMode } from './types';
+import { syncVFSNodeVector } from '@/ai/storage/vector-sync';
 
 // --- SERIALIZATION PROTOCOL ---
 
@@ -851,17 +852,92 @@ export async function deleteVFSNodeAction(id: string) {
   }
 }
 
-export async function updateVFSNodeAction(id: string, content: string) {
+export async function updateVFSNodeAction(nodeId: string, content: string) {
   try {
-    await verifyAuth();
+    if (!nodeId) throw new Error("INVALID_NODE_ID");
+
     const db = getAdminDb();
-    await db.collection('ai_vfs').doc(id).update({
+    const nodeRef = db.collection('vfs_nodes').doc(nodeId);
+    const timestamp = new Date().toISOString();
+
+    // 1. Update the document in Firestore via Admin SDK
+    await nodeRef.update({
       content,
-      updatedAt: new Date().toISOString()
+      updatedAt: timestamp,
     });
-    return deepSanitize({ success: true });
+
+    // 2. Fetch updated node metadata for vector embedding
+    const updatedSnap = await nodeRef.get();
+    if (updatedSnap.exists) {
+      const nodeData = updatedSnap.data();
+
+      // 3. Re-index updated content immediately inside vector-sync.ts
+      await syncVFSNodeVector({
+        nodeId,
+        path: nodeData?.path || '',
+        content,
+        agentOrigin: nodeData?.metadata?.owner_agent || 'User_Edit',
+      });
+    }
+
+    return { success: true };
   } catch (error: any) {
-    return deepSanitize({ success: false, error: error.message });
+    console.error("LIBRARIAN_VFS_UPDATE_ERROR:", error);
+    return { success: false, error: error.message || "VAULT_UPDATE_FAILED" };
+  }
+}
+
+export async function importVaultData(bundleData: any) {
+  try {
+    if (!bundleData || typeof bundleData !== 'object') {
+      throw new Error("INVALID_BACKUP_BUNDLE_FORMAT");
+    }
+
+    const db = getAdminDb();
+    const batch = db.batch();
+    let restoredCount = 0;
+
+    // 1. Restore VFS Nodes if present in the bundle
+    if (Array.isArray(bundleData.vfsNodes)) {
+      for (const node of bundleData.vfsNodes) {
+        if (!node.id) continue;
+        const ref = db.collection('vfs_nodes').doc(node.id);
+        batch.set(ref, { ...node, updatedAt: new Date().toISOString() }, { merge: true });
+        restoredCount++;
+      }
+    }
+
+    // 2. Restore Curriculum/Lessons if present
+    if (Array.isArray(bundleData.lessons)) {
+      for (const lesson of bundleData.lessons) {
+        if (!lesson.id) continue;
+        const ref = db.collection('curriculum_lessons').doc(lesson.id);
+        batch.set(ref, { ...lesson, updatedAt: new Date().toISOString() }, { merge: true });
+        restoredCount++;
+      }
+    }
+
+    // Commit all database writes in a single atomic batch
+    await batch.commit();
+
+    // 3. Re-index restored VFS files into vector storage
+    if (Array.isArray(bundleData.vfsNodes)) {
+      for (const node of bundleData.vfsNodes) {
+        if (node.type === 'file' && node.content) {
+          await syncVFSNodeVector({
+            nodeId: node.id,
+            path: node.path || '',
+            content: node.content,
+            agentOrigin: node.metadata?.owner_agent || 'Restoration_Engine',
+          }).catch((err) => console.warn(`Vector sync skipped for ${node.id}:`, err));
+        }
+      }
+    }
+
+    return { success: true, count: restoredCount };
+  } catch (error: any) {
+    console.error("LIBRARIAN_RESTORE_ERROR:", error);
+    return { success: false, error: error.message || "RESTORATION_FAILED" };
   }
 }
 

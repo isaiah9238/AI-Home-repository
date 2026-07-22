@@ -1,6 +1,5 @@
-import 'server-only'; // 🛡️ Enforce Node.js server execution boundary
+import 'server-only';
 
-import { queryVFSContext } from '@/ai/storage/vector-sync';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { persistVFSNode, getVFSNode } from '@/ai/storage/virtual-file-system';
@@ -16,117 +15,82 @@ export interface OrchestrationResult {
   stage: 'INSPECTION' | 'ARCHITECT_DRAFT' | 'SANDBOX_VALIDATION' | 'VFS_COMMIT' | 'FAILED';
   nodeId: string;
   inspectionSummary?: any;
-  refactoredContent?: string;
+  refactoredFiles?: any[];
   error?: string;
 }
 
-/**
- * Closed-Loop Orchestrator:
- * Automates Code Inspector -> Architect -> Testing Chamber -> Librarian VFS Commit
- */
 export async function executeClosedLoopRefactor(
   payload: AutonomousRefactorPayload
 ): Promise<OrchestrationResult> {
   console.log(`⚡ CLOSED_LOOP: Initializing refactor cycle for VFS Node: ${payload.vfsNodeId}`);
 
   try {
-    // -----------------------------------------------------------------
-    // STAGE 1: Code Inspector (Auditing the Target Node)
-    // -----------------------------------------------------------------
+    // 1. Fetch Target Node
     const existingNode = await getVFSNode(payload.vfsNodeId);
     if (!existingNode) {
       return { success: false, stage: 'FAILED', nodeId: payload.vfsNodeId, error: 'Target VFS Node not found.' };
     }
 
+    // 2. Stage 1: Code Inspector Audit
     console.log(`🔍 STAGE 1: Code Inspector auditing [${existingNode.path}]...`);
-    
-    // Analyze code snippet for performance, security, and refactoring opportunities
     const inspection = await analyzeCodeSnippet({
       code: existingNode.content,
       language: existingNode.type || 'typescript',
-      context: payload.refactorGoal || 'Analyze for performance optimizations, security vulnerabilities, and code clarity.'
+      context: payload.refactorGoal || 'Analyze for performance optimizations and code clarity.'
     });
 
-    // -----------------------------------------------------------------
-    // STAGE 2: Architect + Semantic Vector Context (Drafting Patch)
-    // -----------------------------------------------------------------
-    console.log(`📐 STAGE 2: Querying Semantic Vector Memory for architectural alignment...`);
-    
-    // Perform RAG query across VFS using vector proximity
-    const semanticContext = await queryVFSContext(
-      `Architectural rules and patterns related to ${existingNode.path}`
-    );
-
-    const contextSnippet = semanticContext
-      .map((match) => `// File: ${match.path}\n${match.contentPreview}`)
-      .join('\n\n');
-
-    console.log(`🏗️ STAGE 2: Architect drafting code variation...`);
-    const draftPrompt = `
-      REFRACTOR GOAL: ${payload.refactorGoal || 'Optimize and refactor code based on audit.'}
-      FILE PATH: ${existingNode.path}
-      ORIGINAL CODE:
+    // 3. Stage 2: Architect Draft via generateInitialFiles
+    console.log(`🏗️ STAGE 2: Architect generating updated file variations...`);
+    const architectBlueprint = `
+      REFACTOR TASK FOR FILE: ${existingNode.path}
+      REFACTOR GOAL: ${payload.refactorGoal || 'Optimize and refactor code based on inspection audit.'}
+      CODE INSPECTOR AUDIT: ${JSON.stringify(inspection)}
+      ORIGINAL CONTENT:
       ${existingNode.content}
-
-      CODE INSPECTOR AUDIT:
-      ${JSON.stringify(inspection, null, 2)}
-
-      RELATED VFS CONTEXT (SEMANTIC MEMORY):
-      ${contextSnippet}
-
-      Provide clean, production-ready TypeScript code refactoring this node.
     `;
 
-    // -----------------------------------------------------------------
-    // STAGE 3: Sandbox / Validation (Dry Run Check)
-    // -----------------------------------------------------------------
-    console.log(`🧪 STAGE 3: Validating draft in Testing Chamber...`);
-    
-    // Basic structural validation check (can be expanded to run sandbox runners)
-    if (!draftPrompt || draftPrompt.length === 0) {
-      return {
-        success: false,
-        stage: 'SANDBOX_VALIDATION',
-        nodeId: payload.vfsNodeId,
-        error: 'Architect generated empty draft payload.'
-      };
+    const generatedFiles = await generateInitialFiles({
+      blueprint: architectBlueprint,
+      enableVectorRAG: true // Employs semantic RAG search across VFS
+    });
+
+    if (!generatedFiles || generatedFiles.length === 0) {
+      return { success: false, stage: 'ARCHITECT_DRAFT', nodeId: payload.vfsNodeId, error: 'Architect produced no files.' };
     }
 
-    // -----------------------------------------------------------------
-    // STAGE 4: Librarian VFS Commit
-    // -----------------------------------------------------------------
-    console.log(`📚 STAGE 4: Librarian committing approved patch to VFS...`);
-    
-    const updatedNode = {
-      ...existingNode,
-      content: existingNode.content, // Placeholder for Architect output assignment
-      metadata: {
-        ...existingNode.metadata,
-        lastRefactoredBy: 'CLOSED_LOOP_ORCHESTRATOR',
-        triggerSource: payload.triggerSource,
-        lastInspection: inspection
-      }
-    };
+    // 4. Stage 3 & 4: Commit refactored nodes to VFS
+    console.log(`📚 STAGE 3/4: Librarian committing ${generatedFiles.length} nodes to VFS...`);
+    for (const file of generatedFiles) {
+      await persistVFSNode({
+        id: file.path,
+        path: file.path,
+        type: file.type,
+        content: file.content || '',
+        metadata: {
+          lastRefactoredBy: 'CLOSED_LOOP_ORCHESTRATOR',
+          triggerSource: payload.triggerSource,
+          inspectionSummary: inspection
+        }
+      });
+    }
 
-    // Committing node automatically triggers background vector-sync indexing
-    await persistVFSNode(updatedNode);
-
-    console.log(`✅ CLOSED_LOOP: Self-optimization cycle complete for [${existingNode.path}].`);
+    console.log(`✅ CLOSED_LOOP: Successfully refactored and updated VFS for [${existingNode.path}]`);
 
     return {
       success: true,
       stage: 'VFS_COMMIT',
       nodeId: payload.vfsNodeId,
-      inspectionSummary: inspection
+      inspectionSummary: inspection,
+      refactoredFiles: generatedFiles
     };
 
   } catch (error: any) {
-    console.error(`💥 CLOSED_LOOP_ERROR: Cycle failed at runtime.`, error.message);
+    console.error(`💥 CLOSED_LOOP_ERROR: Orchestration failed.`, error.message);
     return {
       success: false,
       stage: 'FAILED',
       nodeId: payload.vfsNodeId,
-      error: error.message || 'ORCHESTRATION_INTERRUPTED'
+      error: error.message || 'ORCHESTRATION_FAILED'
     };
   }
 }

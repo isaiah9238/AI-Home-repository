@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database, Archive, HardDrive } from 'lucide-react';
+import { Sparkles, Flame, Search, X, ArrowRight, Loader2, Globe, BookOpen, MessageSquareCode, Cake, GraduationCap, Zap, Book, Box, FileCode, Folder, Copy, Check, ShieldCheck, Beaker, Share2, History, Database, Archive, HardDrive } from 'lucide-react';
 import { runResearchMode, getCurriculumProgress, getMilestones, getSystemEvolution, runArchitect, getGems, getSavedBlueprints, getHomeBase } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { GemsDrawer } from './gems-drawer';
 import { LaboratoryDrawer } from './laboratory-drawer';
 import { NeuralGraph } from './neural-graph';
 import { VaultBackupDrawer } from './vault-backup-drawer';
+import { ProvocateurDashboard } from '@/components/provocateur-dashboard';
 import { StorageDrawer } from './storage-drawer';
 
 /**
@@ -387,6 +388,18 @@ export function PortalInterface() {
     );
   }
 
+  /* ADD THIS BLOCK HERE */
+  if (activeTool === 'Provocateur') {
+    return (
+      <div className="relative w-full h-full">
+        <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)} className="absolute top-8 right-8 z-50 text-white/30 hover:text-white">
+          <X className="w-6 h-6" />
+        </Button>
+        <ProvocateurDashboard />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500 p-8 overflow-y-auto custom-scrollbar">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
@@ -438,6 +451,21 @@ export function PortalInterface() {
           <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">STORAGE</h3>
           <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">VIRTUAL_FILE_SYSTEM</p>
           <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity"><Badge variant="outline" className="text-[8px] border-green-500/30 text-green-400/60 uppercase">BROWSE_VAULT</Badge></div>
+        </button>
+
+        {/* Provocateur Dashboard Tile */}
+        <button 
+          onClick={() => setActiveTool('Provocateur')} 
+          className="group flex flex-col items-center p-8 rounded-xl border border-white/5 bg-black/40 hover:bg-purple-500/5 hover:border-purple-500/20 transition-all duration-300 transform hover:-translate-y-2"
+        >
+          <div className="p-6 rounded-lg bg-purple-500/5 mb-6 group-hover:scale-110 group-hover:bg-purple-500/10 transition-all duration-500 border border-white/5 group-hover:border-purple-500/30">
+            <Flame className="w-10 h-10 text-purple-400 opacity-60 group-hover:opacity-100" />
+          </div>
+          <h3 className="text-sm font-mono font-medium text-white/80 mb-2 uppercase tracking-[0.4em]">PROVOCATEUR</h3>
+          <p className="text-[8px] text-white/20 text-center font-mono uppercase tracking-widest">STRESS_TEST_ENGINE</p>
+          <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Badge variant="outline" className="text-[8px] border-purple-500/30 text-purple-400/60 uppercase">PROVOCATE</Badge>
+          </div>
         </button>
 
         {/* Laboratory Drawer */}

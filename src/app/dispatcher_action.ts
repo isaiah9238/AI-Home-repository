@@ -1,24 +1,16 @@
-'use server'; // 🛡️ THE BULLETPROOF FIREWALL
+'use server';
 
-import { multiAgentDispatcher } from '@/ai/discovery/multi-agent-dispatcher';
-
-interface DispatchPayload {
-  request: string;
-  agenticContext?: string;
-  userProfile?: any;
-}
-
-/**
- * handleAutonomousDispatch
- * Isolated gateway server action that executes your multi-agent routing
- * entirely on the secure server layer, safely keeping Genkit out of the client bundle.
- */
-export async function handleAutonomousDispatch(payload: { request: string; agenticContext?: string; userProfile?: any }) {
+export async function handleClosedLoopExecution(payload: { vfsNodeId: string; refactorGoal?: string }) {
   try {
-    const response = await multiAgentDispatcher(payload);
-    return { success: true, data: response };
+    const { executeClosedLoopRefactor } = await import('@/ai/discovery/closed-loop-orchestrator');
+    const result = await executeClosedLoopRefactor({
+      vfsNodeId: payload.vfsNodeId,
+      triggerSource: 'MANUAL',
+      refactorGoal: payload.refactorGoal
+    });
+    return { success: true, data: result };
   } catch (error: any) {
-    console.error("GATEWAY_ERROR: Dispatch tracking failed.", error.message);
-    return { success: false, error: error.message || "SIGNAL_INTERRUPTED" };
+    console.error("GATEWAY_ERROR: Closed loop execution failed.", error.message);
+    return { success: false, error: error.message || "ORCHESTRATION_FAILED" };
   }
 }

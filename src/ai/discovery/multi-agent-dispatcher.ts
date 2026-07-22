@@ -1,5 +1,4 @@
-'use client';
-
+import 'server-only';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';

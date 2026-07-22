@@ -67,6 +67,7 @@
     "react-dom": "19.2.4",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
@@ -90,5 +91,13 @@
   },
   "engines": {
     "node": "22"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "@google/genai@2.9.0": true,
+    "protobufjs@7.6.4": true,
+    "@firebase/util@1.15.0": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.11.1": true
   }
 }

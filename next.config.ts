@@ -53,6 +53,7 @@ const nextConfig: NextConfig = {
       // 1. Core bare fallbacks
       config.resolve.fallback = {
         ...config.resolve.fallback,
+        async_hooks: false,
         fs: false,
         net: false,
         tls: false,

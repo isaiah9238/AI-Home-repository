@@ -1,6 +1,6 @@
 'use server';
 
-export async function handleClosedLoopExecution(payload: { vfsNodeId: string; refactorGoal?: string }) {
+export async function handleAutonomousDispatch(payload: { vfsNodeId: string; refactorGoal?: string }) {
   try {
     const { executeClosedLoopRefactor } = await import('@/ai/discovery/closed-loop-orchestrator');
     const result = await executeClosedLoopRefactor({

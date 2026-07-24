@@ -110,3 +110,21 @@ export async function getNodesByParent(userId: string, parentId: string | null =
 
   return snapshot.docs.map(doc => sanitizeNode(doc.id, doc.data()));
 }
+
+// 4. GET SINGLE NODE (By Document ID)
+export async function getVFSNode(nodeId: string): Promise<VFSNode | null> {
+  try {
+    const db = getAdminDb();
+    const docRef = db.collection(COLLECTION_NAME).doc(nodeId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    return sanitizeNode(doc.id, doc.data());
+  } catch (error) {
+    console.error(`🚨 VFS_READ_ERROR for node ${nodeId}:`, error);
+    return null;
+  }
+}

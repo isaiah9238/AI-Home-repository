@@ -49,10 +49,14 @@ import {
   postAgenticNote,
   createVFSDirectory,
   updateVFSNodeAction,
-  queryVFSSemanticContextAction
+  queryVFSSemanticContextAction,
+  addRecordCardAction, 
+  listRecordCardsAction, 
+  deleteRecordCardAction,
 } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { StorageRecordCard } from '@/app/types';
 
 interface VFSNode {
   id: string;
@@ -92,6 +96,44 @@ export function StorageDrawer() {
       setNodes(res.data as VFSNode[]);
     }
     setLoading(false);
+  };
+
+  const [cards, setCards] = useState<StorageRecordCard[]>([]);
+  const [newCardName, setNewCardName] = useState('');
+  const [newCardPath, setNewCardPath] = useState('');
+
+  const loadCabinetCards = async () => {
+    const res = await listRecordCardsAction();
+    if (res.success && res.data) {
+      setCards(res.data);
+    }
+  };
+
+  useEffect(() => {
+    loadCabinetCards();
+  }, []);
+
+  const handleCreateCard = async () => {
+    if (!newCardName.trim() || !newCardPath.trim()) return;
+    const res = await addRecordCardAction({
+      id: `card_${Date.now()}`,
+      name: newCardName,
+      filePath: newCardPath,
+    });
+    if (res.success) {
+      toast({ title: "RECORD_CARD_REGISTERED", description: `Indexed ${newCardName} in Cabinet.` });
+      setNewCardName('');
+      setNewCardPath('');
+      loadCabinetCards();
+    }
+  };
+
+  const handleDeleteCard = async (id: string) => {
+    const res = await deleteRecordCardAction(id);
+    if (res.success) {
+      toast({ title: "CARD_PURGED", description: "Record removed from Cabinet." });
+      loadCabinetCards();
+    }
   };
 
   const handleNavigate = (node: VFSNode) => {
@@ -235,7 +277,84 @@ export function StorageDrawer() {
           <TabsTrigger value="neural_memory" className="data-[state=active]:bg-transparent data-[state=active]:text-purple-400 text-[10px] uppercase tracking-[0.2em] p-0 h-full border-b-2 border-transparent data-[state=active]:border-purple-400 rounded-none gap-2"> 
             Neural_Search
           </TabsTrigger>
+          <TabsTrigger 
+            value="cabinet" 
+            className="data-[state=active]:bg-transparent data-[state=active]:text-emerald-400 text-[10px] uppercase tracking-[0.2em] p-0 h-full border-b-2 border-transparent data-[state=active]:border-emerald-400 rounded-none gap-2"
+          >
+            <HardDrive className="w-3.5 h-3.5 text-emerald-400" /> Record_Cabinet
+          </TabsTrigger>
         </TabsList>
+
+        {/* 🗄️ FILE REGISTRY CABINET TAB */}
+        <TabsContent value="cabinet" className="flex-1 m-0 overflow-hidden font-mono">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+    
+            {/* Left Panel: Storage Record Cards Index */}
+            <div className="lg:col-span-8 flex flex-col gap-4 overflow-hidden">
+              <ScrollArea className="flex-1">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-4">
+                  {cards.length === 0 ? (
+                    <div className="col-span-2 flex flex-col items-center justify-center py-20 border border-dashed border-emerald-500/10 rounded-xl opacity-30">
+                      <HardDrive className="w-12 h-12 text-emerald-400 mb-4" />
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-300">Cabinet Empty. Register Storage Record Cards.</p>
+                    </div>
+                  ) : (
+                    cards.map((card) => (
+                      <Card key={card.id} className="bg-black/40 border-emerald-500/20 hover:border-emerald-500/50 transition-all overflow-hidden">
+                        <CardHeader className="bg-emerald-950/30 py-3 px-4 border-b border-emerald-500/10 flex flex-row items-center justify-between">
+                         <span className="text-xs font-bold text-emerald-400 uppercase truncate">{card.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleDeleteCard(card.id)}
+                            className="h-6 w-6 text-white/20 hover:text-red-400"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-2 text-[10px] text-white/70">
+                          <div><b className="text-emerald-500/60 uppercase">Path:</b> <span className="text-white/80">{card.filePath}</span></div>
+                          <div><b className="text-emerald-500/60 uppercase">Registered:</b> {new Date(card.createdAt).toLocaleDateString()}</div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Right Panel: Manual Card Creator */}
+            <div className="lg:col-span-4 flex flex-col gap-4">
+              <Card className="bg-black/40 border-emerald-500/20 backdrop-blur-md p-6 space-y-4">
+                <CardTitle className="text-[10px] text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                  <Plus className="w-3.5 h-3.5" /> Register_Record_Card
+                </CardTitle>
+                <div className="space-y-3">
+                  <Input 
+                    placeholder="RECORD_NAME (e.g., CoreConfig)..."
+                    value={newCardName}
+                    onChange={(e) => setNewCardName(e.target.value)}
+                    className="bg-white/5 border-white/10 text-[10px] h-9"
+                  />
+                  <Input 
+                    placeholder="FILE_PATH (e.g., /src/lib/config.ts)..."
+                    value={newCardPath}
+                    onChange={(e) => setNewCardPath(e.target.value)}
+                    className="bg-white/5 border-white/10 text-[10px] h-9"
+                  />
+                  <Button 
+                    onClick={handleCreateCard}
+                    disabled={!newCardName.trim() || !newCardPath.trim()}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-[10px] uppercase tracking-widest h-9"
+                  >
+                    Index_Record_Card
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
+          </div>
+        </TabsContent>
 
         {/* 📁 STANDARD FILE SYSTEM CONTAINER */}
         <TabsContent value="explorer" className="flex-1 m-0 overflow-hidden">

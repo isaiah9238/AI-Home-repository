@@ -18,6 +18,8 @@ import { analyzePreviewIntent } from '@/ai/domains/research/analyze-preview-inte
 import { generateCodeVariations } from '@/ai/domains/research/variation-agent';
 import { type ResearchMode } from './types';
 import { syncVFSNodeVector } from '@/ai/storage/vector-sync';
+import { FileRegistryCabinet } from '@/ai/storage/FileRegistryCabinet';
+import { StorageRecordCard } from '@/app/types';
 
 // --- SERIALIZATION PROTOCOL ---
 
@@ -1140,5 +1142,43 @@ export async function queryVFSSemanticContextAction(
       success: false,
       error: error?.message || "INTERNAL_VECTOR_QUERY_FAILURE"
     };
+  }
+}
+
+export interface IFileRegistryCabinet {
+  addRecord(userId: string, card: Omit<StorageRecordCard, 'createdAt' | 'updatedAt'>): Promise<StorageRecordCard>;
+  getRecords(userId: string): Promise<StorageRecordCard[]>;
+  deleteRecord(id: string): Promise<boolean>;
+}
+
+const cabinet = new FileRegistryCabinet();
+
+export async function addRecordCardAction(card: { id: string; name: string; filePath: string; metadata?: any }) {
+  try {
+    const session = await verifyAuth();
+    const record = await cabinet.addRecord(session.user.id, card);
+    return deepSanitize({ success: true, data: record });
+  } catch (error: any) {
+    return deepSanitize({ success: false, error: error.message });
+  }
+}
+
+export async function listRecordCardsAction() {
+  try {
+    const session = await verifyAuth();
+    const records = await cabinet.getRecords(session.user.id);
+    return deepSanitize({ success: true, data: records });
+  } catch (error: any) {
+    return deepSanitize({ success: false, error: error.message, data: [] });
+  }
+}
+
+export async function deleteRecordCardAction(id: string) {
+  try {
+    await verifyAuth();
+    const success = await cabinet.deleteRecord(id);
+    return deepSanitize({ success });
+  } catch (error: any) {
+    return deepSanitize({ success: false, error: error.message });
   }
 }

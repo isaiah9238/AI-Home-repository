@@ -17,3 +17,13 @@ export type CodeAnalysisState = {
     suggestedFixes: string;
   } | null;
 };
+
+// --- FILE REGISTRY CABINET TYPES ---
+export interface StorageRecordCard {
+  id: string;
+  name: string;
+  filePath: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  metadata?: Record<string, any>;
+}``

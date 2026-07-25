@@ -3,6 +3,7 @@ import 'server-only';
 import { analyzeCodeSnippet } from '@/ai/domains/research/analyze-code-snippet';
 import { generateInitialFiles } from '@/ai/discovery/generate-initial-files';
 import { persistVFSNode, getVFSNode } from '@/ai/storage/virtual-file-system';
+import { checkWardenGuard } from '@/ai/domains/safety/warden-guard';
 
 export interface AutonomousRefactorPayload {
   vfsNodeId: string;
@@ -17,6 +18,7 @@ export interface OrchestrationResult {
   inspectionSummary?: any;
   refactoredFiles?: any[];
   error?: string;
+  reason?: string;
 }
 
 export async function executeClosedLoopRefactor(
@@ -25,10 +27,27 @@ export async function executeClosedLoopRefactor(
   console.log(`⚡ CLOSED_LOOP: Initializing refactor cycle for VFS Node: ${payload.vfsNodeId}`);
 
   try {
+    // Step 0: Warden Compute Guard Check
+    const wardenCheck = await checkWardenGuard("ClosedLoopOrchestrator", payload.vfsNodeId, 4500);
+    if (!wardenCheck.allowed) {
+      console.warn(`[The Warden] Refactor blocked: ${wardenCheck.reason}`);
+      return { 
+        success: false, 
+        stage: 'FAILED', 
+        nodeId: payload.vfsNodeId, 
+        error: wardenCheck.reason 
+      };
+    }
+
     // 1. Fetch Target Node
     const existingNode = await getVFSNode(payload.vfsNodeId);
     if (!existingNode) {
-      return { success: false, stage: 'FAILED', nodeId: payload.vfsNodeId, error: 'Target VFS Node not found.' };
+      return { 
+        success: false, 
+        stage: 'FAILED', 
+        nodeId: payload.vfsNodeId, 
+        error: 'Target VFS Node not found.' 
+      };
     }
 
     // 2. Stage 1: Code Inspector Audit
@@ -55,7 +74,12 @@ export async function executeClosedLoopRefactor(
     });
 
     if (!generatedFiles || generatedFiles.length === 0) {
-      return { success: false, stage: 'ARCHITECT_DRAFT', nodeId: payload.vfsNodeId, error: 'Architect produced no files.' };
+      return { 
+        success: false, 
+        stage: 'ARCHITECT_DRAFT', 
+        nodeId: payload.vfsNodeId, 
+        error: 'Architect produced no files.' 
+      };
     }
 
     // 4. Stage 3 & 4: Commit refactored nodes to VFS
@@ -67,6 +91,7 @@ export async function executeClosedLoopRefactor(
         type: file.type,
         content: file.content || '',
         metadata: {
+          adversary_active: false, // Automatically neutralized by the closed-loop orchestrator
           lastRefactoredBy: 'CLOSED_LOOP_ORCHESTRATOR',
           triggerSource: payload.triggerSource,
           inspectionSummary: inspection

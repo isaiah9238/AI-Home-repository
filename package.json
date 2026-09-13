@@ -54,7 +54,7 @@
     "dotenv": "^16.6.1",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.11.0",
-    "firebase-admin": "^13.7.0",
+    "firebase-admin": "^14.4.0",
     "firebase-functions": "^7.2.3",
     "genkit": "^1.37.0",
     "google-auth-library": "^10.6.2",
@@ -82,7 +82,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.1.7",
-    "genkit-cli": "^1.32.0",
+    "genkit-cli": "^1.32.2",
     "postcss": "^8.0.0",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.21.0",
@@ -100,4 +100,5 @@
     "sharp@0.34.5": true,
     "unrs-resolver@1.11.1": true
   }
++ "@pnpm/exe file:../../../../Temp/1a623b9f-cc16-4e23-af60-e7da5e029abf"
 }

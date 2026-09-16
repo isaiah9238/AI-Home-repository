@@ -7,7 +7,9 @@
   },
   "scripts": {
     "dev": "next dev",
-    "clean": ".next",
+    "build": "next build",
+    "start": "next start",
+    "clean": "rm -rf .next || /s /q .next",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -88,4 +90,5 @@
     "typescript": "5.9.3",
     "webpack": "^5.108.4",
     "pnpm":"12.4.1"
-}},
+  }
+}

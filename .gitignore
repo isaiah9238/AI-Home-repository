@@ -12,6 +12,7 @@ dist/
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+firebaseconfig.json
 
 # testing
 /coverage

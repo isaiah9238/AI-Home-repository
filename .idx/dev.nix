@@ -3,6 +3,7 @@
 
   packages = [
     pkgs.nodejs_22
+    pkgs.pnpm
     pkgs.psmisc
     ];
   
@@ -17,7 +18,7 @@
       enable = true;
       previews = {
         web = {
-        command = [ "npm" "run" "dev" "--" "-p" "$PORT" "-H" "0.0.0.0" ];
+        command = [ "pnpm" "run" "dev" "--" "-p" "$PORT" "-H" "0.0.0.0" ];
         manager = "web";
         };
       };
@@ -25,7 +26,7 @@
 
     workspace = {
       onCreate = {
-        npm-install = "npm install";
+        pnpm-install = "pnpm install";
       };
       onStart = {};
     };

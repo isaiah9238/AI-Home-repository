@@ -4,11 +4,22 @@ import webpack from 'webpack';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
+  // Keeps server runtimes out of Webpack client/server bundle passes
+  serverExternalPackages: [
+    'genkit',
+    '@genkit-ai/core',
+    '@genkit-ai/google-genai',
+    '@genkit-ai/firebase',
+    '@genkit-ai/next',
+    'express',
+    'firebase-admin',
+    '@google-cloud/secret-manager',
+  ],
   images: {
     remotePatterns: [
       {
@@ -43,7 +54,7 @@ const nextConfig: NextConfig = {
         '*.google.com',
         '*.googleusercontent.com',
         '*.firebase-studio.google',
-        '*.studio.firebase.google.com'
+        '*.studio.firebase.google.com',
       ],
     },
   },
@@ -70,28 +81,27 @@ const nextConfig: NextConfig = {
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /^node:/,
-          (resource) => {
+          (resource: { request: string }) => {
             resource.request = resource.request.replace(/^node:/, '');
-            // Redirect to an empty module or false fallback if it shouldn't exist in browser
             const fallbackMap: Record<string, boolean> = {
-              'async_hooks': false,
-              'buffer': false,
-              'crypto': false,
-              'events': false,
-              'fs': false,
-              'net': false,
-              'tls': false,
-              'dgram': false,
-              'http2': false,
-              'dns': false,
+              async_hooks: false,
+              buffer: false,
+              crypto: false,
+              events: false,
+              fs: false,
+              net: false,
+              tls: false,
+              dgram: false,
+              http2: false,
+              dns: false,
             };
             if (fallbackMap[resource.request] === false) {
-              resource.request = 'empty-module'; // Webpack internal alias for empty
+              resource.request = 'empty-module';
             }
           }
         )
       );
-      
+
       // Provide an empty module declaration helper
       config.resolve.alias = {
         ...config.resolve.alias,

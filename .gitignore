@@ -5,6 +5,7 @@
 **/node_modules/
 dist/
 /.pnp
+.npmrc
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -61,4 +62,4 @@ keys.json
 .vs/
 *.user
 *.suo
-*.json.user
+*.json.userd
